@@ -1,3 +1,8 @@
+@file:OptIn(ExperimentalEncodingApi::class)
+
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -7,12 +12,12 @@ plugins {
 
 android {
     namespace = "cc.sovellus.vrcaa"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "cc.sovellus.vrcaa"
         minSdk = 27
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 200604
         versionName = "2.6.4"
 
@@ -29,6 +34,25 @@ android {
         buildConfigField("String", "KOFI_URL", "\"https://ko-fi.com/Nyabsi\"")
     }
 
+    signingConfigs {
+        create("release") {
+            val keystore = System.getenv("SIGNING_KEY")
+            if (keystore != null) {
+                val keystoreFile = file("temp.keystore")
+                try {
+                    val decodedBytes = Base64.decode(keystore)
+                    keystoreFile.writeBytes(decodedBytes)
+                    storeFile = keystoreFile
+                } catch (_: Throwable) {
+                    println("Error decoding base64 keystore")
+                }
+            }
+            storePassword = System.getenv("KEY_STORE_PASSWORD")
+            keyAlias = System.getenv("ALIAS")
+            keyPassword = System.getenv("KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -37,6 +61,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
