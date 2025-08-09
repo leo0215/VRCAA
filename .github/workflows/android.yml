@@ -30,7 +30,7 @@ jobs:
 
     - name: Rename built apk
       run: |
-        mv app/build/outputs/apk/${{ matrix.platform }}/release/app-${{ matrix.platform }}-release.apk app/build/outputs/apk/${{ matrix.platform }}/release/VRCAA-${{ matrix.platform }}.apk
+        mv app/${{ matrix.platform }}/release/app-${{ matrix.platform }}-release.apk app/${{ matrix.platform }}/release/VRCAA-${{ matrix.platform }}.apk
 
     - name: Setup build tool version variable
       shell: bash
@@ -43,7 +43,7 @@ jobs:
       uses: noriban/sign-android-release@v5.1
       id: signed_apk
       with:
-        releaseDirectory: app/build/outputs/apk/${{ matrix.platform }}/release
+        releaseDirectory: app/${{ matrix.platform }}/release/
         signingKeyBase64: ${{ secrets.SIGNING_KEY }}
         alias: ${{ secrets.ALIAS }}
         keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
