@@ -36,20 +36,19 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystore = System.getenv("SIGNING_KEY")
-            if (keystore != null) {
-                val keystoreFile = file("temp.keystore")
-                try {
-                    val decodedBytes = Base64.decode(keystore)
-                    keystoreFile.writeBytes(decodedBytes)
-                    storeFile = keystoreFile
-                } catch (_: Throwable) {
-                    println("Error decoding base64 keystore")
-                }
+            val storeFileEnv = System.getenv("SIGNING_STORE_FILE")
+            val storePasswordEnv = System.getenv("SIGNING_STORE_PASSWORD")
+            val keyAliasEnv = System.getenv("SIGNING_KEY_ALIAS")
+            val keyPasswordEnv = System.getenv("SIGNING_KEY_PASSWORD")
+
+            if (storeFileEnv != null && File(storeFileEnv).exists()) {
+                storeFile = file(storeFileEnv)
+                storePassword = storePasswordEnv
+                keyAlias = keyAliasEnv
+                keyPassword = keyPasswordEnv
+            } else {
+                println("Warning: Release signing configuration not fully set up from environment variables.")
             }
-            storePassword = System.getenv("KEY_STORE_PASSWORD")
-            keyAlias = System.getenv("ALIAS")
-            keyPassword = System.getenv("KEY_PASSWORD")
         }
     }
 
