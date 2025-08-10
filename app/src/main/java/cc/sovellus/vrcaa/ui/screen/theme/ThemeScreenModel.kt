@@ -21,12 +21,15 @@ import android.content.SharedPreferences
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import cafe.adriel.voyager.core.model.ScreenModel
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.extension.columnCountOption
 import cc.sovellus.vrcaa.extension.currentThemeOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
 import cc.sovellus.vrcaa.extension.minimalistMode
+import cc.sovellus.vrcaa.extension.primaryColorOverride
+import cc.sovellus.vrcaa.extension.secondaryColorOverride
 
 class ThemeScreenModel : ScreenModel {
     val preferences: SharedPreferences = App.getContext().getSharedPreferences(App.PREFERENCES_NAME, MODE_PRIVATE)
@@ -34,4 +37,12 @@ class ThemeScreenModel : ScreenModel {
     var currentIndex = mutableIntStateOf(preferences.currentThemeOption)
     var currentColumnIndex = mutableIntStateOf(preferences.columnCountOption)
     var currentColumnAmount = mutableFloatStateOf(preferences.fixedColumnSize.toFloat())
+    
+    // 自定義顏色設定
+    var primaryColor = mutableStateOf(
+        preferences.primaryColorOverride.takeIf { it != -1 }?.let { Color(it) } ?: Color(0xFF6750A4)
+    )
+    var secondaryColor = mutableStateOf(
+        preferences.secondaryColorOverride.takeIf { it != -1 }?.let { Color(it) } ?: Color(0xFF625B71)
+    )
 }

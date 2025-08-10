@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Cabin
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MultiChoiceSegmentedButtonRow
@@ -70,6 +71,7 @@ class UserFavoritesScreen(
 
     override val key = uniqueScreenKey
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun Content() {
         val model = rememberScreenModel { UserFavoritesScreenModel(userId) }

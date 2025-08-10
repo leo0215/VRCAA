@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -49,21 +50,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.StickyNote2
-import androidx.compose.material.icons.filled.Backpack
-import androidx.compose.material.icons.filled.Cabin
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.EmojiEmotions
-import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Photo
-import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.filled.Print
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Cabin
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.People
@@ -77,8 +68,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -99,11 +88,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -122,6 +109,7 @@ import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.TabDisposable
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cc.sovellus.vrcaa.App
+import cc.sovellus.vrcaa.BuildConfig
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.activity.MainActivity
 import cc.sovellus.vrcaa.helper.StatusHelper
@@ -132,17 +120,8 @@ import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.ui.components.card.QuickMenuCard
 import cc.sovellus.vrcaa.ui.components.dialog.NoInternetDialog
 import cc.sovellus.vrcaa.ui.components.input.ComboInput
-import cc.sovellus.vrcaa.ui.screen.avatars.AvatarsScreen
-import cc.sovellus.vrcaa.ui.screen.emojis.EmojisScreen
 import cc.sovellus.vrcaa.ui.screen.feed.FeedList
-import cc.sovellus.vrcaa.ui.screen.gallery.GalleryScreen
-import cc.sovellus.vrcaa.ui.screen.gallery.IconGalleryScreen
-import cc.sovellus.vrcaa.ui.screen.group.UserGroupsScreen
-import cc.sovellus.vrcaa.ui.screen.items.ItemsScreen
-import cc.sovellus.vrcaa.ui.screen.prints.PrintsScreen
 import cc.sovellus.vrcaa.ui.screen.search.SearchResultScreen
-import cc.sovellus.vrcaa.ui.screen.stickers.StickersScreen
-import cc.sovellus.vrcaa.ui.screen.worlds.WorldsScreen
 import cc.sovellus.vrcaa.ui.tabs.FavoritesTab
 import cc.sovellus.vrcaa.ui.tabs.FeedTab
 import cc.sovellus.vrcaa.ui.tabs.FriendsTab
@@ -150,6 +129,8 @@ import cc.sovellus.vrcaa.ui.tabs.HomeTab
 import cc.sovellus.vrcaa.ui.tabs.ProfileTab
 import cc.sovellus.vrcaa.ui.tabs.SettingsTab
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import kotlinx.coroutines.launch
 
 class NavigationScreen : Screen {
@@ -238,7 +219,7 @@ class NavigationScreen : Screen {
                         },
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }
-                    ).blur(if (isQuickMenuExpanded) { 100.dp } else { 0.dp }),
+                    ),
                     topBar = {
                     when (tabNavigator.current.options.index) {
                         HomeTab.options.index -> {
@@ -248,6 +229,7 @@ class NavigationScreen : Screen {
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 SearchBar(
+                                    modifier = Modifier.widthIn(max = 1080.dp),
                                     inputField = {
                                         InputField(
                                             query = model.searchText.value,
@@ -281,28 +263,62 @@ class NavigationScreen : Screen {
                                                         )
                                                     }
                                                 } else {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.Search,
-                                                        contentDescription = null
-                                                    )
-                                                }
-                                            },
-                                            trailingIcon = {
-                                                if (model.searchModeActivated.value) {
-                                                    IconButton(onClick = { model.clearSearchText() }) {
+                                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
                                                         Icon(
-                                                            imageVector = Icons.Filled.Close,
+                                                            imageVector = Icons.Filled.Menu,
                                                             contentDescription = null
                                                         )
                                                     }
-                                                } else {
-                                                    IconButton(onClick = {
-                                                        showSettingsSheet = true
-                                                    }) {
-                                                        Icon(
-                                                            imageVector = Icons.Filled.MoreVert,
-                                                            contentDescription = null
-                                                        )
+                                                }
+                                            },
+                                            trailingIcon = {
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
+                                                    if (model.searchModeActivated.value) {
+                                                        IconButton(onClick = { model.clearSearchText() }) {
+                                                            Icon(
+                                                                imageVector = Icons.Filled.Close,
+                                                                contentDescription = null
+                                                            )
+                                                        }
+                                                    } else {
+                                                        IconButton(onClick = { showSettingsSheet = true }) {
+                                                            Icon(
+                                                                imageVector = Icons.Filled.MoreVert,
+                                                                contentDescription = null
+                                                            )
+                                                        }
+                                                    }
+                                                    if (!model.searchModeActivated.value) {
+                                                        val profile = CacheManager.getProfile()
+                                                        if (model.cacheBuilt.value && profile != null) {
+                                                            val avatarUrl = profile.userIcon.ifEmpty {
+                                                                profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl }
+                                                            }
+                                                            GlideImage(
+                                                                model = avatarUrl,
+                                                                contentDescription = null,
+                                                                modifier = Modifier
+                                                                    .size(48.dp)
+                                                                    .clip(CircleShape)
+                                                                    .clickable { tabNavigator.current = ProfileTab },
+                                                                loading = placeholder(R.drawable.image_placeholder),
+                                                                failure = placeholder(R.drawable.image_placeholder)
+                                                            )
+                                                        } else if (profile != null) {
+                                                            GlideImage(
+                                                                model = profile.userIcon,
+                                                                contentDescription = null,
+                                                                modifier = Modifier
+                                                                    .size(48.dp)
+                                                                    .clip(CircleShape)
+                                                                    .clickable { tabNavigator.current = ProfileTab },
+                                                                loading = placeholder(R.drawable.image_placeholder),
+                                                                failure = placeholder(R.drawable.image_placeholder)
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             })
@@ -357,6 +373,14 @@ class NavigationScreen : Screen {
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
+                                },
+                                navigationIcon = {
+                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Menu,
+                                            contentDescription = null
+                                        )
+                                    }
                                 }
                             )
                         }
@@ -382,45 +406,56 @@ class NavigationScreen : Screen {
                         }
 
                         FavoritesTab.options.index -> {
-                            TopAppBar(actions = {
-                                IconButton(onClick = { isMenuExpanded = true }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.MoreVert,
-                                        contentDescription = null
+                            TopAppBar(
+                                title = {
+                                    Text(
+                                        text = stringResource(id = R.string.tabs_label_favorites),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
-                                    Box(
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        DropdownMenu(
-                                            expanded = isMenuExpanded,
-                                            onDismissRequest = { isMenuExpanded = false },
-                                            offset = DpOffset(0.dp, 0.dp)
+                                },
+                                navigationIcon = {
+                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Menu,
+                                            contentDescription = null
+                                        )
+                                    }
+                                },
+                                actions = {
+                                    IconButton(onClick = { isMenuExpanded = true }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.MoreVert,
+                                            contentDescription = null
+                                        )
+                                        Box(
+                                            contentAlignment = Alignment.Center
                                         ) {
-                                            DropdownMenuItem(
-                                                onClick = {
-                                                    scope.launch {
-                                                        FavoriteManager.refresh()
-                                                    }
+                                            DropdownMenu(
+                                                expanded = isMenuExpanded,
+                                                onDismissRequest = { isMenuExpanded = false },
+                                                offset = DpOffset(0.dp, 0.dp)
+                                            ) {
+                                                DropdownMenuItem(
+                                                    onClick = {
+                                                        scope.launch {
+                                                            FavoriteManager.refresh()
+                                                        }
 
-                                                    Toast.makeText(
-                                                        context,
-                                                        context.getString(R.string.favorite_toast_refreshed_favorites),
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
+                                                        Toast.makeText(
+                                                            context,
+                                                            context.getString(R.string.favorite_toast_refreshed_favorites),
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
 
-                                                    isMenuExpanded = false
-                                                },
-                                                text = { Text(stringResource(R.string.favorite_tab_refresh_favorites)) })
+                                                        isMenuExpanded = false
+                                                    },
+                                                    text = { Text(stringResource(R.string.favorite_tab_refresh_favorites)) })
+                                            }
                                         }
                                     }
                                 }
-                            }, title = {
-                                Text(
-                                    text = stringResource(id = R.string.tabs_label_favorites),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            })
+                            )
                         }
 
                         FeedTab.options.index -> {
@@ -430,6 +465,7 @@ class NavigationScreen : Screen {
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 SearchBar(
+                                    modifier = Modifier.widthIn(max = 720.dp),
                                     inputField = {
                                         InputField(
                                             enabled = true,
@@ -453,10 +489,48 @@ class NavigationScreen : Screen {
                                                         )
                                                     }
                                                 } else {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.Search,
-                                                        contentDescription = null
-                                                    )
+                                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.Menu,
+                                                            contentDescription = null
+                                                        )
+                                                    }
+                                                }
+                                            },
+                                            trailingIcon = {
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
+                                                    if (!model.showFilteredFeed.value) {
+                                                        val profile = CacheManager.getProfile()
+                                                        if (model.cacheBuilt.value && profile != null) {
+                                                            val avatarUrl = profile.userIcon.ifEmpty {
+                                                                profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl }
+                                                            }
+                                                            GlideImage(
+                                                                model = avatarUrl,
+                                                                contentDescription = null,
+                                                                modifier = Modifier
+                                                                    .size(48.dp)
+                                                                    .clip(CircleShape)
+                                                                    .clickable { tabNavigator.current = ProfileTab },
+                                                                loading = placeholder(R.drawable.image_placeholder),
+                                                                failure = placeholder(R.drawable.image_placeholder)
+                                                            )
+                                                        } else if (profile != null) {
+                                                            GlideImage(
+                                                                model = profile.userIcon,
+                                                                contentDescription = null,
+                                                                modifier = Modifier
+                                                                    .size(48.dp)
+                                                                    .clip(CircleShape)
+                                                                    .clickable { tabNavigator.current = ProfileTab },
+                                                                loading = placeholder(R.drawable.image_placeholder),
+                                                                failure = placeholder(R.drawable.image_placeholder)
+                                                            )
+                                                        }
+                                                    }
                                                 }
                                             },
                                             onSearch = {
@@ -485,13 +559,23 @@ class NavigationScreen : Screen {
                         }
 
                         SettingsTab.options.index -> {
-                            TopAppBar(title = {
-                                Text(
-                                    text = stringResource(id = R.string.tabs_label_settings),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            })
+                            TopAppBar(
+                                title = {
+                                    Text(
+                                        text = stringResource(id = R.string.tabs_label_settings),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                navigationIcon = {
+                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Menu,
+                                            contentDescription = null
+                                        )
+                                    }
+                                }
+                            )
                         }
                     }
                 }, content = { padding ->
@@ -961,33 +1045,7 @@ class NavigationScreen : Screen {
                     }
                 },
                     bottomBar = {
-                    if (!model.searchModeActivated.value && !model.showFilteredFeed.value) {
-                        NavigationBar {
-                            tabs.forEach { tab ->
-                                NavigationBarItem(selected = tabNavigator.current.key == tab.key,
-                                    onClick = {
-                                        pressBackCounter = 0
-                                        tabNavigator.current = tab
-                                    },
-                                    icon = {
-                                        Icon(
-                                            painter = tab.options.icon!!,
-                                            contentDescription = tab.options.title
-                                        )
-                                    },
-                                    label = {
-                                        if (!App.isMinimalistModeEnabled()) {
-                                            Text(
-                                                text = tab.options.title,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    }
+                    // 移除底部導航列，改為側邊選單
                 })
 
                 AnimatedVisibility(
@@ -996,140 +1054,145 @@ class NavigationScreen : Screen {
                     exit = slideOutHorizontally(targetOffsetX = { -it }) + fadeOut(),
                     modifier = Modifier.systemBarsPadding().navigationBarsPadding()
                 ) {
-                    Surface(
+                    // 變暗覆蓋層
+                    Box(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .clip(
-                                RoundedCornerShape(
-                                    topStart = 0.dp,
-                                    bottomStart = 0.dp,
-                                    topEnd = 10.dp,
-                                    bottomEnd = 10.dp
-                                )
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.5f))
+                            .clickable(
+                                onClick = { isQuickMenuExpanded = false },
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() }
                             )
-                            .fillMaxWidth(0.7f)
-                            .background(MaterialTheme.colorScheme.surfaceContainer)
-                            .zIndex(1f),
-                        shadowElevation = 8.dp
                     ) {
-                        LazyColumn {
-                            item {
-                                CacheManager.getProfile()?.let {
-                                    Box(modifier = Modifier.fillMaxWidth()) {
-                                        QuickMenuCard(
-                                            thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
-                                            iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
-                                            displayName = it.displayName,
-                                            statusDescription = it.statusDescription.ifEmpty {  StatusHelper.getStatusFromString(it.status).toString() },
-                                            trustRankColor = TrustHelper.getTrustRankFromTags(it.tags).toColor(),
-                                            statusColor = StatusHelper.getStatusFromString(it.status).toColor(),
-                                            tags = it.tags,
-                                            badges = it.badges
-                                        )
-
-                                        Box(
-                                            modifier = Modifier
-                                                .align(Alignment.TopEnd)
-                                                .padding(4.dp)
-                                                .background(Color.Black.copy(alpha = 0.6f), shape = CircleShape)
-                                        ) {
-                                            IconButton(
-                                                onClick = {
-                                                    isQuickMenuExpanded = false
-                                                    showProfileSheet = true
-                                                },
-                                                modifier = Modifier.size(36.dp)
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Edit,
-                                                    contentDescription = null,
-                                                    tint = Color.White
+                        // 側邊選單
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .clip(
+                                    RoundedCornerShape(
+                                        topStart = 0.dp,
+                                        bottomStart = 0.dp,
+                                        topEnd = 16.dp,
+                                        bottomEnd = 16.dp
+                                    )
+                                )
+                                .fillMaxWidth(0.9f)
+                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                                .zIndex(1f)
+                                .clickable(
+                                    onClick = { /* 防止事件冒泡 */ },
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() }
+                                ),
+                            shadowElevation = 8.dp
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                LazyColumn(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    item {
+                                        CacheManager.getProfile()?.let {
+                                            Box(modifier = Modifier.fillMaxWidth()) {
+                                                QuickMenuCard(
+                                                    thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
+                                                    iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
+                                                    displayName = it.displayName,
+                                                    statusDescription = it.statusDescription.ifEmpty {  StatusHelper.getStatusFromString(it.status).toString() },
+                                                    trustRankColor = TrustHelper.getTrustRankFromTags(it.tags).toColor(),
+                                                    statusColor = StatusHelper.getStatusFromString(it.status).toColor(),
+                                                    tags = it.tags,
+                                                    badges = it.badges
                                                 )
+
+                                                Box(
+                                                    modifier = Modifier
+                                                        .align(Alignment.TopEnd)
+                                                        .padding(4.dp)
+                                                        .background(Color.Black.copy(alpha = 0.6f), shape = CircleShape)
+                                                ) {
+                                                    IconButton(
+                                                        onClick = {
+                                                            isQuickMenuExpanded = false
+                                                            showProfileSheet = true
+                                                        },
+                                                        modifier = Modifier.size(36.dp)
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.Edit,
+                                                            contentDescription = null,
+                                                            tint = Color.White
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    item {
+                                        Column(modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 16.dp)) {
+
+                                            tabs.forEach { tab ->
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(vertical = 4.dp, horizontal = 4.dp)
+                                                        .clip(RoundedCornerShape(80))
+                                                        .background(
+                                                            if (tabNavigator.current.key == tab.key) {
+                                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                                            } else {
+                                                                Color.Transparent
+                                                            }
+                                                        )
+                                                        .clickable(onClick = {
+                                                            pressBackCounter = 0
+                                                            tabNavigator.current = tab
+                                                            isQuickMenuExpanded = false
+                                                        }).padding(vertical = 16.dp, horizontal = 16.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(
+                                                        painter = tab.options.icon!!,
+                                                        contentDescription = tab.options.title,
+                                                        tint = if (tabNavigator.current.key == tab.key) {
+                                                            MaterialTheme.colorScheme.primary
+                                                        } else {
+                                                            MaterialTheme.colorScheme.onSurface
+                                                        }
+                                                    )
+
+                                                    Text(
+                                                        text = tab.options.title,
+                                                        maxLines = 1,
+                                                        overflow = TextOverflow.Ellipsis,
+                                                        modifier = Modifier.padding(start = 16.dp),
+                                                        color = if (tabNavigator.current.key == tab.key) {
+                                                            MaterialTheme.colorScheme.primary
+                                                        } else {
+                                                            MaterialTheme.colorScheme.onSurface
+                                                        }
+                                                    )
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
-
-                            item {
-                                Column(modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 16.dp)) {
-
-                                    val options = stringArrayResource(R.array.inventory_selection_options)
-                                    val icons = listOf(Icons.Default.PhotoLibrary, Icons.Default.Photo, Icons.Default.Cabin, Icons.Filled.Person, Icons.Default.Group, Icons.Default.EmojiEmotions, Icons.AutoMirrored.Filled.StickyNote2, Icons.Default.Print, Icons.Default.Backpack)
-
-                                    options.forEachIndexed { index, label ->
-
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(vertical = 4.dp, horizontal = 4.dp)
-                                                .clip(RoundedCornerShape(80))
-                                                .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f))
-                                                .clickable(onClick = {
-                                                    when (index) {
-                                                        0 -> {
-                                                            CacheManager.getProfile()?.let {
-                                                                navigator.push(GalleryScreen())
-                                                            }
-                                                        }
-                                                        1 -> {
-                                                            CacheManager.getProfile()?.let {
-                                                                navigator.push(IconGalleryScreen())
-                                                            }
-                                                        }
-                                                        2 -> {
-                                                            CacheManager.getProfile()?.let {
-                                                                navigator.push(WorldsScreen(it.displayName, it.id, true))
-                                                            }
-                                                        }
-                                                        3 -> {
-                                                            CacheManager.getProfile()?.let {
-                                                                navigator.push(AvatarsScreen())
-                                                            }
-                                                        }
-                                                        4 -> {
-                                                            CacheManager.getProfile()?.let {
-                                                                navigator.push(UserGroupsScreen(it.displayName, it.id))
-                                                            }
-                                                        }
-                                                        5 -> {
-                                                            CacheManager.getProfile()?.let {
-                                                                navigator.push(EmojisScreen())
-                                                            }
-                                                        }
-                                                        6 -> {
-                                                            CacheManager.getProfile()?.let {
-                                                                navigator.push(StickersScreen())
-                                                            }
-                                                        }
-                                                        7 -> {
-                                                            CacheManager.getProfile()?.let {
-                                                                navigator.push(PrintsScreen(it.id))
-                                                            }
-                                                        }
-                                                        8 -> {
-                                                            CacheManager.getProfile()?.let {
-                                                                navigator.push(ItemsScreen())
-                                                            }
-                                                        }
-                                                    }
-                                                    isQuickMenuExpanded = false
-                                                }).padding(vertical = 16.dp, horizontal = 16.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(
-                                                imageVector = icons[index],
-                                                contentDescription = null
-                                            )
-
-                                            Text(
-                                                text = label,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis,
-                                                modifier = Modifier.padding(start = 4.dp)
-                                            )
-                                        }
-                                    }
+                                
+                                // 版本號在底部
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = "VRCAA Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 }
                             }
                         }

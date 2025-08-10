@@ -115,3 +115,12 @@ internal var SharedPreferences.columnCountOption: Int
 internal var SharedPreferences.fixedColumnSize: Int
     get() = getInt("fixedColumnSize", 2)
     set(it) = edit { putInt("fixedColumnSize", it) }
+
+// Color overrides for theming. Store as Android ARGB Int. Use -1 to represent "not set".
+internal var SharedPreferences.primaryColorOverride: Int
+    get() = getInt("primaryColorOverride", -1)
+    set(value) = edit { putInt("primaryColorOverride", value) }
+
+internal var SharedPreferences.secondaryColorOverride: Int
+    get() = getInt("secondaryColorOverride", -1)
+    set(value) = edit { putInt("secondaryColorOverride", value) }

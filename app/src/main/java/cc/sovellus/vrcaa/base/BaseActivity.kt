@@ -30,9 +30,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.extension.currentThemeOption
+import cc.sovellus.vrcaa.extension.primaryColorOverride
+import cc.sovellus.vrcaa.extension.secondaryColorOverride
 import cc.sovellus.vrcaa.manager.ThemeManager
 import cc.sovellus.vrcaa.ui.theme.LocalTheme
 import cc.sovellus.vrcaa.ui.theme.Theme
+import androidx.compose.ui.graphics.Color
 
 open class BaseActivity : ComponentActivity() {
 
@@ -56,7 +59,9 @@ open class BaseActivity : ComponentActivity() {
 
         setContent {
             CompositionLocalProvider(LocalTheme provides currentTheme.intValue) {
-                Theme(LocalTheme.current) {
+                val primaryOverride = preferences.primaryColorOverride.takeIf { it != -1 }?.let { Color(it) }
+                val secondaryOverride = preferences.secondaryColorOverride.takeIf { it != -1 }?.let { Color(it) }
+                Theme(LocalTheme.current, primaryOverride, secondaryOverride) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background

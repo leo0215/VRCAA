@@ -35,6 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Icon
 
 @Composable
 fun DisclaimerDialog(
@@ -63,12 +66,14 @@ fun DisclaimerDialog(
                         modifier = Modifier.weight(0.20f),
                         checked = consentOfWithdrawal.value,
                         onCheckedChange = { toggle -> consentOfWithdrawal.value = toggle },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = MaterialTheme.colorScheme.primary,
-                            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                            uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                            uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                        )
+                        thumbContent = {
+                            if (consentOfWithdrawal.value) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = "Checked"
+                                )
+                            }
+                        }
                     )
                 }
             }

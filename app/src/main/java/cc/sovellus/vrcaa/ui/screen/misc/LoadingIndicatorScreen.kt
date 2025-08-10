@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,7 +39,7 @@ import cc.sovellus.vrcaa.ui.components.misc.Logo
 class LoadingIndicatorScreen : Screen {
 
     override val key = uniqueScreenKey
-
+    @ExperimentalMaterial3ExpressiveApi
     @Composable
     override fun Content() {
         Column(
@@ -49,7 +51,7 @@ class LoadingIndicatorScreen : Screen {
         ) {
             Logo(size = 256.dp)
 
-            LinearProgressIndicator(
+            LinearWavyProgressIndicator(
                 modifier = Modifier.width(256.dp),
                 color = MaterialTheme.colorScheme.secondary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant,

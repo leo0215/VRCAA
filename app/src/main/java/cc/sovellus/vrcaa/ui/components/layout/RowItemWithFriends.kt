@@ -31,8 +31,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -62,10 +61,7 @@ fun RowItemWithFriends(
 ) {
     val window = LocalWindowInfo.current
 
-    ElevatedCard(
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        ),
+    Card(
         modifier = Modifier
             .heightIn(100.dp, window.containerSize.height.dp.coerceAtMost(175.dp).coerceAtLeast(100.dp))
             .widthIn(133.dp, window.containerSize.width.dp.coerceAtMost(233.dp).coerceAtLeast(133.dp))
