@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Card
@@ -45,7 +47,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cc.sovellus.vrcaa.R
-import cc.sovellus.vrcaa.api.vrchat.http.models.Badge
+import cc.sovellus.vrcaa.api.vrchat.http.models.Badge as UserBadge
 import cc.sovellus.vrcaa.ui.components.misc.Languages
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -61,11 +63,12 @@ fun ProfileCard(
     trustRankColor: Color,
     statusColor: Color,
     tags: List<String>,
-    badges: List<Badge>,
+    badges: List<UserBadge>,
     pronouns: String,
     ageVerificationStatus: String,
     disablePeek: Boolean = true,
-    onPeek: (url: String) -> Unit
+    onPeek: (url: String) -> Unit,
+    onBadgeClick: (UserBadge) -> Unit = { }
 ) {
     Card(
         modifier = Modifier
@@ -177,13 +180,15 @@ fun ProfileCard(
                         }
                     }
 
-                    Row(
+                    LazyRow(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(end = 4.dp),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        Languages(languages = tags, modifier = Modifier.padding(top = 8.dp))
+                        item {
+                            Languages(languages = tags, modifier = Modifier.padding(top = 8.dp))
+                        }
                     }
                 }
             }
@@ -206,16 +211,22 @@ fun ProfileCard(
                         )
                     }
 
-                    Row(
+                    LazyRow(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(end = 8.dp),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        for (badge in badges) {
-                            GlideImage(model = badge.badgeImageUrl, contentDescription = null, modifier = Modifier
-                                .size(28.dp)
-                                .padding(2.dp), alpha = if (badge.showcased) { 1.0f } else { 0.5f })
+                        items(badges) { badge ->
+                            GlideImage(
+                                model = badge.badgeImageUrl,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .padding(horizontal = 4.dp)
+                                    .clickable { onBadgeClick(badge) },
+                                alpha = if (badge.showcased) 1.0f else 0.5f
+                            )
                         }
                     }
                 }

@@ -38,9 +38,6 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Web
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ButtonGroupDefaults
-import androidx.compose.material3.ToggleButton
-import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MultiChoiceSegmentedButtonRow
@@ -65,6 +62,7 @@ import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
 import cc.sovellus.vrcaa.helper.StatusHelper
 import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.ui.components.layout.FriendItem
+import cc.sovellus.vrcaa.ui.components.controls.SelectionChipsRow
 import cc.sovellus.vrcaa.ui.screen.friends.FriendsScreenModel.FriendsState
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
@@ -109,34 +107,15 @@ class FriendsScreen : Screen {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                Modifier
+            SelectionChipsRow(
+                options = options.toList(),
+                selectedIndex = model.currentIndex.intValue,
+                onSelect = { model.currentIndex.intValue = it },
+                icons = icons,
+                modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
-            ) {
-                val modifiers = List(options.size) { Modifier.weight(1f) }
-                options.forEachIndexed { index, label ->
-                    val selected = index == model.currentIndex.intValue
-                    ToggleButton(
-                        checked = selected,
-                        onCheckedChange = { model.currentIndex.intValue = index },
-                        modifier = modifiers[index],
-                        shapes = when (index) {
-                            0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                            options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                            else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                        },
-                    ) {
-                        Icon(
-                            imageVector = if (selected) Icons.Filled.Check else icons[index],
-                            contentDescription = null,
-                        )
-                        Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
-                        Text(text = label, softWrap = true, maxLines = 1)
-                    }
-                }
-            }
+                    .padding(horizontal = 16.dp)
+            )
 
             when (model.currentIndex.intValue) {
                 0 -> ShowFriendsFavorite(friends)

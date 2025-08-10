@@ -139,8 +139,8 @@ fun QuickMenuCard(
                 }
             }
             item {
-                Row(
-                    modifier = Modifier.padding(start = 12.dp, top = 50.dp),
+                    Row(
+                        modifier = Modifier.padding(start = 12.dp, top = 50.dp),
                     horizontalArrangement = Arrangement.Start
                 ) {
                     Row(
@@ -156,23 +156,7 @@ fun QuickMenuCard(
                             maxLines = 1
                         )
                     }
-                    /*
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 8.dp),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        for (badge in badges) {
-                            if (badge.showcased) {
-                                GlideImage(model = badge.badgeImageUrl, contentDescription = null, modifier = Modifier
-                                    .size(28.dp)
-                                    .padding(2.dp), alpha = if (badge.showcased) { 1.0f } else { 0.5f })
-                            }
-                        }
-                    }
-
-                     */
+                    /* badge row disabled in quick menu */
                 }
             }
         }

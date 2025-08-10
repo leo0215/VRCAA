@@ -176,6 +176,8 @@ class UserProfileScreen(
         var peekProfilePicture by remember { mutableStateOf(false) }
         var favoriteDialogShown by remember { mutableStateOf(false) }
         var isQuickMenuExpanded by remember { mutableStateOf(false) }
+        var badgeDialogTitle by remember { mutableStateOf<String?>(null) }
+        var badgeDialogText by remember { mutableStateOf<String?>(null) }
 
         if (profile == null) {
             Toast.makeText(
@@ -191,6 +193,18 @@ class UserProfileScreen(
             }
         } else {
             Box(modifier = Modifier.fillMaxSize()) {
+                if (badgeDialogText != null) {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = { badgeDialogText = null; badgeDialogTitle = null },
+                        title = { Text(text = badgeDialogTitle ?: "Badge") },
+                        text = { Text(text = badgeDialogText!!) },
+                        confirmButton = {
+                            androidx.compose.material3.TextButton(onClick = { badgeDialogText = null; badgeDialogTitle = null }) {
+                                Text(text = stringResource(android.R.string.ok))
+                            }
+                        }
+                    )
+                }
                 Scaffold(
                     modifier = Modifier
                         .clickable(
@@ -277,11 +291,16 @@ class UserProfileScreen(
                                         badges = profile.badges,
                                         pronouns = profile.pronouns,
                                         ageVerificationStatus = profile.ageVerificationStatus,
-                                        disablePeek = false
-                                    ) { url ->
-                                        peekProfilePicture = true
-                                        peekUrl = url
-                                    }
+                                        disablePeek = false,
+                                        onPeek = { url ->
+                                            peekProfilePicture = true
+                                            peekUrl = url
+                                        },
+                                        onBadgeClick = { badge ->
+                                            badgeDialogTitle = badge.badgeName
+                                            badgeDialogText = badge.badgeDescription.ifEmpty { badge.badgeName }
+                                        }
+                                    )
                                 }
                             }
 

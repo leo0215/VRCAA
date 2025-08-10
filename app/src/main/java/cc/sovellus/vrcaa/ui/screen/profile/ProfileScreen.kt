@@ -34,6 +34,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Label
@@ -48,12 +50,12 @@ import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FloatingActionButtonMenu
-import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -62,9 +64,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.ToggleFloatingActionButton
-import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
-import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -106,6 +105,7 @@ import cc.sovellus.vrcaa.manager.ApiManager.api
 import cc.sovellus.vrcaa.manager.CacheManager
 import cc.sovellus.vrcaa.ui.components.card.ProfileCard
 import cc.sovellus.vrcaa.ui.components.input.ComboInput
+import cc.sovellus.vrcaa.ui.components.controls.QuickActionsRow
 import cc.sovellus.vrcaa.ui.components.misc.Description
 import cc.sovellus.vrcaa.ui.components.misc.SubHeader
 import cc.sovellus.vrcaa.ui.screen.avatars.AvatarsScreen
@@ -148,9 +148,7 @@ class ProfileScreen : Screen {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
         
-        var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
-        
-        BackHandler(fabMenuExpanded) { fabMenuExpanded = false }
+        // FAB menu removed in redesign; no need to handle back for it
         
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
@@ -166,6 +164,22 @@ class ProfileScreen : Screen {
                 ) {
                     item {
                         profile.let {
+                            var badgeDialogText by remember { mutableStateOf<String?>(null) }
+                            var badgeDialogTitle by remember { mutableStateOf<String?>(null) }
+
+                            if (badgeDialogText != null) {
+                                androidx.compose.material3.AlertDialog(
+                                    onDismissRequest = { badgeDialogText = null },
+                                    title = { Text(text = badgeDialogTitle ?: "Badge") },
+                                    text = { Text(text = badgeDialogText!!) },
+                                    confirmButton = {
+                                        androidx.compose.material3.TextButton(onClick = { badgeDialogText = null }) {
+                                            Text(text = stringResource(android.R.string.ok))
+                                        }
+                                    }
+                                )
+                            }
+
                             ProfileCard(
                                 thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
                                 iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
@@ -176,10 +190,17 @@ class ProfileScreen : Screen {
                                 tags = profile.tags,
                                 badges = profile.badges,
                                 pronouns = profile.pronouns,
-                                ageVerificationStatus = profile.ageVerificationStatus
-                            ) { }
+                                ageVerificationStatus = profile.ageVerificationStatus,
+                                onPeek = { },
+                                onBadgeClick = { badge ->
+                                    badgeDialogTitle = badge.badgeName
+                                    badgeDialogText = badge.badgeDescription.ifEmpty { badge.badgeName }
+                                }
+                            )
                         }
                     }
+
+                    item { QuickActionsRow(modifier = Modifier.fillMaxWidth()) }
 
                     item {
                         Column(
@@ -208,95 +229,6 @@ class ProfileScreen : Screen {
                             }
                         }
                     }
-                }
-            }
-            
-            val items = listOf(
-                Icons.Default.Collections to "Gallery",
-                Icons.Default.Face to "User Icons",
-                Icons.Default.Public to "Worlds",
-                Icons.Default.Person to "Avatars",
-                Icons.Default.Group to "Groups",
-                Icons.Default.EmojiEmotions to "Emojis",
-                Icons.AutoMirrored.Filled.Label to "Stickers",
-                Icons.Default.Print to "Prints",
-                Icons.Default.Inventory to "Items"
-            )
-
-            FloatingActionButtonMenu(
-                modifier = Modifier.align(Alignment.BottomEnd),
-                expanded = fabMenuExpanded,
-                button = {
-                    ToggleFloatingActionButton(
-                        modifier = Modifier.semantics {
-                            traversalIndex = -1f
-                            stateDescription = if (fabMenuExpanded) "Expanded" else "Collapsed"
-                            contentDescription = "Toggle menu"
-                        },
-                        checked = fabMenuExpanded,
-                        onCheckedChange = { fabMenuExpanded = !fabMenuExpanded },
-                    ) {
-                        val imageVector by remember {
-                            derivedStateOf {
-                                if (fabMenuExpanded) Icons.Filled.Close else Icons.Filled.Edit
-                            }
-                        }
-                        Icon(
-                            painter = rememberVectorPainter(imageVector),
-                            contentDescription = null,
-                            modifier = Modifier.animateIcon({ if (fabMenuExpanded) 1f else 0f }),
-                        )
-                    }
-                },
-            ) {
-                items.forEachIndexed { i, item ->
-                    FloatingActionButtonMenuItem(
-                        modifier = Modifier.semantics {
-                            isTraversalGroup = true
-                            if (i == items.size - 1) {
-                                customActions = listOf(
-                                    CustomAccessibilityAction(
-                                        label = "Close menu",
-                                        action = {
-                                            fabMenuExpanded = false
-                                            true
-                                        },
-                                    )
-                                )
-                            }
-                        },
-                        onClick = {
-                            when (item.second) {
-                                "Gallery" -> navigator.push(GalleryScreen())
-                                "User Icons" -> navigator.push(IconGalleryScreen())
-                                "Worlds" -> {
-                                    val profile = CacheManager.getProfile()
-                                    if (profile != null) {
-                                        navigator.push(WorldsScreen(profile.displayName, profile.id, `private` = false))
-                                    }
-                                }
-                                "Avatars" -> navigator.push(AvatarsScreen())
-                                "Groups" -> {
-                                    val profile = CacheManager.getProfile()
-                                    if (profile != null) {
-                                        navigator.push(UserGroupsScreen(profile.displayName, profile.id))
-                                    }
-                                }
-                                "Emojis" -> navigator.push(EmojisScreen())
-                                "Stickers" -> navigator.push(StickersScreen())
-                                "Prints" -> {
-                                    val profile = CacheManager.getProfile()
-                                    if (profile != null) {
-                                        navigator.push(PrintsScreen(profile.id))
-                                    }
-                                }
-                                "Items" -> navigator.push(ItemsScreen())
-                            }
-                            fabMenuExpanded = false
-                        },
-                        icon = { Icon(item.first, contentDescription = null) },
-                        text = { Text(text = item.second) },
-                    )
                 }
             }
         }

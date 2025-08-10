@@ -35,7 +35,7 @@
     <string name="profile_label_biography">自我介紹</string>
     <string name="profile_label_last_activity">上次活動</string>
     <string name="profile_label_date_joined">帳號創立日期</string>
-    <string name="profile_text_no_biography">此人沒有填寫自我介紹。</string>
+    <string name="profile_text_no_biography">沒有填寫自我介紹。</string>
     <string name="profile_user_dropdown_manage_notifications">管理通知</string>
     <!-- removed; 06-07-25 -->
     <string name="profile_user_not_found_message">該使用者不存在</string>
@@ -130,135 +130,135 @@
     <string name="notification_service_title_status">好友更改了目前狀態！</string>
     <string name="notification_service_description_status">%1$s 把她的狀態從 %2$s 更改成 %3$s.</string>
     <!-- Avatars -->
-    <string name="avatar_dropdown_label_select">Change to Avatar</string>
-    <string name="avatar_dropdown_toast_select_avatar">Avatar Selected!</string>
-    <string name="avatar_title_description">Description</string>
-    <string name="avatar_title_created_at">Creation Date</string>
-    <string name="avatar_title_updated_at">Last Updated</string>
-    <string name="avatar_title_content_labels">Content Labels</string>
-    <string name="avatar_text_author">By %1$s</string>
-    <string name="avatar_title_version">Version</string>
-    <string name="avatar_text_content_labels_not_found">Avatar has no content warnings specified.</string>
-    <string name="avatar_toast_avatar_not_found_message">The avatar is either private or invalid.</string>
+    <string name="avatar_dropdown_label_select">更改為此模型</string>
+    <string name="avatar_dropdown_toast_select_avatar">已經選擇此模型！</string>
+    <string name="avatar_title_description">描述</string>
+    <string name="avatar_title_created_at">建立時間</string>
+    <string name="avatar_title_updated_at">最近更新</string>
+    <string name="avatar_title_content_labels">內容警告標籤</string>
+    <string name="avatar_text_author">作者： %1$s</string>
+    <string name="avatar_title_version">版本</string>
+    <string name="avatar_text_content_labels_not_found">此模型没有提及内容警告。</string>
+    <string name="avatar_toast_avatar_not_found_message">此模型是私人或是無效的。</string>
     <!-- Feed -->
-    <string name="feed_online_label">Online</string>
-    <string name="feed_online_text">has come online.</string>
-    <string name="feed_offline_label">Offline</string>
-    <string name="feed_offline_text">has gone offline.</string>
+    <string name="feed_online_label">上線</string>
+    <string name="feed_online_text">已上線。</string>
+    <string name="feed_offline_label">離線</string>
+    <string name="feed_offline_text">已離線。</string>
     <string name="feed_location_label">GPS</string>
-    <string name="feed_location_text">went to</string>
-    <string name="feed_status_label">Status</string>
-    <string name="feed_status_text">changed status to</string>
-    <string name="feed_added_label">Friend Added</string>
-    <string name="feed_added_text">added you as friend.</string>
-    <string name="feed_removed_label">Friend Removed</string>
-    <string name="feed_removed_text">has removed you as friend.</string>
-    <string name="feed_friend_request_label">Friend Request</string>
-    <string name="feed_friend_request_text">wants to add you as friend.</string>
-    <string name="feed_search_placeholder">Search for User or Location…</string>
-    <string name="feed_friend_avatar_label">Avatar Change</string>
-    <string name="feed_friend_avatar_text">changed their avatar to</string>
+    <string name="feed_location_text">前往了</string>
+    <string name="feed_status_label">狀態</string>
+    <string name="feed_status_text">狀態改成</string>
+    <string name="feed_added_label">新增好友</string>
+    <string name="feed_added_text">已增加你為好友。</string>
+    <string name="feed_removed_label">移除好友</string>
+    <string name="feed_removed_text">已將你從好友名單移除。</string>
+    <string name="feed_friend_request_label">好友邀請</string>
+    <string name="feed_friend_request_text">想要邀請你加入好友。</string>
+    <string name="feed_search_placeholder">搜尋使用者或是房間…</string>
+    <string name="feed_friend_avatar_label">模型更換</string>
+    <string name="feed_friend_avatar_text">更改模型為</string>
     <!-- About -->
-    <string name="about_page_title">About</string>
-    <string name="about_page_open_source_licenses_title">Open Source Licenses</string>
-    <string name="about_page_translate_title">Contribute to Translation</string>
-    <string name="about_page_battery_optimizations_toast">Battery optimizations are already disabled.</string>
-    <string name="license_title">Open Source Licenses</string>
+    <string name="about_page_title">關於</string>
+    <string name="about_page_open_source_licenses_title">開放原始碼授權</string>
+    <string name="about_page_translate_title">為翻譯做出貢獻</string>
+    <string name="about_page_battery_optimizations_toast">已停用電池最佳化。.</string>
+    <string name="license_title">開放原始碼授權</string>
     <!-- API -->
-    <string name="api_session_has_expired_text">Your session has expired, please login again.</string>
+    <string name="api_session_has_expired_text">您的工作階段已過期，請重新登入。</string>
     <!-- Discord Rich Presence -->
-    <string name="discord_login_restarted_service_toast">Restarted service to take effect.</string>
-    <string name="discord_login_label_enable">Enable Rich Presence</string>
-    <string name="discord_login_label_set_webhook">Set Webhook Url</string>
-    <string name="discord_login_description_set_webhook">Required for world thumbnail support (Optional)</string>
-    <string name="discord_login_description_enable">Shows your current status in discord</string>
+    <string name="discord_login_restarted_service_toast">已重新啟動服務以生效。</string>
+    <string name="discord_login_label_enable">啟用Discord Rich Presence</string>
+    <string name="discord_login_label_set_webhook">設定Webhook 連結</string>
+    <string name="discord_login_description_set_webhook">需要Webhook以顯示目前世界的縮圖 (可選)</string>
+    <string name="discord_login_description_enable">在你的Discord顯示你的遊戲狀態</string>
     <!-- Crash -->
-    <string name="crash_title_text">The application encountered fatal error.</string>
-    <string name="crash_button_restart_text">Restart</string>
-    <string name="crash_button_copy_log_text">Copy Information</string>
-    <string name="crash_button_report_text">Report Issue</string>
+    <string name="crash_title_text">應用程式發生了嚴重錯誤。.</string>
+    <string name="crash_button_restart_text">重新啟動</string>
+    <string name="crash_button_copy_log_text">複製除錯訊息</string>
+    <string name="crash_button_report_text">回報問題</string>
     <!-- Groups -->
     <string-array name="group_selection_options">
-        <item>Info</item>
-        <item>Instances</item>
+        <item>資訊</item>
+        <item>房間</item>
     </string-array>
-    <string name="group_toast_not_found_message">Group was not found, are you sure it exists?</string>
-    <string name="group_page_label_description">Description</string>
-    <string name="group_page_label_rules">Rules</string>
-    <string name="group_page_dropdown_view_author">View Author\'s Profile</string>
-    <string name="group_page_dropdown_request_invite">Request Invite</string>
-    <string name="group_page_dropdown_request_invite_cancel">Cancel Invite Request</string>
-    <string name="group_page_dropdown_join_group">Join Group</string>
-    <string name="group_page_dropdown_leave_group">Leave Group</string>
-    <string name="group_page_toast_invite_requested">Sent invite request.</string>
-    <string name="group_page_toast_invite_requested_fail">Failed to request invite.</string>
-    <string name="group_page_toast_invite_requested_cancel">Cancelled invite request.</string>
-    <string name="group_page_toast_invite_requested_cancel_fail">Failed to cancel request invite.</string>
-    <string name="group_page_toast_join_group">Joined the group.</string>
-    <string name="group_page_toast_join_group_fail">Failed to join the group.</string>
-    <string name="group_page_toast_leave_group">Left the group.</string>
-    <string name="group_page_toast_leave_group_fail">Failed to leave the group.</string>
-    <string name="group_user_no_groups_message">User is not apart of any groups.</string>
-    <string name="group_user_viewing_groups_username">%1$s\'s Groups</string>
+    <string name="group_toast_not_found_message">找不到群組，您確定它是存在的嗎？</string>
+    <string name="group_page_label_description">描述</string>
+    <string name="group_page_label_rules">群規</string>
+    <string name="group_page_dropdown_view_author">查看作者的個人檔案</string>
+    <string name="group_page_dropdown_request_invite">請求邀請</string>
+    <string name="group_page_dropdown_request_invite_cancel">取消邀請請求</string>
+    <string name="group_page_dropdown_join_group">加入該群組</string>
+    <string name="group_page_dropdown_leave_group">離開該群組</string>
+    <string name="group_page_toast_invite_requested">已送出邀請請求。</string>
+    <string name="group_page_toast_invite_requested_fail">邀請請求失敗。</string>
+    <string name="group_page_toast_invite_requested_cancel">已取消邀請請求。</string>
+    <string name="group_page_toast_invite_requested_cancel_fail">取消邀請請求失敗。</string>
+    <string name="group_page_toast_join_group">已加入該群組。</string>
+    <string name="group_page_toast_join_group_fail">加入該群組失敗。</string>
+    <string name="group_page_toast_leave_group">已離開該群組。</string>
+    <string name="group_page_toast_leave_group_fail">離開群組失敗。</string>
+    <string name="group_user_no_groups_message">此使用者未加入任何群組。</string>
+    <string name="group_user_viewing_groups_username">%1$s 的群組</string>
     <!-- Misc -->
-    <string name="misc_no_internet_title">No Internet Connection</string>
-    <string name="misc_no_internet_description">Please make sure you\'re connected to the internet, this application cannot work without Internet connection.</string>
-    <string name="misc_no_internet_label">Restart Application</string>
-    <string name="misc_exit_toast_label">Press again to quit.</string>
-    <string name="misc_no_premium_subscription">This features requires you to have an active VRC+ subscription.</string>
-    <string name="global_app_default_loading_text">Initializing…</string>
+    <string name="misc_no_internet_title">無網路連線</string>
+    <string name="misc_no_internet_description">請確認您已連上網路，此應用程式無法在沒有網路連線的情況下執行。</string>
+    <string name="misc_no_internet_label">重新啟動應用程式</string>
+    <string name="misc_exit_toast_label">再按一次即可退出。</string>
+    <string name="misc_no_premium_subscription">操作此功能需要您擁有有效的 VRC+ 付費訂閱。</string>
+    <string name="global_app_default_loading_text">載入中…</string>
     <!-- User -->
     <!-- removed; 06-07-25 -->
     <!-- removed; 06-07-25 -->
     <!-- removed; 06-07-25 -->
     <!-- removed; 06-07-25 -->
-    <string name="user_overlay_groups">Groups</string>
-    <string name="user_overlay_worlds">Worlds</string>
-    <string name="user_overlay_favorites">Favorites</string>
-    <string name="user_overlay_find_avatar">Find Avatar</string>
+    <string name="user_overlay_groups">群組</string>
+    <string name="user_overlay_worlds">世界</string>
+    <string name="user_overlay_favorites">收藏</string>
+    <string name="user_overlay_find_avatar">尋找模型</string>
     <!-- Profile Edit Dialog -->
-    <string name="profile_edit_dialog_title_status">Status</string>
-    <string name="profile_edit_dialog_title_age_verification_visibility">Age Verification Visibility</string>
-    <string name="profile_edit_dialog_title_status_description">Status Description</string>
-    <string name="profile_edit_dialog_title_bio">Bio</string>
-    <string name="profile_edit_dialog_title_bio_links">Social Links</string>
-    <string name="profile_edit_dialog_toast_updated">Updated profile.</string>
-    <string name="profile_edit_dialog_toast_cancelled">Changes were discarded.</string>
-    <string name="profile_edit_dialog_title_pronouns">Pronouns</string>
-    <string name="profile_edit_dialog_button_cancel">Cancel</string>
-    <string name="profile_edit_dialog_button_apply">Apply</string>
+    <string name="profile_edit_dialog_title_status">狀態</string>
+    <string name="profile_edit_dialog_title_age_verification_visibility">年齡驗證可見度</string>
+    <string name="profile_edit_dialog_title_status_description">狀態描述</string>
+    <string name="profile_edit_dialog_title_bio">自我介紹</string>
+    <string name="profile_edit_dialog_title_bio_links">社群連結</string>
+    <string name="profile_edit_dialog_toast_updated">已更新個人檔案。</string>
+    <string name="profile_edit_dialog_toast_cancelled">變更已捨棄。</string>
+    <string name="profile_edit_dialog_title_pronouns">代名詞</string>
+    <string name="profile_edit_dialog_button_cancel">取消</string>
+    <string name="profile_edit_dialog_button_apply">套用</string>
     <!-- Logout dialog -->
-    <string name="logout_dialog_title">Are you sure?</string>
-    <string name="logout_dialog_description">By pressing \"Continue\" below you will log-out of VRCAA and you have to re-login to keep using the application.</string>
-    <string name="logout_dialog_continue">Continue</string>
-    <string name="logout_dialog_cancel">Cancel</string>
+    <string name="logout_dialog_title">您確定要這樣做嗎？</string>
+    <string name="logout_dialog_description">按下下方的「繼續」後，您將登出 VRCAA，若想繼續使用本應用程式，必須重新登入。</string>
+    <string name="logout_dialog_continue">繼續</string>
+    <string name="logout_dialog_cancel">取消</string>
     <!-- Widgets -->
-    <string name="widget_name_friend_list">See current friend locations</string>
-    <string name="widget_name_loading_text">The horizon is bright, my friend.</string>
-    <string name="favorite_page_title">Favorites</string>
+    <string name="widget_name_friend_list">查看目前好友位置</string>
+    <string name="widget_name_loading_text">一切都會好起來的，朋友。</string>
+    <string name="favorite_page_title">收藏</string>
     <string-array name="favorites_selection_options">
-        <item>Worlds</item>
-        <item>Avatars</item>
-        <item>Friends</item>
+        <item>世界</item>
+        <item>模型</item>
+        <item>好友</item>
     </string-array>
     <string-array name="user_favorites_selection_options">
-        <item>Worlds</item>
-        <item>Avatars</item>
+        <item>世界</item>
+        <item>模型</item>
     </string-array>
-    <string name="favorite_label_add">Add to favorites</string>
-    <string name="favorite_label_remove">Remove from favorites</string>
-    <string name="favorite_toast_favorite_added">Added %1$s to favorites.</string>
-    <string name="favorite_toast_favorite_added_failed">Adding %1$s to favorites failed.</string>
-    <string name="favorite_toast_favorite_removed">Removed %1$s from favorites.</string>
-    <string name="favorite_toast_favorite_removed_failed">Removing %1$s from favorites failed.</string>
-    <string name="favorite_dialog_button_add">Add</string>
-    <string name="favorite_dialog_button_cancel">Cancel</string>
-    <string name="favorite_dialog_title">"Add Favorite"</string>
-    <string name="favorite_edit_title">Editing %1$s</string>
-    <string name="favorite_edit_display_name">Display Name</string>
-    <string name="favorite_edit_visibility">Visibility</string>
-    <string name="favorite_edit_discarded">Changes were discarded.</string>
-    <string name="favorite_edit_applied">Changes have been applied.</string>
+    <string name="favorite_label_add">新增至收藏</string>
+    <string name="favorite_label_remove">從收藏中移除</string>
+    <string name="favorite_toast_favorite_added">已將 %1$s 新增至收藏。</string>
+    <string name="favorite_toast_favorite_added_failed">新增 %1$s 至收藏失敗。</string>
+    <string name="favorite_toast_favorite_removed">已將 %1$s 從收藏中移除。</string>
+    <string name="favorite_toast_favorite_removed_failed">從收藏中移除 %1$s 失敗。</string>
+    <string name="favorite_dialog_button_add">新增</string>
+    <string name="favorite_dialog_button_cancel">取消</string>
+    <string name="favorite_dialog_title">新增收藏</string>
+    <string name="favorite_edit_title">正在編輯 %1$s</string>
+    <string name="favorite_edit_display_name">顯示名稱</string>
+    <string name="favorite_edit_visibility">可見性</string>
+    <string name="favorite_edit_discarded">變更已捨棄。</string>
+    <string name="favorite_edit_applied">變更已套用。</string>
     <string name="favorite_dialog_button_edit">Edit</string>
     <string name="favorite_tab_refresh_favorites">Refresh Favorites</string>
     <string name="favorite_toast_refreshed_favorites">Refreshed favorites.</string>

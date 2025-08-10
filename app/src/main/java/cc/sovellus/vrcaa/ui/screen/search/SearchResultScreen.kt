@@ -43,10 +43,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ToggleButton
-import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -67,6 +64,7 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.columnCountOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
 import cc.sovellus.vrcaa.ui.components.layout.GridItem
+import cc.sovellus.vrcaa.ui.components.controls.SelectionChipsRow
 import cc.sovellus.vrcaa.ui.screen.avatar.AvatarScreen
 import cc.sovellus.vrcaa.ui.screen.group.GroupScreen
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
@@ -141,34 +139,15 @@ class SearchResultScreen(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
-                    Modifier
+                SelectionChipsRow(
+                    options = options.toList(),
+                    selectedIndex = model.currentIndex.intValue,
+                    onSelect = { model.currentIndex.intValue = it },
+                    icons = icons,
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
-                ) {
-                    val modifiers = List(options.size) { Modifier.weight(1f) }
-                    options.forEachIndexed { index, label ->
-                        val selected = index == model.currentIndex.intValue
-                        ToggleButton(
-                            checked = selected,
-                            onCheckedChange = { model.currentIndex.intValue = index },
-                            modifier = modifiers[index],
-                            shapes = when (index) {
-                                0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                                options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                                else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                            },
-                        ) {
-                            Icon(
-                                imageVector = if (selected) Icons.Filled.Check else icons[index],
-                                contentDescription = null,
-                            )
-                            Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
-                            Text(text = label, softWrap = true, maxLines = 1)
-                        }
-                    }
-                }
+                        .padding(horizontal = 16.dp)
+                )
 
                 when (model.currentIndex.intValue) {
                     0 -> ShowWorlds(model)
