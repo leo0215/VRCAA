@@ -33,7 +33,10 @@
             android:name=".activity.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.VRCAA"
-            android:fitsSystemWindows="true">
+            android:fitsSystemWindows="true"
+            android:configChanges="density|keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|uiMode"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
