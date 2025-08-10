@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -104,12 +105,14 @@ class AdvancedScreen : Screen {
                                     onCheckedChange = {
                                         model.toggleLogging()
                                     },
-                                    colors = SwitchDefaults.colors(
-                                        checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                        uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                                        uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    )
+                                    thumbContent = {
+                                        if (model.networkLoggingMode.value) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Check,
+                                                contentDescription = null
+                                            )
+                                        }
+                                    }
                                 )
                             },
                             modifier = Modifier.clickable {

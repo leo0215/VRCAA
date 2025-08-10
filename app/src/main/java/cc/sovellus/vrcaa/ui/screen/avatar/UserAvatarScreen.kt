@@ -32,11 +32,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -75,6 +75,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
 import java.util.TimeZone
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
 class UserAvatarScreen(
     private val avatar: Avatar
@@ -215,10 +216,7 @@ class UserAvatarScreen(
 
                     Spacer(modifier = Modifier.padding(8.dp))
 
-                    ElevatedCard(
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 6.dp
-                        ),
+                    Card(
                         modifier = Modifier.widthIn(Dp.Unspecified, 520.dp)
                     ) {
                         SubHeader(title = stringResource(R.string.avatar_title_description))

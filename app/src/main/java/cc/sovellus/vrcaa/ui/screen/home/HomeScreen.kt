@@ -18,6 +18,7 @@ package cc.sovellus.vrcaa.ui.screen.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,12 +27,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,7 +60,7 @@ import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
 class HomeScreen : Screen {
 
     override val key = uniqueScreenKey
-
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -78,165 +82,351 @@ class HomeScreen : Screen {
         val friends = model.friendsList.collectAsState().value
         val recent = model.recentlyVisited.collectAsState().value
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            item {
-                val onlineFriends = friends.filter { it.platform != "web" && it.platform.isNotEmpty() }
-                if (onlineFriends.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.home_active_friends),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 32.sp,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    LazyRow(
-                        modifier = Modifier
-                            .height(100.dp)
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        content = {
-                            item {
-                                Text(text = stringResource(R.string.result_not_found))
+        val isLargeScreen = LocalConfiguration.current.screenWidthDp >= 840
+
+        if (isLargeScreen) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Left column: Active friends, Friend locations
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                ) {
+                    item {
+                        val onlineFriends =
+                            friends.filter { it.platform != "web" && it.platform.isNotEmpty() }
+                        if (onlineFriends.isEmpty()) {
+                            Text(
+                                text = stringResource(R.string.home_active_friends),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 32.sp,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                            LazyRow(
+                                modifier = Modifier
+                                    .height(100.dp)
+                                    .fillMaxWidth()
+                                    .fillMaxHeight(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                                content = {
+                                    item { Text(text = stringResource(R.string.result_not_found)) }
+                                }
+                            )
+                        } else {
+                            HorizontalRow(title = stringResource(R.string.home_active_friends)) {
+                                items(
+                                    onlineFriends.sortedBy { StatusHelper.getStatusFromString(it.status) },
+                                    key = { it.id }
+                                ) { friend ->
+                                    RoundedRowItem(
+                                        name = friend.displayName,
+                                        url = friend.userIcon.ifEmpty { friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl } },
+                                        status = friend.status,
+                                        onClick = {
+                                            navigator.parent?.parent?.push(
+                                                UserProfileScreen(
+                                                    friend.id
+                                                )
+                                            )
+                                        }
+                                    )
+                                }
                             }
                         }
-                    )
-                } else {
-                    HorizontalRow(
-                        title = stringResource(R.string.home_active_friends)
-                    ) {
-                        items(
-                            onlineFriends.sortedBy { StatusHelper.getStatusFromString(it.status) },
-                            key = { it.id }) { friend ->
-                            RoundedRowItem(
-                                name = friend.displayName,
-                                url = friend.userIcon.ifEmpty { friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl } },
-                                status = friend.status,
-                                onClick = { navigator.parent?.parent?.push(UserProfileScreen(friend.id)) }
+
+                        Spacer(modifier = Modifier.padding(4.dp))
+
+                        val friendLocations = friends.filter { it.location.contains("wrld_") }
+                        if (friendLocations.isEmpty()) {
+                            Text(
+                                text = stringResource(R.string.home_friend_locations),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 32.sp,
+                                modifier = Modifier.padding(bottom = 4.dp)
                             )
+                            LazyRow(
+                                modifier = Modifier
+                                    .height(190.dp)
+                                    .fillMaxWidth()
+                                    .fillMaxHeight(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                                content = { item { Text(text = stringResource(R.string.result_not_found)) } }
+                            )
+                        } else {
+                            HorizontalRow(title = stringResource(R.string.home_friend_locations)) {
+                                items(
+                                    friendLocations.distinctBy { it.location.split(':')[0] },
+                                    key = { it.id }
+                                ) { friend ->
+                                    val world = CacheManager.getWorld(friend.location.split(':')[0])
+                                    RowItemWithFriends(
+                                        name = world.name,
+                                        url = world.thumbnailUrl,
+                                        friends = friends.filter { it.location == friend.location },
+                                        onClick = { navigator.parent?.parent?.push(WorldScreen(world.id)) }
+                                    )
+                                }
+                            }
                         }
+
+                        Spacer(modifier = Modifier.padding(4.dp))
                     }
                 }
 
-                Spacer(modifier = Modifier.padding(4.dp))
-
-                if (recent.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.home_recently_visited),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 32.sp,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    LazyRow(
-                        modifier = Modifier
-                            .height(190.dp)
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        content = {
-                            item {
-                                Text(text = stringResource(R.string.result_not_found))
+                // Right column: Recently visited, Offline friends
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                ) {
+                    item {
+                        if (recent.isEmpty()) {
+                            Text(
+                                text = stringResource(R.string.home_recently_visited),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 32.sp,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                            LazyRow(
+                                modifier = Modifier
+                                    .height(190.dp)
+                                    .fillMaxWidth()
+                                    .fillMaxHeight(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                                content = { item { Text(text = stringResource(R.string.result_not_found)) } }
+                            )
+                        } else {
+                            HorizontalRow(title = stringResource(R.string.home_recently_visited)) {
+                                items(recent, key = { it.id }) { world ->
+                                    RowItem(
+                                        name = world.name,
+                                        url = world.thumbnailUrl,
+                                        onClick = { navigator.parent?.parent?.push(WorldScreen(world.id)) }
+                                    )
+                                }
                             }
                         }
-                    )
-                } else {
-                    HorizontalRow(
-                        title = stringResource(R.string.home_recently_visited)
-                    ) {
-                        items(recent, key = { it.id }) { world ->
-                            RowItem(
-                                name = world.name,
-                                url = world.thumbnailUrl,
-                                onClick = { navigator.parent?.parent?.push(WorldScreen(world.id)) }
+
+                        Spacer(modifier = Modifier.padding(4.dp))
+
+                        val offlineFriends = friends.filter { it.platform.isEmpty() }
+                        if (offlineFriends.isEmpty()) {
+                            Text(
+                                text = stringResource(R.string.home_offline_friends),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 32.sp,
+                                modifier = Modifier.padding(bottom = 4.dp)
                             )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.padding(4.dp))
-
-                val friendLocations = friends.filter { it.location.contains("wrld_") }
-                if (friendLocations.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.home_friend_locations),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 32.sp,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    LazyRow(
-                        modifier = Modifier
-                            .height(190.dp)
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        content = {
-                            item {
-                                Text(text = stringResource(R.string.result_not_found))
+                            LazyRow(
+                                modifier = Modifier
+                                    .height(190.dp)
+                                    .fillMaxWidth()
+                                    .fillMaxHeight(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                                content = { item { Text(text = stringResource(R.string.result_not_found)) } }
+                            )
+                        } else {
+                            HorizontalRow(title = stringResource(R.string.home_offline_friends)) {
+                                items(offlineFriends, key = { it.id }) { friend ->
+                                    RowItem(
+                                        name = friend.displayName,
+                                        url = friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl },
+                                        onClick = {
+                                            navigator.parent?.parent?.push(
+                                                UserProfileScreen(
+                                                    friend.id
+                                                )
+                                            )
+                                        }
+                                    )
+                                }
                             }
                         }
-                    )
-                } else {
-                    HorizontalRow(
-                        title = stringResource(R.string.home_friend_locations)
-                    ) {
-                        items(
-                            friendLocations.distinctBy { it.location.split(':')[0] },
-                            key = { it.id }) { friend ->
-                            val world = CacheManager.getWorld(friend.location.split(':')[0])
-                            RowItemWithFriends(
-                                name = world.name,
-                                url = world.thumbnailUrl,
-                                friends = friends.filter { it.location == friend.location },
-                                onClick = { navigator.parent?.parent?.push(WorldScreen(world.id)) }
-                            )
-                        }
+
+                        Spacer(modifier = Modifier.padding(4.dp))
                     }
                 }
-
-                Spacer(modifier = Modifier.padding(4.dp))
-
-                val offlineFriends = friends.filter { it.platform.isEmpty() }
-                if (offlineFriends.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.home_offline_friends),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 32.sp,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    LazyRow(
-                        modifier = Modifier
-                            .height(190.dp)
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        content = {
-                            item {
-                                Text(text = stringResource(R.string.result_not_found))
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
+            ) {
+                item {
+                    val onlineFriends =
+                        friends.filter { it.platform != "web" && it.platform.isNotEmpty() }
+                    if (onlineFriends.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.home_active_friends),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 32.sp,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        LazyRow(
+                            modifier = Modifier
+                                .height(100.dp)
+                                .fillMaxWidth()
+                                .fillMaxHeight(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            content = {
+                                item {
+                                    Text(text = stringResource(R.string.result_not_found))
+                                }
+                            }
+                        )
+                    } else {
+                        HorizontalRow(
+                            title = stringResource(R.string.home_active_friends)
+                        ) {
+                            items(
+                                onlineFriends.sortedBy { StatusHelper.getStatusFromString(it.status) },
+                                key = { it.id }) { friend ->
+                                RoundedRowItem(
+                                    name = friend.displayName,
+                                    url = friend.userIcon.ifEmpty { friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl } },
+                                    status = friend.status,
+                                    onClick = {
+                                        navigator.parent?.parent?.push(
+                                            UserProfileScreen(
+                                                friend.id
+                                            )
+                                        )
+                                    }
+                                )
                             }
                         }
-                    )
-                } else {
-                    HorizontalRow(
-                        title = stringResource(R.string.home_offline_friends)
-                    ) {
-                        items(offlineFriends, key = { it.id }) { friend ->
-                            RowItem(
-                                name = friend.displayName,
-                                url = friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl },
-                                onClick = { navigator.parent?.parent?.push(UserProfileScreen(friend.id)) }
-                            )
+                    }
+
+                    Spacer(modifier = Modifier.padding(4.dp))
+
+                    if (recent.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.home_recently_visited),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 32.sp,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        LazyRow(
+                            modifier = Modifier
+                                .height(190.dp)
+                                .fillMaxWidth()
+                                .fillMaxHeight(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            content = {
+                                item {
+                                    Text(text = stringResource(R.string.result_not_found))
+                                }
+                            }
+                        )
+                    } else {
+                        HorizontalRow(
+                            title = stringResource(R.string.home_recently_visited)
+                        ) {
+                            items(recent, key = { it.id }) { world ->
+                                RowItem(
+                                    name = world.name,
+                                    url = world.thumbnailUrl,
+                                    onClick = { navigator.parent?.parent?.push(WorldScreen(world.id)) }
+                                )
+                            }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.padding(4.dp))
+                    Spacer(modifier = Modifier.padding(4.dp))
+
+                    val friendLocations = friends.filter { it.location.contains("wrld_") }
+                    if (friendLocations.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.home_friend_locations),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 32.sp,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        LazyRow(
+                            modifier = Modifier
+                                .height(190.dp)
+                                .fillMaxWidth()
+                                .fillMaxHeight(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            content = {
+                                item {
+                                    Text(text = stringResource(R.string.result_not_found))
+                                }
+                            }
+                        )
+                    } else {
+                        HorizontalRow(
+                            title = stringResource(R.string.home_friend_locations)
+                        ) {
+                            items(
+                                friendLocations.distinctBy { it.location.split(':')[0] },
+                                key = { it.id }) { friend ->
+                                val world = CacheManager.getWorld(friend.location.split(':')[0])
+                                RowItemWithFriends(
+                                    name = world.name,
+                                    url = world.thumbnailUrl,
+                                    friends = friends.filter { it.location == friend.location },
+                                    onClick = { navigator.parent?.parent?.push(WorldScreen(world.id)) }
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.padding(4.dp))
+
+                    val offlineFriends = friends.filter { it.platform.isEmpty() }
+                    if (offlineFriends.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.home_offline_friends),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 32.sp,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        LazyRow(
+                            modifier = Modifier
+                                .height(190.dp)
+                                .fillMaxWidth()
+                                .fillMaxHeight(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            content = {
+                                item {
+                                    Text(text = stringResource(R.string.result_not_found))
+                                }
+                            }
+                        )
+                    } else {
+                        HorizontalRow(
+                            title = stringResource(R.string.home_offline_friends)
+                        ) {
+                            items(offlineFriends, key = { it.id }) { friend ->
+                                RowItem(
+                                    name = friend.displayName,
+                                    url = friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl },
+                                    onClick = {
+                                        navigator.parent?.parent?.push(
+                                            UserProfileScreen(
+                                                friend.id
+                                            )
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                }
             }
         }
     }

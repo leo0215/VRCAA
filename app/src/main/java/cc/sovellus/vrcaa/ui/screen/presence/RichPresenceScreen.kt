@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material3.Button
@@ -170,12 +171,14 @@ class RichPresenceScreen : Screen {
                                     onCheckedChange = {
                                         model.toggle()
                                     },
-                                    colors = SwitchDefaults.colors(
-                                        checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                        uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                                        uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    ),
+                                    thumbContent = {
+                                        if (model.enabled.value) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Check,
+                                                contentDescription = null
+                                            )
+                                        }
+                                    }
                                 )
                             },
                             modifier = Modifier.clickable(

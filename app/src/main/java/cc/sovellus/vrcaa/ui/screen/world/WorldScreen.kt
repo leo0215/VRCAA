@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,17 +43,18 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MultiChoiceSegmentedButtonRow
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -102,6 +104,7 @@ class WorldScreen(
 
     override val key = uniqueScreenKey
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun Content() {
         val model = rememberScreenModel { WorldScreenModel(worldId) }
@@ -277,41 +280,30 @@ class WorldScreen(
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        MultiChoiceSegmentedButtonRow(
-                            modifier = Modifier
+                        Row(
+                            Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 16.dp),
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
                         ) {
+                            val modifiers = List(options.size) { Modifier.weight(1f) }
                             options.forEachIndexed { index, label ->
-                                SegmentedButton(
-                                    shape = SegmentedButtonDefaults.itemShape(
-                                        index = index,
-                                        count = options.size
-                                    ),
-                                    icon = {
-                                        SegmentedButtonDefaults.Icon(
-                                            active = index == model.currentTabIndex.intValue,
-                                            activeContent = {
-                                                Icon(
-                                                    imageVector = Icons.Filled.Check,
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(SegmentedButtonDefaults.IconSize).offset(y = 2.5.dp)
-                                                )
-                                            },
-                                            inactiveContent = {
-                                                Icon(
-                                                    imageVector = icons[index],
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(SegmentedButtonDefaults.IconSize).offset(y = 2.5.dp)
-                                                )
-                                            }
-                                        )
+                                val selected = index == model.currentTabIndex.intValue
+                                ToggleButton(
+                                    checked = selected,
+                                    onCheckedChange = { model.currentTabIndex.intValue = index },
+                                    modifier = modifiers[index],
+                                    shapes = when (index) {
+                                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                        options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                                     },
-                                    onCheckedChange = {
-                                        model.currentTabIndex.intValue = index
-                                    },
-                                    checked = index == model.currentTabIndex.intValue
                                 ) {
+                                    Icon(
+                                        imageVector = if (selected) Icons.Filled.Check else icons[index],
+                                        contentDescription = null,
+                                    )
+                                    Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                                     Text(text = label, softWrap = true, maxLines = 1)
                                 }
                             }
@@ -342,10 +334,7 @@ class WorldScreen(
                     verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.Start,
                 ) {
-                    ElevatedCard(
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 6.dp
-                        ),
+                    Card(
                         modifier = Modifier
                             .padding(bottom = 16.dp)
                             .widthIn(Dp.Unspecified, 520.dp)
@@ -354,10 +343,7 @@ class WorldScreen(
                         Description(text = world.description)
                     }
 
-                    ElevatedCard(
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 6.dp
-                        ),
+                    Card(
                         modifier = Modifier
                             .padding(bottom = 16.dp)
                             .widthIn(Dp.Unspecified, 520.dp)

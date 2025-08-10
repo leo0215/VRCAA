@@ -18,43 +18,113 @@ package cc.sovellus.vrcaa.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.expressiveLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun Theme(theme: Int, content: @Composable () -> Unit) {
+    Theme(theme, null, null, content)
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun Theme(
+    theme: Int, 
+    primaryColor: Color? = null, 
+    secondaryColor: Color? = null, 
+    content: @Composable () -> Unit
+) {
     val context = LocalContext.current
 
-    MaterialTheme(
+    MaterialExpressiveTheme(
         colorScheme = when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                 when (theme) {
-                    0 -> dynamicLightColorScheme(context)
-                    1 -> dynamicDarkColorScheme(context)
+                    0 -> dynamicLightColorScheme(context).let { scheme ->
+                        if (primaryColor != null || secondaryColor != null) {
+                            scheme.copy(
+                                primary = primaryColor ?: scheme.primary,
+                                secondary = secondaryColor ?: scheme.secondary
+                            )
+                        } else scheme
+                    }
+                    1 -> dynamicDarkColorScheme(context).let { scheme ->
+                        if (primaryColor != null || secondaryColor != null) {
+                            scheme.copy(
+                                primary = primaryColor ?: scheme.primary,
+                                secondary = secondaryColor ?: scheme.secondary
+                            )
+                        } else scheme
+                    }
                     else -> {
                         if (isSystemInDarkTheme())
-                            dynamicDarkColorScheme(context)
+                            dynamicDarkColorScheme(context).let { scheme ->
+                                if (primaryColor != null || secondaryColor != null) {
+                                    scheme.copy(
+                                        primary = primaryColor ?: scheme.primary,
+                                        secondary = secondaryColor ?: scheme.secondary
+                                    )
+                                } else scheme
+                            }
                         else
-                            dynamicLightColorScheme(context)
+                            dynamicLightColorScheme(context).let { scheme ->
+                                if (primaryColor != null || secondaryColor != null) {
+                                    scheme.copy(
+                                        primary = primaryColor ?: scheme.primary,
+                                        secondary = secondaryColor ?: scheme.secondary
+                                    )
+                                } else scheme
+                            }
                     }
                 }
             }
             else -> {
                 when (theme) {
-                    0 -> lightColorScheme()
-                    1 -> darkColorScheme()
+                    0 -> expressiveLightColorScheme().let { scheme ->
+                        if (primaryColor != null || secondaryColor != null) {
+                            scheme.copy(
+                                primary = primaryColor ?: scheme.primary,
+                                secondary = secondaryColor ?: scheme.secondary
+                            )
+                        } else scheme
+                    }
+                    1 -> darkColorScheme().let { scheme ->
+                        if (primaryColor != null || secondaryColor != null) {
+                            scheme.copy(
+                                primary = primaryColor ?: scheme.primary,
+                                secondary = secondaryColor ?: scheme.secondary
+                            )
+                        } else scheme
+                    }
                     else -> {
                         if (isSystemInDarkTheme())
-                            darkColorScheme()
+                            darkColorScheme().let { scheme ->
+                                if (primaryColor != null || secondaryColor != null) {
+                                    scheme.copy(
+                                        primary = primaryColor ?: scheme.primary,
+                                        secondary = secondaryColor ?: scheme.secondary
+                                    )
+                                } else scheme
+                            }
                         else
-                            lightColorScheme()
+                            expressiveLightColorScheme().let { scheme ->
+                                if (primaryColor != null || secondaryColor != null) {
+                                    scheme.copy(
+                                        primary = primaryColor ?: scheme.primary,
+                                        secondary = secondaryColor ?: scheme.secondary
+                                    )
+                                } else scheme
+                            }
                     }
                 }
             }

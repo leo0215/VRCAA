@@ -52,6 +52,10 @@ android {
 
     kotlin {
         jvmToolchain(21)
+        compilerOptions {
+            // Opt-in 全域啟用 Material3 Expressive API，讓所有頁面可直接使用
+            optIn.add("androidx.compose.material3.ExperimentalMaterial3ExpressiveApi")
+        }
     }
 
     buildFeatures {
@@ -115,9 +119,10 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3-android:1.3.2")
+    implementation("androidx.compose.material3:material3-android:1.5.0-alpha01")
     implementation("androidx.lifecycle:lifecycle-runtime-compose-android:2.9.2")
     implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("com.google.android.material:material:1.12.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")

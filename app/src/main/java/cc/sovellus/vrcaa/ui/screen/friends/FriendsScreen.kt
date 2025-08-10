@@ -19,6 +19,8 @@ package cc.sovellus.vrcaa.ui.screen.friends
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,11 +36,14 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonOff
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Web
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MultiChoiceSegmentedButtonRow
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -68,6 +73,7 @@ class FriendsScreen : Screen {
 
     override val key = uniqueScreenKey
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -103,41 +109,30 @@ class FriendsScreen : Screen {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MultiChoiceSegmentedButtonRow(
-                modifier = Modifier
+            Row(
+                Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp)
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
             ) {
+                val modifiers = List(options.size) { Modifier.weight(1f) }
                 options.forEachIndexed { index, label ->
-                    SegmentedButton(
-                        shape = SegmentedButtonDefaults.itemShape(
-                            index = index,
-                            count = options.size
-                        ),
-                        icon = {
-                            SegmentedButtonDefaults.Icon(
-                                active = index == model.currentIndex.intValue,
-                                activeContent = {
-                                    Icon(
-                                        imageVector = Icons.Filled.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SegmentedButtonDefaults.IconSize).offset(y = 2.5.dp)
-                                    )
-                                },
-                                inactiveContent = {
-                                    Icon(
-                                        imageVector = icons[index],
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SegmentedButtonDefaults.IconSize).offset(y = 2.5.dp)
-                                    )
-                                }
-                            )
+                    val selected = index == model.currentIndex.intValue
+                    ToggleButton(
+                        checked = selected,
+                        onCheckedChange = { model.currentIndex.intValue = index },
+                        modifier = modifiers[index],
+                        shapes = when (index) {
+                            0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                            options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                            else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                         },
-                        onCheckedChange = {
-                            model.currentIndex.intValue = index
-                        },
-                        checked = index == model.currentIndex.intValue
                     ) {
+                        Icon(
+                            imageVector = if (selected) Icons.Filled.Check else icons[index],
+                            contentDescription = null,
+                        )
+                        Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                         Text(text = label, softWrap = true, maxLines = 1)
                     }
                 }

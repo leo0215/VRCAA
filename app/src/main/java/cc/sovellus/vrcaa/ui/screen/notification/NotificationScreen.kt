@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -96,12 +98,14 @@ class NotificationScreen(
                         Switch(
                             checked = model.isNotificationsEnabled.value,
                             onCheckedChange = { toggle -> model.toggleNotifications(toggle) },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                            )
+                            thumbContent = {
+                                if (model.isNotificationsEnabled.value) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
                         )
                     }
                 }
@@ -124,12 +128,14 @@ class NotificationScreen(
                                     NotificationHelper.Intents.FRIEND_FLAG_OFFLINE
                                 )
                             },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                            ),
+                            thumbContent = {
+                                if (model.isOfflineIntentEnabled.value) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = null
+                                    )
+                                }
+                            },
                             enabled = model.isNotificationsEnabled.value
                         )
                     }
@@ -152,12 +158,14 @@ class NotificationScreen(
                                     toggleOnline, NotificationHelper.Intents.FRIEND_FLAG_ONLINE
                                 )
                             },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                            ),
+                            thumbContent = {
+                                if (model.isOnlineIntentEnabled.value) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = null
+                                    )
+                                }
+                            },
                             enabled = model.isNotificationsEnabled.value
                         )
                     }
@@ -180,12 +188,14 @@ class NotificationScreen(
                                     toggle, NotificationHelper.Intents.FRIEND_FLAG_LOCATION
                                 )
                             },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                            ),
+                            thumbContent = {
+                                if (model.isLocationIntentEnabled.value) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = null
+                                    )
+                                }
+                            },
                             enabled = model.isNotificationsEnabled.value
                         )
                     }
@@ -208,12 +218,14 @@ class NotificationScreen(
                                     toggle, NotificationHelper.Intents.FRIEND_FLAG_STATUS
                                 )
                             },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                            ),
+                            thumbContent = {
+                                if (model.isStatusIntentEnabled.value) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = null
+                                    )
+                                }
+                            },
                             enabled = model.isNotificationsEnabled.value
                         )
                     }

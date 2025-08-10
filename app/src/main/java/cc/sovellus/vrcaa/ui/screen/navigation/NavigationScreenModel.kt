@@ -77,6 +77,7 @@ class NavigationScreenModel : ScreenModel {
 
     var feedFilterQuery = mutableStateOf("")
     var showFilteredFeed = mutableStateOf(false)
+    var cacheBuilt = mutableStateOf(false)
 
     private var filteredFeedStateFlow = MutableStateFlow(mutableStateListOf<FeedManager.Feed>())
     var filteredFeed = filteredFeedStateFlow.asStateFlow()
@@ -110,6 +111,7 @@ class NavigationScreenModel : ScreenModel {
     private val cacheListener = object : CacheManager.CacheListener {
         override fun endCacheRefresh() {
             getCurrentProfileValues()
+            cacheBuilt.value = true
         }
     }
 
