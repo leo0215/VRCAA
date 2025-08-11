@@ -32,7 +32,7 @@
     <!-- Profile -->
     <string name="profile_label_current_location">目前位置</string>
     <string name="profile_label_note">備註</string>
-    <string name="profile_label_biography">自我介紹</string>
+    <string name="profile_label_biography">簡介</string>
     <string name="profile_label_last_activity">上次活動</string>
     <string name="profile_label_date_joined">帳號創立日期</string>
     <string name="profile_text_no_biography">沒有填寫自我介紹。</string>
@@ -220,7 +220,7 @@
     <string name="profile_edit_dialog_title_status">狀態</string>
     <string name="profile_edit_dialog_title_age_verification_visibility">年齡驗證可見度</string>
     <string name="profile_edit_dialog_title_status_description">狀態描述</string>
-    <string name="profile_edit_dialog_title_bio">自我介紹</string>
+    <string name="profile_edit_dialog_title_bio">簡介</string>
     <string name="profile_edit_dialog_title_bio_links">社群連結</string>
     <string name="profile_edit_dialog_toast_updated">已更新個人檔案。</string>
     <string name="profile_edit_dialog_toast_cancelled">變更已捨棄。</string>

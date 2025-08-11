@@ -29,6 +29,7 @@ import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites.FavoriteType
 import cc.sovellus.vrcaa.api.vrchat.http.models.Instance
 import cc.sovellus.vrcaa.api.vrchat.http.models.LimitedUser
+import cc.sovellus.vrcaa.api.vrchat.http.models.UserGroup
 import cc.sovellus.vrcaa.helper.ApiHelper
 import cc.sovellus.vrcaa.manager.ApiManager.api
 import cc.sovellus.vrcaa.manager.FavoriteManager
@@ -57,6 +58,8 @@ class UserProfileScreenModel(
     private var profile: LimitedUser? = null
     private var instance: Instance? = null
 
+    val mutualGroups = kotlinx.coroutines.flow.MutableStateFlow<List<UserGroup>>(emptyList())
+
     init {
         mutableState.value = UserProfileState.Loading
         App.setLoadingText(R.string.loading_text_user)
@@ -78,6 +81,12 @@ class UserProfileScreenModel(
                 profile = it
 
                 mutableState.value = UserProfileState.Result(profile, instance)
+
+                // Fetch groups and extract mutual ones
+                launch {
+                    val groups = api.users.fetchGroupsByUserId(userId)
+                    mutualGroups.value = groups.filter { g -> g.mutualGroup }
+                }
             } ?: run {
                 mutableState.value = UserProfileState.Failure
             }

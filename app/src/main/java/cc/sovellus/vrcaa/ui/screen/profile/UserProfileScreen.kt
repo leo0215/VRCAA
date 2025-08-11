@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -104,9 +105,11 @@ import cc.sovellus.vrcaa.ui.components.layout.FavoriteHorizontalRow
 import cc.sovellus.vrcaa.ui.components.layout.RowItem
 import cc.sovellus.vrcaa.ui.components.misc.Description
 import cc.sovellus.vrcaa.ui.components.misc.SubHeader
+import cc.sovellus.vrcaa.ui.components.controls.SelectionChipsRow
 import cc.sovellus.vrcaa.ui.screen.avatar.AvatarScreen
 import cc.sovellus.vrcaa.ui.screen.favorites.UserFavoritesScreen
 import cc.sovellus.vrcaa.ui.screen.group.UserGroupsScreen
+import cc.sovellus.vrcaa.ui.screen.group.GroupScreen
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.notification.NotificationScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
@@ -162,7 +165,7 @@ class UserProfileScreen(
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi::class)
     @Composable
     fun Profile(
         profile: LimitedUser?,
@@ -274,7 +277,7 @@ class UserProfileScreen(
                             verticalArrangement = Arrangement.Top,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            item {
+                             item {
                                 profile.let {
                                     ProfileCard(
                                         thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
@@ -324,6 +327,53 @@ class UserProfileScreen(
                                     verticalArrangement = Arrangement.SpaceBetween,
                                     horizontalAlignment = Alignment.Start
                                 ) {
+                                     val mutualGroups by model.mutualGroups.collectAsState()
+                                     if (mutualGroups.isNotEmpty()) {
+                                         Card(
+                                             modifier = Modifier
+                                                 .padding(top = 16.dp)
+                                                 .defaultMinSize(minHeight = 60.dp)
+                                                 .widthIn(Dp.Unspecified, 520.dp),
+                                         ) {
+                                             SubHeader(title = "The groups you and your friend are in")
+                                             androidx.compose.foundation.lazy.LazyRow(
+                                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                             ) {
+                                                 items(mutualGroups) { g ->
+                                                     androidx.compose.material3.Surface(
+                                                         shape = RoundedCornerShape(24.dp),
+                                                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                                         modifier = Modifier
+                                                             .clip(RoundedCornerShape(24.dp))
+                                                             .clickable { navigator.push(GroupScreen(g.groupId)) }
+                                                     ) {
+                                                         Row(
+                                                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                                             verticalAlignment = Alignment.CenterVertically,
+                                                             horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                         ) {
+                                                             com.bumptech.glide.integration.compose.GlideImage(
+                                                                 model = g.iconUrl,
+                                                                 contentDescription = null,
+                                                                 modifier = Modifier
+                                                                     .size(36.dp)
+                                                                     .clip(RoundedCornerShape(8.dp)),
+                                                                 loading = com.bumptech.glide.integration.compose.placeholder(cc.sovellus.vrcaa.R.drawable.image_placeholder),
+                                                                 failure = com.bumptech.glide.integration.compose.placeholder(cc.sovellus.vrcaa.R.drawable.image_placeholder)
+                                                             )
+                                                             Text(
+                                                                 text = g.name,
+                                                                 maxLines = 1,
+                                                                 overflow = TextOverflow.Ellipsis,
+                                                                 style = MaterialTheme.typography.labelLarge
+                                                             )
+                                                         }
+                                                     }
+                                                 }
+                                             }
+                                         }
+                                     }
                                     Card(
                                         modifier = Modifier
                                             .padding(top = 16.dp)
