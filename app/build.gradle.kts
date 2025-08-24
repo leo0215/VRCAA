@@ -1,3 +1,8 @@
+@file:OptIn(ExperimentalEncodingApi::class)
+
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -7,14 +12,14 @@ plugins {
 
 android {
     namespace = "cc.sovellus.vrcaa"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "cc.sovellus.vrcaa"
         minSdk = 27
-        targetSdk = 35
-        versionCode = 200604
-        versionName = "2.6.4"
+        targetSdk = 36
+        versionCode = 200608
+        versionName = "2.6.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -29,14 +34,33 @@ android {
         buildConfigField("String", "KOFI_URL", "\"https://ko-fi.com/Nyabsi\"")
     }
 
+    signingConfigs {
+        create("release") {
+            val storeFileEnv = System.getenv("SIGNING_STORE_FILE")
+            val storePasswordEnv = System.getenv("SIGNING_STORE_PASSWORD")
+            val keyAliasEnv = System.getenv("SIGNING_KEY_ALIAS")
+            val keyPasswordEnv = System.getenv("SIGNING_KEY_PASSWORD")
+
+            if (storeFileEnv != null && File(storeFileEnv).exists()) {
+                storeFile = file(storeFileEnv)
+                storePassword = storePasswordEnv
+                keyAlias = keyAliasEnv
+                keyPassword = keyPasswordEnv
+            } else {
+                println("Warning: Release signing configuration not fully set up from environment variables.")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -112,10 +136,10 @@ fun runGitCommand(command: ProcessBuilder) : String? {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.16.0")
+    implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.2")
     implementation("androidx.activity:activity-compose:1.10.1")
-    implementation(platform("androidx.compose:compose-bom:2025.07.00"))
+    implementation(platform("androidx.compose:compose-bom:2025.08.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -124,9 +148,9 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("com.google.android.material:material:1.12.0")
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2025.07.00"))
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.08.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
@@ -135,11 +159,11 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
     implementation("com.github.bumptech.glide:glide:4.14.2")
-    implementation("cafe.adriel.voyager:voyager-navigator:1.1.0-beta02")
-    implementation("cafe.adriel.voyager:voyager-screenmodel:1.1.0-beta02")
-    implementation("cafe.adriel.voyager:voyager-bottom-sheet-navigator:1.1.0-beta02")
-    implementation("cafe.adriel.voyager:voyager-tab-navigator:1.1.0-beta02")
-    implementation("cafe.adriel.voyager:voyager-transitions:1.1.0-beta02")
+    implementation("cafe.adriel.voyager:voyager-navigator:1.1.0-beta03")
+    implementation("cafe.adriel.voyager:voyager-screenmodel:1.1.0-beta03")
+    implementation("cafe.adriel.voyager:voyager-bottom-sheet-navigator:1.1.0-beta03")
+    implementation("cafe.adriel.voyager:voyager-tab-navigator:1.1.0-beta03")
+    implementation("cafe.adriel.voyager:voyager-transitions:1.1.0-beta03")
     implementation("androidx.activity:activity-ktx:1.10.1")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.33.2-alpha")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
@@ -150,4 +174,5 @@ dependencies {
     implementation ("androidx.glance:glance-material3:1.1.1@aar")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
     implementation("net.thauvin.erik.urlencoder:urlencoder-lib:1.6.0")
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
 }

@@ -144,42 +144,27 @@ class ProfileScreen : Screen {
 
     @Composable
     private fun RenderProfile(profile: User) {
-        val navigator = LocalNavigator.currentOrThrow
-        val context = LocalContext.current
-        val scope = rememberCoroutineScope()
-        
-        var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
-        
-        BackHandler(fabMenuExpanded) { fabMenuExpanded = false }
-        
-        Box(modifier = Modifier.fillMaxSize()) {
-            Scaffold(
-                modifier = Modifier.fillMaxSize()
-            ) { padding ->
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(padding)
-                        .padding(16.dp)
-                        .fillMaxSize(),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    item {
-                        profile.let {
-                            ProfileCard(
-                                thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
-                                iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
-                                displayName = it.displayName,
-                                statusDescription = it.statusDescription.ifEmpty {  StatusHelper.getStatusFromString(it.status).toString() },
-                                trustRankColor = TrustHelper.getTrustRankFromTags(it.tags).toColor(),
-                                statusColor = StatusHelper.getStatusFromString(it.status).toColor(),
-                                tags = profile.tags,
-                                badges = profile.badges,
-                                pronouns = profile.pronouns,
-                                ageVerificationStatus = profile.ageVerificationStatus
-                            ) { }
-                        }
-                    }
+        LazyColumn(
+            modifier = Modifier.padding(16.dp).fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
+                profile.let {
+                    ProfileCard(
+                        thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
+                        iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
+                        displayName = it.displayName,
+                        statusDescription = it.statusDescription.ifEmpty {  StatusHelper.getStatusFromString(it.status).toString() },
+                        trustRankColor = TrustHelper.getTrustRankFromTags(it.tags).toColor(),
+                        statusColor = StatusHelper.getStatusFromString(it.status).toColor(),
+                        tags = profile.tags,
+                        badges = profile.badges,
+                        pronouns = profile.pronouns,
+                        ageVerificationStatus = profile.ageVerificationStatus
+                    ) { }
+                }
+            }
 
                     item {
                         Column(

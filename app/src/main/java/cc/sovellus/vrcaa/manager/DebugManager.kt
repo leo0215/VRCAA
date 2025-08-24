@@ -16,7 +16,10 @@
 
 package cc.sovellus.vrcaa.manager
 
+import cc.sovellus.vrcaa.App
+import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.base.BaseManager
+import cc.sovellus.vrcaa.helper.NotificationHelper
 
 object DebugManager : BaseManager<DebugManager.DebugListener>() {
 
@@ -26,7 +29,8 @@ object DebugManager : BaseManager<DebugManager.DebugListener>() {
 
     enum class DebugType {
         DEBUG_TYPE_HTTP,
-        DEBUG_TYPE_PIPELINE
+        DEBUG_TYPE_PIPELINE,
+        DEBUG_TYPE_GATEWAY
     }
 
     data class DebugMetadataData(
@@ -42,11 +46,19 @@ object DebugManager : BaseManager<DebugManager.DebugListener>() {
     private var metadataList: MutableList<DebugMetadataData> = ArrayList()
 
     fun addDebugMetadata(metadata: DebugMetadataData) {
-        metadataList.add(metadata)
-
-        val listSnapshot = metadataList.toList()
-        getListeners().forEach { listener ->
-            listener.onUpdateMetadata(listSnapshot)
+        try {
+            metadataList.add(metadata)
+            val listSnapshot = metadataList.toList()
+            getListeners().forEach { listener ->
+                listener.onUpdateMetadata(listSnapshot)
+            }
+        } catch (_: Throwable) {
+            metadataList.clear()
+            NotificationHelper.pushNotification(
+                App.getContext().getString(R.string.debug_notification_title_out_of_memory),
+                App.getContext().getString(R.string.debug_notification_content_out_of_memory),
+                NotificationHelper.CHANNEL_DEFAULT_ID
+            )
         }
     }
 

@@ -153,7 +153,7 @@ class NavigationScreen : Screen {
                 bundle.putBoolean("RESTART_SESSION", true)
 
                 val intent = Intent(context, MainActivity::class.java)
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 intent.putExtras(bundle)
                 context.startActivity(intent)
 
@@ -164,16 +164,18 @@ class NavigationScreen : Screen {
             })
         }
 
-        val tabs = arrayListOf(
-            HomeTab,
-            FriendsTab,
-            FavoritesTab,
-            FeedTab,
-            ProfileTab,
-            SettingsTab
-        )
+        val tabs = remember {
+            arrayListOf(
+                HomeTab,
+                FriendsTab,
+                FavoritesTab,
+                FeedTab,
+                ProfileTab,
+                SettingsTab
+            )
+        }
 
-        TabNavigator(HomeTab, tabDisposable = {
+        TabNavigator(tabs[0], tabDisposable = {
             TabDisposable(
                 navigator = it, tabs = tabs
             )
@@ -395,7 +397,11 @@ class NavigationScreen : Screen {
                                     )
                                 },
                                 navigationIcon = {
-                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
+                                    IconButton(onClick = {
+                                        if (CacheManager.isBuilt()) {
+                                            isQuickMenuExpanded = true
+                                        }
+                                    }) {
                                         Icon(
                                             imageVector = Icons.Filled.Menu,
                                             contentDescription = null
@@ -406,41 +412,25 @@ class NavigationScreen : Screen {
                         }
 
                         FavoritesTab.options.index -> {
-                            TopAppBar(
-                                title = {
-                                    Text(
-                                        text = stringResource(id = R.string.tabs_label_favorites),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
+                            TopAppBar(actions = {
+                                IconButton(onClick = { isMenuExpanded = true }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.MoreVert,
+                                        contentDescription = null
                                     )
-                                },
-                                navigationIcon = {
-                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Menu,
-                                            contentDescription = null
-                                        )
-                                    }
-                                },
-                                actions = {
-                                    IconButton(onClick = { isMenuExpanded = true }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.MoreVert,
-                                            contentDescription = null
-                                        )
-                                        Box(
-                                            contentAlignment = Alignment.Center
+                                    Box(
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        DropdownMenu(
+                                            expanded = isMenuExpanded,
+                                            onDismissRequest = { isMenuExpanded = false },
+                                            offset = DpOffset(0.dp, 0.dp)
                                         ) {
-                                            DropdownMenu(
-                                                expanded = isMenuExpanded,
-                                                onDismissRequest = { isMenuExpanded = false },
-                                                offset = DpOffset(0.dp, 0.dp)
-                                            ) {
-                                                DropdownMenuItem(
-                                                    onClick = {
-                                                        scope.launch {
-                                                            FavoriteManager.refresh()
-                                                        }
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    scope.launch {
+                                                        FavoriteManager.refresh()
+                                                    }
 
                                                         Toast.makeText(
                                                             context,

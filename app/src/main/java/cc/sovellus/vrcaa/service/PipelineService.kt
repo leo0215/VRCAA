@@ -30,6 +30,8 @@ import android.os.Process.THREAD_PRIORITY_FOREGROUND
 import androidx.core.app.NotificationCompat
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.api.discord.GatewaySocket
+import cc.sovellus.vrcaa.api.discord.GatewaySocket.PresenceInfo
 import cc.sovellus.vrcaa.api.vrchat.pipeline.PipelineSocket
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendActive
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendAdd
@@ -277,7 +279,6 @@ class PipelineService : Service(), CoroutineScope {
 
                     if (user.location.contains("wrld_")) {
                         launch {
-                            val location = LocationHelper.parseLocationInfo(user.travelingToLocation)
                             val instance = api.instances.fetchInstance(user.location)
                             instance?.let {
                                 if (CacheManager.isWorldCached(it.id)) {
@@ -286,7 +287,17 @@ class PipelineService : Service(), CoroutineScope {
                                     CacheManager.addWorld(instance.world)
                                 }
                                 if (preferences.richPresenceEnabled) {
-                                    GatewayManager.updateWorld(instance.world.name, "${location.instanceType} #${instance.name} (${instance.nUsers} of ${instance.capacity})", instance.world.imageUrl, user.user.status, instance.worldId)
+                                    val location = LocationHelper.parseLocationInfo(user.location)
+                                    val info = PresenceInfo().apply {
+                                        worldName = instance.world.name
+                                        worldThumbnailUrl = instance.world.thumbnailImageUrl
+                                        worldId = instance.world.id
+                                        instanceInfo = "${location.instanceType} #${instance.name}"
+                                        instanceNonce = user.location
+                                        instanceType = location.instanceType
+                                        userStatus = StatusHelper.getStatusFromString(user.user.status)
+                                    }
+                                    GatewayManager.updateWorld(info)
                                 }
                                 CacheManager.addRecentWorld(instance.world)
                             }
@@ -331,22 +342,25 @@ class PipelineService : Service(), CoroutineScope {
 
                 is FriendAdd -> {
                     val update = msg.obj as FriendAdd
+                    val friend = FriendManager.getFriend(update.userId)
 
-                    val feed = FeedManager.Feed(FeedManager.FeedType.FRIEND_FEED_ADDED).apply {
-                        friendId = update.userId
-                        friendName = update.user.displayName
-                        friendPictureUrl = update.user.userIcon.ifEmpty { update.user.profilePicOverride.ifEmpty { update.user.currentAvatarImageUrl } }
+                    if (friend == null) {
+                        val feed = FeedManager.Feed(FeedManager.FeedType.FRIEND_FEED_ADDED).apply {
+                            friendId = update.userId
+                            friendName = update.user.displayName
+                            friendPictureUrl = update.user.userIcon.ifEmpty { update.user.profilePicOverride.ifEmpty { update.user.currentAvatarImageUrl } }
+                        }
+
+                        NotificationHelper.pushNotification(
+                            title = application.getString(R.string.notification_service_title_friend_added),
+                            content = application.getString(R.string.notification_service_description_friend_added)
+                                .format(update.user.displayName),
+                            channel = NotificationHelper.CHANNEL_STATUS_ID
+                        )
+
+                        FeedManager.addFeed(feed)
+                        FriendManager.addFriend(update.user)
                     }
-
-                    NotificationHelper.pushNotification(
-                        title = application.getString(R.string.notification_service_title_friend_added),
-                        content = application.getString(R.string.notification_service_description_friend_added)
-                            .format(update.user.displayName),
-                        channel = NotificationHelper.CHANNEL_STATUS_ID
-                    )
-
-                    FeedManager.addFeed(feed)
-                    FriendManager.addFriend(update.user)
                 }
 
                 is FriendActive -> {
@@ -476,7 +490,7 @@ class PipelineService : Service(), CoroutineScope {
 
     companion object {
         private const val NOTIFICATION_ID: Int = 42069
-        private const val INITIAL_INTERVAL: Long = 1000
+        private const val INITIAL_INTERVAL: Long = 100
         private const val RESTART_INTERVAL: Long = 1800000
     }
 }
