@@ -29,6 +29,7 @@ import cc.sovellus.vrcaa.extension.currentThemeOption
 import cc.sovellus.vrcaa.extension.minimalistMode
 import cc.sovellus.vrcaa.extension.networkLogging
 import cc.sovellus.vrcaa.helper.NotificationHelper
+import cc.sovellus.vrcaa.helper.SecurityMigrationHelper
 
 
 class App : Application() {
@@ -38,6 +39,9 @@ class App : Application() {
 
         context = this
         preferences = getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE)
+
+        // Perform security migration for existing users
+        SecurityMigrationHelper.performSecurityMigration(preferences)
 
         networkLogging.value = preferences.networkLogging
         minimalistModeEnabled.value = preferences.minimalistMode
