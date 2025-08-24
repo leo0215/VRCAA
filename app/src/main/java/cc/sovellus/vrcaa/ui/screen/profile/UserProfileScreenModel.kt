@@ -58,6 +58,7 @@ class UserProfileScreenModel(
     private var profile: LimitedUser? = null
     private var instance: Instance? = null
 
+    val userGroups = kotlinx.coroutines.flow.MutableStateFlow<List<UserGroup>>(emptyList())
     val mutualGroups = kotlinx.coroutines.flow.MutableStateFlow<List<UserGroup>>(emptyList())
 
     init {
@@ -82,9 +83,10 @@ class UserProfileScreenModel(
 
                 mutableState.value = UserProfileState.Result(profile, instance)
 
-                // Fetch groups and extract mutual ones
+                // Fetch groups: full list + extract mutual
                 launch {
                     val groups = api.users.fetchGroupsByUserId(userId)
+                    userGroups.value = groups
                     mutualGroups.value = groups.filter { g -> g.mutualGroup }
                 }
             } ?: run {

@@ -16,6 +16,8 @@
 
 package cc.sovellus.vrcaa.ui.screen.feed
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,7 +27,12 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -40,15 +47,30 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.App
+import cc.sovellus.vrcaa.extension.anonymousMode
 import cc.sovellus.vrcaa.manager.FeedManager
 import cc.sovellus.vrcaa.ui.components.layout.FeedItem
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
+import android.content.SharedPreferences
+import androidx.compose.material3.Text
 
 @Composable
-fun FeedList(feed: SnapshotStateList<FeedManager.Feed>, filter: Boolean = false) {
+fun FeedList(feed: SnapshotStateList<FeedManager.Feed>, filter: Boolean = false, anonymousModeEnabled: Boolean = false) {
     val navigator = LocalNavigator.currentOrThrow
+
+    if (anonymousModeEnabled) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = stringResource(R.string.feed_anonymous_mode_message))
+        }
+        return
+    }
 
     LazyColumn(
         Modifier
@@ -61,7 +83,7 @@ fun FeedList(feed: SnapshotStateList<FeedManager.Feed>, filter: Boolean = false)
             when (item.type) {
                 FeedManager.FeedType.FRIEND_FEED_ONLINE -> {
                     val text = buildAnnotatedString {
-                        append(item.friendName)
+                        append(stringResource(R.string.feed_friend_label))
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_online_text))
@@ -84,7 +106,7 @@ fun FeedList(feed: SnapshotStateList<FeedManager.Feed>, filter: Boolean = false)
 
                 FeedManager.FeedType.FRIEND_FEED_OFFLINE -> {
                     val text = buildAnnotatedString {
-                        append(item.friendName)
+                        append(stringResource(R.string.feed_friend_label))
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_offline_text))
@@ -107,7 +129,7 @@ fun FeedList(feed: SnapshotStateList<FeedManager.Feed>, filter: Boolean = false)
 
                 FeedManager.FeedType.FRIEND_FEED_LOCATION -> {
                     val text = buildAnnotatedString {
-                        append(item.friendName)
+                        append(stringResource(R.string.feed_friend_label))
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_location_text))
@@ -132,7 +154,7 @@ fun FeedList(feed: SnapshotStateList<FeedManager.Feed>, filter: Boolean = false)
 
                 FeedManager.FeedType.FRIEND_FEED_STATUS -> {
                     val text = buildAnnotatedString {
-                        append(item.friendName)
+                        append(stringResource(R.string.feed_friend_label))
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_status_text))
@@ -157,7 +179,7 @@ fun FeedList(feed: SnapshotStateList<FeedManager.Feed>, filter: Boolean = false)
 
                 FeedManager.FeedType.FRIEND_FEED_ADDED -> {
                     val text = buildAnnotatedString {
-                        append(item.friendName)
+                        append(stringResource(R.string.feed_friend_label))
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_added_text))
@@ -180,7 +202,7 @@ fun FeedList(feed: SnapshotStateList<FeedManager.Feed>, filter: Boolean = false)
 
                 FeedManager.FeedType.FRIEND_FEED_REMOVED -> {
                     val text = buildAnnotatedString {
-                        append(item.friendName)
+                        append(stringResource(R.string.feed_friend_label))
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_removed_text))
@@ -203,7 +225,7 @@ fun FeedList(feed: SnapshotStateList<FeedManager.Feed>, filter: Boolean = false)
 
                 FeedManager.FeedType.FRIEND_FEED_FRIEND_REQUEST -> {
                     val text = buildAnnotatedString {
-                        append(item.friendName)
+                        append(stringResource(R.string.feed_friend_label))
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_friend_request_text))
@@ -226,7 +248,7 @@ fun FeedList(feed: SnapshotStateList<FeedManager.Feed>, filter: Boolean = false)
 
                 FeedManager.FeedType.FRIEND_FEED_AVATAR -> {
                     val text = buildAnnotatedString {
-                        append(item.friendName)
+                        append(stringResource(R.string.feed_friend_label))
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_friend_avatar_text))
@@ -274,7 +296,20 @@ class FeedScreen : Screen {
 
     @Composable
     fun ShowScreen(model: FeedScreenModel) {
+        // Real-time observe anonymous mode
+        val preferences = App.getPreferences()
+        var anonymousModeEnabled by remember { mutableStateOf(preferences.anonymousMode) }
+        DisposableEffect(preferences) {
+            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key == "isAnonymousModeEnabled") {
+                    anonymousModeEnabled = preferences.anonymousMode
+                }
+            }
+            preferences.registerOnSharedPreferenceChangeListener(listener)
+            onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+        }
+
         val feed = model.feed.collectAsState()
-        FeedList(feed.value)
+        FeedList(feed.value, anonymousModeEnabled = anonymousModeEnabled)
     }
 }

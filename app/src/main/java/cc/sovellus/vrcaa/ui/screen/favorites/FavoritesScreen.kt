@@ -55,6 +55,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.App
+import cc.sovellus.vrcaa.extension.anonymousMode
 import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.manager.FriendManager
 import cc.sovellus.vrcaa.ui.components.dialog.FavoriteEditDialog
@@ -64,6 +66,11 @@ import cc.sovellus.vrcaa.ui.screen.avatar.AvatarScreen
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
+import android.content.SharedPreferences
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 class FavoritesScreen : Screen {
 
@@ -84,6 +91,19 @@ class FavoritesScreen : Screen {
 
     @Composable
     fun ShowScreen(model: FavoritesScreenModel) {
+
+        // Real-time observe anonymous mode
+        val preferences = App.getPreferences()
+        var anonymousModeEnabled by remember { mutableStateOf(preferences.anonymousMode) }
+        DisposableEffect(preferences) {
+            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key == "isAnonymousModeEnabled") {
+                    anonymousModeEnabled = preferences.anonymousMode
+                }
+            }
+            preferences.registerOnSharedPreferenceChangeListener(listener)
+            onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+        }
 
         if (model.editDialogShown.value) {
             FavoriteEditDialog(
@@ -154,7 +174,7 @@ class FavoritesScreen : Screen {
                     when (model.currentIndex.intValue) {
                         0 -> ShowWorlds(model, worldList)
                         1 -> ShowAvatars(model, avatarList)
-                        2 -> ShowFriends(model, friendList)
+                        2 -> ShowFriends(model, friendList, anonymousModeEnabled)
                     }
                 }
             }
@@ -228,7 +248,8 @@ class FavoritesScreen : Screen {
     @Composable
     fun ShowFriends(
         model: FavoritesScreenModel,
-        friendList: State<SnapshotStateMap<String, SnapshotStateList<FavoriteManager.FavoriteMetadata>>>
+        friendList: State<SnapshotStateMap<String, SnapshotStateList<FavoriteManager.FavoriteMetadata>>>,
+        anonymousModeEnabled: Boolean
     ) {
         val navigator = LocalNavigator.currentOrThrow
 
@@ -247,7 +268,7 @@ class FavoritesScreen : Screen {
                     items(item.value) {
                         val user = FriendManager.getFriend(it.id)
                         user?.let {
-                            RowItem(name = user.displayName, url = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl }) {
+                            RowItem(name = if (anonymousModeEnabled) "Friend" else user.displayName, url = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl }) {
                                 navigator.parent?.parent?.push(UserProfileScreen(it.id))
                             }
                         }

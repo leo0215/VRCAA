@@ -61,6 +61,8 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.App
+import cc.sovellus.vrcaa.extension.anonymousMode
 import cc.sovellus.vrcaa.extension.columnCountOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
 import cc.sovellus.vrcaa.ui.components.layout.GridItem
@@ -71,6 +73,11 @@ import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.search.SearchResultScreenModel.SearchState
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
+import android.content.SharedPreferences
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 class SearchResultScreen(
     private val query: String
@@ -101,6 +108,19 @@ class SearchResultScreen(
     ) {
 
         val navigator = LocalNavigator.currentOrThrow
+
+        // Real-time observe anonymous mode
+        val preferences = App.getPreferences()
+        var anonymousModeEnabled by remember { mutableStateOf(preferences.anonymousMode) }
+        DisposableEffect(preferences) {
+            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key == "isAnonymousModeEnabled") {
+                    anonymousModeEnabled = preferences.anonymousMode
+                }
+            }
+            preferences.registerOnSharedPreferenceChangeListener(listener)
+            onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+        }
 
         BackHandler(enabled = model.currentIndex.intValue != 0, onBack = {
             model.currentIndex.intValue = 0
@@ -151,7 +171,7 @@ class SearchResultScreen(
 
                 when (model.currentIndex.intValue) {
                     0 -> ShowWorlds(model)
-                    1 -> ShowUsers(model)
+                    1 -> ShowUsers(model, anonymousModeEnabled)
                     2 -> ShowAvatars(model)
                     3 -> ShowGroups(model)
                 }
@@ -209,7 +229,8 @@ class SearchResultScreen(
 
     @Composable
     private fun ShowUsers(
-        model: SearchResultScreenModel
+        model: SearchResultScreenModel,
+        anonymousModeEnabled: Boolean
     ) {
         val state = model.users.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
@@ -232,7 +253,7 @@ class SearchResultScreen(
                 ), content = {
                     items(state.value) { user ->
                         GridItem(
-                            name = user.displayName,
+                            name = if (anonymousModeEnabled) "User" else user.displayName,
                             url = user.profilePicOverride.ifEmpty { user.currentAvatarImageUrl },
                             count = null
                         ) {

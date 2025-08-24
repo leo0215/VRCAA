@@ -97,6 +97,8 @@ import cc.sovellus.vrcaa.helper.StatusHelper
 import cc.sovellus.vrcaa.helper.TrustHelper
 import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.ui.components.card.InstanceCard
+import cc.sovellus.vrcaa.App
+import cc.sovellus.vrcaa.extension.anonymousMode
 import cc.sovellus.vrcaa.ui.components.card.ProfileCard
 import cc.sovellus.vrcaa.ui.components.card.QuickMenuCard
 import cc.sovellus.vrcaa.ui.components.dialog.FavoriteDialog
@@ -114,6 +116,8 @@ import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.notification.NotificationScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
 import cc.sovellus.vrcaa.ui.screen.worlds.WorldsScreen
+import android.content.SharedPreferences
+import androidx.compose.runtime.DisposableEffect
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -174,6 +178,19 @@ class UserProfileScreen(
     ) {
         val navigator = LocalNavigator.currentOrThrow
         val context = LocalContext.current
+
+        // Real-time observe anonymous mode
+        val preferences = App.getPreferences()
+        var anonymousModeEnabled by remember { mutableStateOf(preferences.anonymousMode) }
+        DisposableEffect(preferences) {
+            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key == "isAnonymousModeEnabled") {
+                    anonymousModeEnabled = preferences.anonymousMode
+                }
+            }
+            preferences.registerOnSharedPreferenceChangeListener(listener)
+            onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+        }
 
         var peekUrl by remember { mutableStateOf("") }
         var peekProfilePicture by remember { mutableStateOf(false) }
@@ -248,7 +265,11 @@ class UserProfileScreen(
                             }
                         }, title = {
                             Text(
-                                text = profile.displayName,
+                                text = if (anonymousModeEnabled) {
+                                    if (profile.isFriend) "Friend" else "User"
+                                } else {
+                                    profile.displayName
+                                },
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -260,7 +281,11 @@ class UserProfileScreen(
                                 type = IFavorites.FavoriteType.FAVORITE_FRIEND,
                                 id = profile.id,
                                 metadata = FavoriteManager.FavoriteMetadata(
-                                    profile.id, "", profile.displayName, ""
+                                    profile.id, "", if (anonymousModeEnabled) {
+                                        if (profile.isFriend) "Friend" else "User"
+                                    } else {
+                                        profile.displayName
+                                    }, ""
                                 ),
                                 onDismiss = { favoriteDialogShown = false },
                                 onConfirmation = { favoriteDialogShown = false })
@@ -282,7 +307,11 @@ class UserProfileScreen(
                                     ProfileCard(
                                         thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
                                         iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
-                                        displayName = it.displayName,
+                                        displayName = if (anonymousModeEnabled) {
+                                            if (it.isFriend) "Friend" else "User"
+                                        } else {
+                                            it.displayName
+                                        },
                                         statusDescription = it.statusDescription.ifEmpty {
                                             StatusHelper.getStatusFromString(it.status).toString()
                                         },
@@ -341,6 +370,54 @@ class UserProfileScreen(
                                                  horizontalArrangement = Arrangement.spacedBy(8.dp)
                                              ) {
                                                  items(mutualGroups) { g ->
+                                                     androidx.compose.material3.Surface(
+                                                         shape = RoundedCornerShape(24.dp),
+                                                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                                         modifier = Modifier
+                                                             .clip(RoundedCornerShape(24.dp))
+                                                             .clickable { navigator.push(GroupScreen(g.groupId)) }
+                                                     ) {
+                                                         Row(
+                                                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                                             verticalAlignment = Alignment.CenterVertically,
+                                                             horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                         ) {
+                                                             com.bumptech.glide.integration.compose.GlideImage(
+                                                                 model = g.iconUrl,
+                                                                 contentDescription = null,
+                                                                 modifier = Modifier
+                                                                     .size(36.dp)
+                                                                     .clip(RoundedCornerShape(8.dp)),
+                                                                 loading = com.bumptech.glide.integration.compose.placeholder(cc.sovellus.vrcaa.R.drawable.image_placeholder),
+                                                                 failure = com.bumptech.glide.integration.compose.placeholder(cc.sovellus.vrcaa.R.drawable.image_placeholder)
+                                                             )
+                                                             Text(
+                                                                 text = g.name,
+                                                                 maxLines = 1,
+                                                                 overflow = TextOverflow.Ellipsis,
+                                                                 style = MaterialTheme.typography.labelLarge
+                                                             )
+                                                         }
+                                                     }
+                                                 }
+                                             }
+                                         }
+                                     }
+
+                                     val userGroups by model.userGroups.collectAsState()
+                                     if (userGroups.isNotEmpty()) {
+                                         Card(
+                                             modifier = Modifier
+                                                 .padding(top = 16.dp)
+                                                 .defaultMinSize(minHeight = 60.dp)
+                                                 .widthIn(Dp.Unspecified, 520.dp),
+                                         ) {
+                                             SubHeader(title = stringResource(R.string.user_overlay_groups))
+                                             androidx.compose.foundation.lazy.LazyRow(
+                                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                             ) {
+                                                 items(userGroups) { g ->
                                                      androidx.compose.material3.Surface(
                                                          shape = RoundedCornerShape(24.dp),
                                                          color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -441,7 +518,11 @@ class UserProfileScreen(
                                     QuickMenuCard(
                                         thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
                                         iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
-                                        displayName = it.displayName,
+                                        displayName = if (anonymousModeEnabled) {
+                                            if (it.isFriend) "Friend" else "User"
+                                        } else {
+                                            it.displayName
+                                        },
                                         statusDescription = it.statusDescription.ifEmpty {
                                             StatusHelper.getStatusFromString(
                                                 it.status
@@ -513,6 +594,7 @@ class UserProfileScreen(
                                     icons.add(Icons.Default.Star)
                                     favoritesIndex = options.size - 1
 
+                                    // Always show Copy ID, but disable it in anonymous mode (real-time)
                                     options.add(stringResource(R.string.copy_id_label))
                                     icons.add(Icons.Default.ContentCopy)
                                     copyIndex = options.size - 1
@@ -534,7 +616,11 @@ class UserProfileScreen(
                                                             navigator.push(
                                                                 NotificationScreen(
                                                                     profile.id,
-                                                                    profile.displayName
+                                                                    if (anonymousModeEnabled) {
+                                                                        if (profile.isFriend) "Friend" else "User"
+                                                                    } else {
+                                                                        profile.displayName
+                                                                    }
                                                                 )
                                                             )
                                                         }
@@ -550,14 +636,22 @@ class UserProfileScreen(
                                                                         Toast.makeText(
                                                                             context,
                                                                             context.getString(R.string.favorite_toast_favorite_removed)
-                                                                                .format(profile.displayName),
+                                                                                .format(if (anonymousModeEnabled) {
+                                                                                    if (profile.isFriend) "Friend" else "User"
+                                                                                } else {
+                                                                                    profile.displayName
+                                                                                }),
                                                                             Toast.LENGTH_SHORT
                                                                         ).show()
                                                                     } else {
                                                                         Toast.makeText(
                                                                             context,
                                                                             context.getString(R.string.favorite_toast_favorite_removed_failed)
-                                                                                .format(profile.displayName),
+                                                                                .format(if (anonymousModeEnabled) {
+                                                                                    if (profile.isFriend) "Friend" else "User"
+                                                                                } else {
+                                                                                    profile.displayName
+                                                                                }),
                                                                             Toast.LENGTH_SHORT
                                                                         ).show()
                                                                     }
@@ -594,7 +688,11 @@ class UserProfileScreen(
                                                         worldsIndex -> {
                                                             navigator.push(
                                                                 WorldsScreen(
-                                                                    profile.displayName,
+                                                                    if (anonymousModeEnabled) {
+                                                                        if (profile.isFriend) "Friend" else "User"
+                                                                    } else {
+                                                                        profile.displayName
+                                                                    },
                                                                     profile.id,
                                                                     false
                                                                 )
@@ -604,7 +702,11 @@ class UserProfileScreen(
                                                         groupsIndex -> {
                                                             navigator.push(
                                                                 UserGroupsScreen(
-                                                                    profile.displayName,
+                                                                    if (anonymousModeEnabled) {
+                                                                        if (profile.isFriend) "Friend" else "User"
+                                                                    } else {
+                                                                        profile.displayName
+                                                                    },
                                                                     profile.id
                                                                 )
                                                             )
@@ -617,6 +719,14 @@ class UserProfileScreen(
                                                         }
 
                                                         copyIndex -> {
+                                                            if (anonymousModeEnabled) {
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    context.getString(R.string.result_not_found),
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                                return@clickable
+                                                            }
                                                             val clipboard =
                                                                 context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                                             val clip =
@@ -626,14 +736,18 @@ class UserProfileScreen(
                                                                 )
                                                             clipboard.setPrimaryClip(clip)
 
-                                                            Toast.makeText(
-                                                                context,
-                                                                context.getString(R.string.copied_toast)
-                                                                    .format(
-                                                                        profile.displayName
-                                                                    ),
-                                                                Toast.LENGTH_SHORT
-                                                            ).show()
+                                                                                                        Toast.makeText(
+                                                context,
+                                                context.getString(R.string.copied_toast)
+                                                    .format(
+                                                        if (anonymousModeEnabled) {
+                                                            if (profile.isFriend) "Friend" else "User"
+                                                        } else {
+                                                            profile.displayName
+                                                        }
+                                                    ),
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                                         }
                                                     }
                                                     isQuickMenuExpanded = false
@@ -663,7 +777,7 @@ class UserProfileScreen(
             if (peekProfilePicture) {
                 ImagePreviewDialog(
                     url = peekUrl,
-                    name = "${profile.displayName}-${LocalDateTime.now()}",
+                    name = "${if (anonymousModeEnabled) { if (profile.isFriend) "Friend" else "User" } else { profile.displayName }}-${LocalDateTime.now()}",
                     onDismiss = { peekProfilePicture = false }
                 )
             }

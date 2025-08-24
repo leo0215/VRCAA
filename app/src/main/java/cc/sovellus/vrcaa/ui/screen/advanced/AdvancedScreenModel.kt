@@ -29,6 +29,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.networkLogging
+import cc.sovellus.vrcaa.extension.anonymousMode
 import cc.sovellus.vrcaa.service.PipelineService
 import androidx.core.net.toUri
 import cc.sovellus.vrcaa.manager.DatabaseManager
@@ -40,10 +41,16 @@ class AdvancedScreenModel : ScreenModel {
     private val preferences: SharedPreferences = App.getPreferences()
 
     val networkLoggingMode = mutableStateOf(preferences.networkLogging)
+    val anonymousModeEnabled = mutableStateOf(preferences.anonymousMode)
 
     fun toggleLogging() {
         networkLoggingMode.value = !networkLoggingMode.value
         preferences.networkLogging = !preferences.networkLogging
+    }
+
+    fun toggleAnonymousMode() {
+        anonymousModeEnabled.value = !anonymousModeEnabled.value
+        preferences.anonymousMode = !preferences.anonymousMode
     }
 
     @SuppressLint("BatteryLife")

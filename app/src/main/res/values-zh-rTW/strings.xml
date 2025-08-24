@@ -23,7 +23,7 @@
     <string name="login_toast_wrong_credentials">使用者名稱或密碼輸入錯誤。</string>
     <string name="login_toast_wrong_code">驗證失敗，請檢察驗證碼是否輸入正確。</string>
     <!-- Two Auth -->
-    <string name="auth_text_email">輸入寄送到你墊子郵件的驗證碼</string>
+    <string name="auth_text_email">輸入寄送到你電子郵件的驗證碼</string>
     <string name="auth_text_app">輸入二步驟驗證應用程式產生的驗證碼</string>
     <string name="auth_button_text">驗證</string>
     <string name="auth_button_paste">貼上</string>

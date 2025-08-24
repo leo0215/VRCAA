@@ -49,10 +49,14 @@ import com.bumptech.glide.integration.compose.placeholder
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun FriendItem(friend: Friend, callback: () -> Unit) {
+fun FriendItem(
+    friend: Friend,
+    anonymousMode: Boolean = false,
+    callback: () -> Unit
+) {
     ListItem(
         headlineContent = {
-            Text(friend.displayName)
+            Text(if (anonymousMode) "Friend" else friend.displayName)
         },
         overlineContent = {
             Text(friend.statusDescription.ifEmpty {

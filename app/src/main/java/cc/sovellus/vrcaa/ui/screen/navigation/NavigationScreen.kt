@@ -111,6 +111,7 @@ import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.BuildConfig
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.extension.anonymousMode
 import cc.sovellus.vrcaa.activity.MainActivity
 import cc.sovellus.vrcaa.helper.StatusHelper
 import cc.sovellus.vrcaa.helper.TrustHelper
@@ -132,6 +133,8 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import kotlinx.coroutines.launch
+import android.content.SharedPreferences
+import androidx.compose.runtime.DisposableEffect
 
 class NavigationScreen : Screen {
 
@@ -187,6 +190,19 @@ class NavigationScreen : Screen {
             var isQuickMenuExpanded by remember { mutableStateOf(false) }
 
             val scope = rememberCoroutineScope()
+
+            // Real-time observe anonymous mode
+            val preferences = App.getPreferences()
+            var anonymousModeEnabled by remember { mutableStateOf(preferences.anonymousMode) }
+            DisposableEffect(preferences) {
+                val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                    if (key == "isAnonymousModeEnabled") {
+                        anonymousModeEnabled = preferences.anonymousMode
+                    }
+                }
+                preferences.registerOnSharedPreferenceChangeListener(listener)
+                onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+            }
 
             var pressBackCounter by remember { mutableIntStateOf(0) }
 
@@ -553,7 +569,7 @@ class NavigationScreen : Screen {
                                     )
                                 ) {
                                     val feed = model.filteredFeed.collectAsState()
-                                    FeedList(feed.value, true)
+                                    FeedList(feed.value, true, anonymousModeEnabled)
                                 }
                             }
                         }
@@ -1099,7 +1115,7 @@ class NavigationScreen : Screen {
                                                 QuickMenuCard(
                                                     thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
                                                     iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
-                                                    displayName = it.displayName,
+                                                    displayName = if (anonymousModeEnabled) "You" else it.displayName,
                                                     statusDescription = it.statusDescription.ifEmpty {  StatusHelper.getStatusFromString(it.status).toString() },
                                                     trustRankColor = TrustHelper.getTrustRankFromTags(it.tags).toColor(),
                                                     statusColor = StatusHelper.getStatusFromString(it.status).toColor(),

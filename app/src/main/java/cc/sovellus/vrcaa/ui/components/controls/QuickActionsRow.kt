@@ -64,7 +64,6 @@ fun QuickActionsRow(
         add(Triple(Icons.Filled.Person, "Avatars") { navigator.push(AvatarsScreen()) })
         if (me != null) {
             add(Triple(Icons.Filled.Public, "Worlds") { navigator.push(WorldsScreen(me.displayName, me.id, private = false)) })
-            add(Triple(Icons.Filled.Group, "Groups") { navigator.push(UserGroupsScreen(me.displayName, me.id)) })
         }
         add(Triple(Icons.Filled.Collections, "Gallery") { navigator.push(GalleryScreen()) })
         add(Triple(Icons.Filled.Face, "User Icons") { navigator.push(IconGalleryScreen()) })

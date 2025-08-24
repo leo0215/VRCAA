@@ -19,7 +19,17 @@ package cc.sovellus.vrcaa.ui.screen.profile
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -42,12 +52,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.DisposableEffect
+import android.content.SharedPreferences
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.App
+import cc.sovellus.vrcaa.extension.anonymousMode
 import cc.sovellus.vrcaa.api.vrchat.http.models.User
 import cc.sovellus.vrcaa.helper.StatusHelper
 import cc.sovellus.vrcaa.helper.TrustHelper
@@ -56,6 +70,7 @@ import cc.sovellus.vrcaa.ui.components.controls.QuickActionsRow
 import cc.sovellus.vrcaa.ui.components.misc.Description
 import cc.sovellus.vrcaa.ui.components.misc.SubHeader
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
+import cc.sovellus.vrcaa.ui.screen.group.GroupScreen
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -65,7 +80,7 @@ class ProfileScreen : Screen {
 
     override val key = uniqueScreenKey
     
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalGlideComposeApi::class)
     @Composable
     override fun Content() {
         val model = rememberScreenModel { ProfileScreenModel() }
@@ -73,19 +88,29 @@ class ProfileScreen : Screen {
 
         when (val result = state) {
             is ProfileScreenModel.ProfileState.Loading -> LoadingIndicatorScreen().Content()
-            is ProfileScreenModel.ProfileState.Result -> RenderProfile(result.profile)
+            is ProfileScreenModel.ProfileState.Result -> RenderProfile(model, result.profile)
             else -> {}
         }
     }
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalGlideComposeApi::class)
     @Composable
-    private fun RenderProfile(profile: User) {
+    private fun RenderProfile(model: ProfileScreenModel, profile: User) {
         val navigator = LocalNavigator.currentOrThrow
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
         
-        // FAB menu removed in redesign; no need to handle back for it
+        // Real-time observe anonymous mode
+        val preferences = App.getPreferences()
+        var anonymousModeEnabled by remember { mutableStateOf(preferences.anonymousMode) }
+        DisposableEffect(preferences) {
+            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key == "isAnonymousModeEnabled") {
+                    anonymousModeEnabled = preferences.anonymousMode
+                }
+            }
+            preferences.registerOnSharedPreferenceChangeListener(listener)
+            onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+        }
         
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
@@ -120,7 +145,7 @@ class ProfileScreen : Screen {
                             ProfileCard(
                                 thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
                                 iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
-                                displayName = it.displayName,
+                                displayName = if (anonymousModeEnabled) "You" else it.displayName,
                                 statusDescription = it.statusDescription.ifEmpty {  StatusHelper.getStatusFromString(it.status).toString() },
                                 trustRankColor = TrustHelper.getTrustRankFromTags(it.tags).toColor(),
                                 statusColor = StatusHelper.getStatusFromString(it.status).toColor(),
@@ -163,6 +188,54 @@ class ProfileScreen : Screen {
 
                                 SubHeader(title = stringResource(R.string.profile_label_date_joined))
                                 Description(text = profile.dateJoined)
+                            }
+
+                            val myGroups by model.myGroups.collectAsState()
+                            if (myGroups.isNotEmpty()) {
+                                Card(
+                                    modifier = Modifier
+                                        .padding(top = 16.dp)
+                                        .defaultMinSize(minHeight = 60.dp)
+                                        .widthIn(Dp.Unspecified, 520.dp),
+                                ) {
+                                    SubHeader(title = "Your groups")
+                                    LazyRow(
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        items(myGroups) { g ->
+                                            Surface(
+                                                shape = RoundedCornerShape(24.dp),
+                                                color = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh,
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(24.dp))
+                                                    .clickable { navigator.push(GroupScreen(g.groupId)) }
+                                            ) {
+                                                androidx.compose.foundation.layout.Row(
+                                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
+                                                    com.bumptech.glide.integration.compose.GlideImage(
+                                                        model = g.iconUrl,
+                                                        contentDescription = null,
+                                                        modifier = Modifier
+                                                            .size(36.dp)
+                                                            .clip(RoundedCornerShape(8.dp)),
+                                                        loading = com.bumptech.glide.integration.compose.placeholder(cc.sovellus.vrcaa.R.drawable.image_placeholder),
+                                                        failure = com.bumptech.glide.integration.compose.placeholder(cc.sovellus.vrcaa.R.drawable.image_placeholder)
+                                                    )
+                                                    Text(
+                                                        text = g.name,
+                                                        maxLines = 1,
+                                                        overflow = TextOverflow.Ellipsis,
+                                                        style = androidx.compose.material3.MaterialTheme.typography.labelLarge
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

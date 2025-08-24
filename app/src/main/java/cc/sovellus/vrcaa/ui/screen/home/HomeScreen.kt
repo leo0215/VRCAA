@@ -46,6 +46,8 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.App
+import cc.sovellus.vrcaa.extension.anonymousMode
 import cc.sovellus.vrcaa.helper.StatusHelper
 import cc.sovellus.vrcaa.manager.CacheManager
 import cc.sovellus.vrcaa.ui.components.layout.HorizontalRow
@@ -56,6 +58,11 @@ import cc.sovellus.vrcaa.ui.screen.home.HomeScreenModel.HomeState
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
+import android.content.SharedPreferences
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 class HomeScreen : Screen {
 
@@ -81,6 +88,19 @@ class HomeScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val friends = model.friendsList.collectAsState().value
         val recent = model.recentlyVisited.collectAsState().value
+
+        // Real-time observe anonymous mode
+        val preferences = App.getPreferences()
+        var anonymousModeEnabled by remember { mutableStateOf(preferences.anonymousMode) }
+        DisposableEffect(preferences) {
+            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key == "isAnonymousModeEnabled") {
+                    anonymousModeEnabled = preferences.anonymousMode
+                }
+            }
+            preferences.registerOnSharedPreferenceChangeListener(listener)
+            onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+        }
 
         val isLargeScreen = LocalConfiguration.current.screenWidthDp >= 840
 
@@ -124,7 +144,7 @@ class HomeScreen : Screen {
                                     key = { it.id }
                                 ) { friend ->
                                     RoundedRowItem(
-                                        name = friend.displayName,
+                                        name = if (anonymousModeEnabled) "Friend" else friend.displayName,
                                         url = friend.userIcon.ifEmpty { friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl } },
                                         status = friend.status,
                                         onClick = {
@@ -169,6 +189,7 @@ class HomeScreen : Screen {
                                         name = world.name,
                                         url = world.thumbnailUrl,
                                         friends = friends.filter { it.location == friend.location },
+                                        anonymousMode = anonymousModeEnabled,
                                         onClick = { navigator.parent?.parent?.push(WorldScreen(world.id)) }
                                     )
                                 }
@@ -236,7 +257,7 @@ class HomeScreen : Screen {
                             HorizontalRow(title = stringResource(R.string.home_offline_friends)) {
                                 items(offlineFriends, key = { it.id }) { friend ->
                                     RowItem(
-                                        name = friend.displayName,
+                                        name = if (anonymousModeEnabled) "Friend" else friend.displayName,
                                         url = friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl },
                                         onClick = {
                                             navigator.parent?.parent?.push(
@@ -291,7 +312,7 @@ class HomeScreen : Screen {
                                 onlineFriends.sortedBy { StatusHelper.getStatusFromString(it.status) },
                                 key = { it.id }) { friend ->
                                 RoundedRowItem(
-                                    name = friend.displayName,
+                                    name = if (anonymousModeEnabled) "Friend" else friend.displayName,
                                     url = friend.userIcon.ifEmpty { friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl } },
                                     status = friend.status,
                                     onClick = {
@@ -377,6 +398,7 @@ class HomeScreen : Screen {
                                     name = world.name,
                                     url = world.thumbnailUrl,
                                     friends = friends.filter { it.location == friend.location },
+                                    anonymousMode = anonymousModeEnabled,
                                     onClick = { navigator.parent?.parent?.push(WorldScreen(world.id)) }
                                 )
                             }
@@ -412,7 +434,7 @@ class HomeScreen : Screen {
                         ) {
                             items(offlineFriends, key = { it.id }) { friend ->
                                 RowItem(
-                                    name = friend.displayName,
+                                    name = if (anonymousModeEnabled) "Friend" else friend.displayName,
                                     url = friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl },
                                     onClick = {
                                         navigator.parent?.parent?.push(

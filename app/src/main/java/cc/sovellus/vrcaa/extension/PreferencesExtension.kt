@@ -104,6 +104,10 @@ internal var SharedPreferences.minimalistMode: Boolean
     get() = getBoolean("isMinimalistModeEnabled", false)
     set(it) = edit { putBoolean("isMinimalistModeEnabled", it) }
 
+internal var SharedPreferences.anonymousMode: Boolean
+    get() = getBoolean("isAnonymousModeEnabled", false)
+    set(it) = edit { putBoolean("isAnonymousModeEnabled", it) }
+
 internal var SharedPreferences.currentThemeOption: Int
     get() = getInt("currentThemeOption", 2)
     set(it) = edit { putInt("currentThemeOption", it) }

@@ -57,6 +57,7 @@ fun RowItemWithFriends(
     name: String,
     url: Any,
     friends: List<Friend>,
+    anonymousMode: Boolean = false,
     onClick: () -> Unit
 ) {
     val window = LocalWindowInfo.current
@@ -102,7 +103,13 @@ fun RowItemWithFriends(
                             failure = placeholder(R.drawable.image_placeholder),
                             alpha = 0.8f
                         )
-                        Text(text = friend.displayName.take(3), color = Color.White, maxLines = 1, fontWeight = FontWeight.Light, fontSize = 16.sp)
+                        Text(
+                            text = if (anonymousMode) "Fri" else friend.displayName.take(3), 
+                            color = Color.White, 
+                            maxLines = 1, 
+                            fontWeight = FontWeight.Light, 
+                            fontSize = 16.sp
+                        )
                     }
                 }
             }

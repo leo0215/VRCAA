@@ -17,8 +17,12 @@
 package cc.sovellus.vrcaa.ui.screen.profile
 
 import cafe.adriel.voyager.core.model.StateScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
 import cc.sovellus.vrcaa.api.vrchat.http.models.User
+import cc.sovellus.vrcaa.api.vrchat.http.models.UserGroup
 import cc.sovellus.vrcaa.manager.CacheManager
+import cc.sovellus.vrcaa.manager.ApiManager.api
+import kotlinx.coroutines.launch
 
 class ProfileScreenModel : StateScreenModel<ProfileScreenModel.ProfileState>(ProfileState.Init) {
 
@@ -28,10 +32,13 @@ class ProfileScreenModel : StateScreenModel<ProfileScreenModel.ProfileState>(Pro
         data class Result(val profile: User) : ProfileState()
     }
 
+    val myGroups = kotlinx.coroutines.flow.MutableStateFlow<List<UserGroup>>(emptyList())
+
     private val cacheListener = object : CacheManager.CacheListener {
         override fun profileUpdated(profile: User) {
             mutableState.value = ProfileState.Loading
             mutableState.value = ProfileState.Result(profile)
+            fetchGroups()
         }
 
         override fun startCacheRefresh() {
@@ -55,6 +62,15 @@ class ProfileScreenModel : StateScreenModel<ProfileScreenModel.ProfileState>(Pro
         val profile = CacheManager.getProfile()
         if (profile != null) {
             mutableState.value = ProfileState.Result(profile)
+            fetchGroups()
+        }
+    }
+
+    private fun fetchGroups() {
+        screenModelScope.launch {
+            CacheManager.getProfile()?.let { me ->
+                myGroups.value = api.users.fetchGroupsByUserId(me.id)
+            }
         }
     }
 }

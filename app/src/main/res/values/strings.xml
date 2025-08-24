@@ -195,6 +195,8 @@
     <string name="feed_search_placeholder">Search for User or Location…</string>
     <string name="feed_friend_avatar_label">Avatar Change</string>
     <string name="feed_friend_avatar_text">changed their avatar to</string>
+    <string name="feed_friend_label">Friend</string>
+    <string name="feed_anonymous_mode_message">Cannot show info because anonymous mode enabled</string>
 
     <!-- About -->
 
