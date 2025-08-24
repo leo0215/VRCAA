@@ -33,8 +33,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Badge
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
@@ -184,17 +186,15 @@ fun ProfileCard(
                     }
                 }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 4.dp),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        Languages(languages = tags, modifier = Modifier.padding(top = 8.dp))
-                    }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 4.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Languages(languages = tags, modifier = Modifier.padding(top = 8.dp))
                 }
-            }
-            item {
+
                 Row(
                     modifier = Modifier.padding(start = 12.dp, top = 50.dp),
                     horizontalArrangement = Arrangement.Start

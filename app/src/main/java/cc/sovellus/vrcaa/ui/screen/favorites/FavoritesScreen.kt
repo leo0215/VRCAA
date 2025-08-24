@@ -67,6 +67,9 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import cc.sovellus.vrcaa.App
+import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites.FavoriteType
+import cc.sovellus.vrcaa.extension.anonymousMode
 
 class FavoritesScreen : Screen {
 
@@ -164,9 +167,10 @@ class FavoritesScreen : Screen {
             ) {
                 item {
                     when (model.currentIndex.intValue) {
-                        0 -> ShowWorlds(model, worldList)
-                        1 -> ShowAvatars(model, avatarList)
-                        2 -> ShowFriends(model, friendList)
+                        0 -> ShowWorlds(model, anonymousModeEnabled)
+                        1 -> ShowAvatars(model, anonymousModeEnabled)
+                        2 -> ShowFriends(model, anonymousModeEnabled)
+                        else -> {}
                     }
                 }
             }
@@ -176,6 +180,7 @@ class FavoritesScreen : Screen {
     @Composable
     fun ShowWorlds(
         model: FavoritesScreenModel,
+        anonymousModeEnabled: Boolean,
     ) {
         val worldList = model.worldList.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
@@ -208,6 +213,7 @@ class FavoritesScreen : Screen {
     @Composable
     fun ShowAvatars(
         model: FavoritesScreenModel,
+        anonymousModeEnabled: Boolean,
     ) {
         val avatarList = model.avatarList.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
@@ -240,7 +246,7 @@ class FavoritesScreen : Screen {
     @Composable
     fun ShowFriends(
         model: FavoritesScreenModel,
-        friendList: State<SnapshotStateMap<String, SnapshotStateList<FavoriteManager.FavoriteMetadata>>>
+        anonymousModeEnabled: Boolean,
     ) {
         val friendList = model.friendList.collectAsState()
         val navigator = LocalNavigator.currentOrThrow

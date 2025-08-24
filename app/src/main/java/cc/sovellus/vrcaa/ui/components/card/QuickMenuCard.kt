@@ -57,6 +57,7 @@ fun QuickMenuCard(
     statusColor: Color,
     tags: List<String>,
     badges: List<Badge>,
+    clickable: Boolean = false
 ) {
     Box(
         modifier = Modifier
@@ -102,72 +103,38 @@ fun QuickMenuCard(
                 }
             }
 
-            item {
-                Row {
-                    Row(
-                        modifier = Modifier.padding(start = 12.dp, top = 60.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        Text(
-                            text = displayName,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            color = trustRankColor,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-
-                    /*
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 4.dp),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        Languages(languages = tags, modifier = Modifier.padding(top = 8.dp))
-                    }
-
-                     */
-                }
+            Row(
+                modifier = Modifier.padding(start = 12.dp, top = 60.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    text = displayName,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Left,
+                    color = trustRankColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
-            item {
-                Row(
-                    modifier = Modifier.padding(start = 12.dp, top = 50.dp),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Badge(containerColor = statusColor, modifier = Modifier.size(16.dp))
-                        Text(
-                            modifier = Modifier.padding(start = 8.dp),
-                            text = statusDescription,
-                            textAlign = TextAlign.Left,
-                            fontWeight = FontWeight.SemiBold,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
-                        )
-                    }
-                    /*
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 8.dp),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        for (badge in badges) {
-                            if (badge.showcased) {
-                                GlideImage(model = badge.badgeImageUrl, contentDescription = null, modifier = Modifier
-                                    .size(28.dp)
-                                    .padding(2.dp), alpha = if (badge.showcased) { 1.0f } else { 0.5f })
-                            }
-                        }
-                    }
 
-                     */
+            Row(
+                modifier = Modifier.padding(start = 12.dp, top = 50.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Badge(containerColor = statusColor, modifier = Modifier.size(16.dp))
+                    Text(
+                        modifier = Modifier.padding(start = 8.dp),
+                        text = statusDescription,
+                        textAlign = TextAlign.Left,
+                        fontWeight = FontWeight.SemiBold,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
+                    )
                 }
             }
         }

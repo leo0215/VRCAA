@@ -428,7 +428,9 @@ class NavigationScreen : Screen {
                         }
 
                         FavoritesTab.options.index -> {
-                            TopAppBar(actions = {
+                            TopAppBar(
+                                title = { Text(stringResource(R.string.tabs_label_favorites)) },
+                                actions = {
                                 IconButton(onClick = { isMenuExpanded = true }) {
                                     Icon(
                                         imageVector = Icons.Filled.MoreVert,
@@ -559,7 +561,7 @@ class NavigationScreen : Screen {
                                     )
                                 ) {
                                     val feed = model.filteredFeed.collectAsState()
-                                    FeedList(feed.value, true, anonymousModeEnabled)
+                                    FeedList(feed.value, true)
                                 }
                             }
                         }

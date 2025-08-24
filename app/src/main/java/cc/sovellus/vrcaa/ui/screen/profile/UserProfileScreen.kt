@@ -323,15 +323,16 @@ class UserProfileScreen(
                                         badges = profile.badges,
                                         pronouns = profile.pronouns,
                                         ageVerificationStatus = profile.ageVerificationStatus,
-                                        disablePeek = false
-                                    ) { url ->
-                                        if (!isQuickMenuExpanded) {
-                                            peekProfilePicture = true
-                                            peekUrl = url
-                                        } else {
-                                            isQuickMenuExpanded = false
+                                        disablePeek = false,
+                                        onPeek = { url ->
+                                            if (!isQuickMenuExpanded) {
+                                                peekProfilePicture = true
+                                                peekUrl = url
+                                            } else {
+                                                isQuickMenuExpanded = false
+                                            }
                                         }
-                                    }
+                                    )
                                 }
                             }
 
@@ -342,7 +343,7 @@ class UserProfileScreen(
                                         horizontalAlignment = Alignment.Start,
                                         modifier = Modifier.padding(top = 16.dp)
                                     ) {
-                                        InstanceCard(profile = profile, instance = instance) {
+                                        InstanceCard(profile = profile, instance = instance, clickable = true) {
                                             if (!isQuickMenuExpanded) {
                                                 navigator.push(WorldScreen(instance.worldId))
                                             } else {
@@ -359,101 +360,6 @@ class UserProfileScreen(
                                     verticalArrangement = Arrangement.SpaceBetween,
                                     horizontalAlignment = Alignment.Start
                                 ) {
-                                     val mutualGroups by model.mutualGroups.collectAsState()
-                                     if (mutualGroups.isNotEmpty()) {
-                                         Card(
-                                             modifier = Modifier
-                                                 .padding(top = 16.dp)
-                                                 .defaultMinSize(minHeight = 60.dp)
-                                                 .widthIn(Dp.Unspecified, 520.dp),
-                                         ) {
-                                             SubHeader(title = "The groups you and your friend are in")
-                                             androidx.compose.foundation.lazy.LazyRow(
-                                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                             ) {
-                                                 items(mutualGroups) { g ->
-                                                     androidx.compose.material3.Surface(
-                                                         shape = RoundedCornerShape(24.dp),
-                                                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                                         modifier = Modifier
-                                                             .clip(RoundedCornerShape(24.dp))
-                                                             .clickable { navigator.push(GroupScreen(g.groupId)) }
-                                                     ) {
-                                                         Row(
-                                                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                                                             verticalAlignment = Alignment.CenterVertically,
-                                                             horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                                         ) {
-                                                             com.bumptech.glide.integration.compose.GlideImage(
-                                                                 model = g.iconUrl,
-                                                                 contentDescription = null,
-                                                                 modifier = Modifier
-                                                                     .size(36.dp)
-                                                                     .clip(RoundedCornerShape(8.dp)),
-                                                                 loading = com.bumptech.glide.integration.compose.placeholder(cc.sovellus.vrcaa.R.drawable.image_placeholder),
-                                                                 failure = com.bumptech.glide.integration.compose.placeholder(cc.sovellus.vrcaa.R.drawable.image_placeholder)
-                                                             )
-                                                             Text(
-                                                                 text = g.name,
-                                                                 maxLines = 1,
-                                                                 overflow = TextOverflow.Ellipsis,
-                                                                 style = MaterialTheme.typography.labelLarge
-                                                             )
-                                                         }
-                                                     }
-                                                 }
-                                             }
-                                         }
-                                     }
-
-                                     val userGroups by model.userGroups.collectAsState()
-                                     if (userGroups.isNotEmpty()) {
-                                         Card(
-                                             modifier = Modifier
-                                                 .padding(top = 16.dp)
-                                                 .defaultMinSize(minHeight = 60.dp)
-                                                 .widthIn(Dp.Unspecified, 520.dp),
-                                         ) {
-                                             SubHeader(title = stringResource(R.string.user_overlay_groups))
-                                             androidx.compose.foundation.lazy.LazyRow(
-                                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                             ) {
-                                                 items(userGroups) { g ->
-                                                     androidx.compose.material3.Surface(
-                                                         shape = RoundedCornerShape(24.dp),
-                                                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                                         modifier = Modifier
-                                                             .clip(RoundedCornerShape(24.dp))
-                                                             .clickable { navigator.push(GroupScreen(g.groupId)) }
-                                                     ) {
-                                                         Row(
-                                                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                                                             verticalAlignment = Alignment.CenterVertically,
-                                                             horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                                         ) {
-                                                             com.bumptech.glide.integration.compose.GlideImage(
-                                                                 model = g.iconUrl,
-                                                                 contentDescription = null,
-                                                                 modifier = Modifier
-                                                                     .size(36.dp)
-                                                                     .clip(RoundedCornerShape(8.dp)),
-                                                                 loading = com.bumptech.glide.integration.compose.placeholder(cc.sovellus.vrcaa.R.drawable.image_placeholder),
-                                                                 failure = com.bumptech.glide.integration.compose.placeholder(cc.sovellus.vrcaa.R.drawable.image_placeholder)
-                                                             )
-                                                             Text(
-                                                                 text = g.name,
-                                                                 maxLines = 1,
-                                                                 overflow = TextOverflow.Ellipsis,
-                                                                 style = MaterialTheme.typography.labelLarge
-                                                             )
-                                                         }
-                                                     }
-                                                 }
-                                             }
-                                         }
-                                     }
                                     Card(
                                         modifier = Modifier
                                             .padding(top = 16.dp)
@@ -535,8 +441,9 @@ class UserProfileScreen(
                                             .toColor(),
                                         statusColor = StatusHelper.getStatusFromString(it.status)
                                             .toColor(),
-                                        tags = it.tags,
-                                        badges = it.badges
+                                        tags = profile.tags,
+                                        badges = profile.badges,
+                                        clickable = true
                                     )
                                 }
                             }

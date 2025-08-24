@@ -58,7 +58,7 @@ import android.content.SharedPreferences
 import androidx.compose.material3.Text
 
 @Composable
-fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
+fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false, anonymousModeEnabled: Boolean = false) {
     val navigator = LocalNavigator.currentOrThrow
 
     if (anonymousModeEnabled) {

@@ -64,4 +64,16 @@ class ProfileScreenModel : StateScreenModel<ProfileScreenModel.ProfileState>(Pro
             mutableState.value = ProfileState.Result(it)
         }
     }
+
+    private fun fetchGroups() {
+        screenModelScope.launch {
+            try {
+                // TODO: Implement getUserGroups function or find alternative
+                // val groups = api.user.getUserGroups(CacheManager.getProfile()?.id ?: return@launch)
+                // myGroups.value = groups
+            } catch (e: Exception) {
+                // Handle error silently
+            }
+        }
+    }
 }
