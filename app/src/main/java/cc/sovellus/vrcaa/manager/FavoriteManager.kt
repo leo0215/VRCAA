@@ -16,9 +16,6 @@
 
 package cc.sovellus.vrcaa.manager
 
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites.FavoriteType
 import cc.sovellus.vrcaa.api.vrchat.http.models.FavoriteLimits
 import cc.sovellus.vrcaa.base.BaseManager
@@ -47,24 +44,24 @@ object FavoriteManager : BaseManager<Any>() {
 
     private var favoriteLimits: FavoriteLimits? = null
 
-    private var worldList = mutableStateMapOf<String, SnapshotStateList<FavoriteMetadata>>()
-    private var avatarList = mutableStateMapOf<String, SnapshotStateList<FavoriteMetadata>>()
-    private var friendList = mutableStateMapOf<String, SnapshotStateList<FavoriteMetadata>>()
+    private var worldList = mutableMapOf<String, MutableList<FavoriteMetadata>>()
+    private var avatarList = mutableMapOf<String, MutableList<FavoriteMetadata>>()
+    private var friendList = mutableMapOf<String, MutableList<FavoriteMetadata>>()
 
-    private var tagToGroupMetadataMap = mutableStateMapOf<String, FavoriteGroupMetadata>()
+    private var tagToGroupMetadataMap = mutableMapOf<String, FavoriteGroupMetadata>()
 
     suspend fun refresh() = coroutineScope {
         favoriteLimits = api.favorites.fetchLimits()
 
         favoriteLimits?.let {
             repeat(it.maxFavoriteGroups.world) { i ->
-                worldList["worlds${i + 1}"] = SnapshotStateList()
+                worldList["worlds${i + 1}"] = mutableListOf<FavoriteMetadata>()
             }
             repeat(it.maxFavoriteGroups.avatar) { i ->
-                avatarList["avatars${i + 1}"] = SnapshotStateList()
+                avatarList["avatars${i + 1}"] = mutableListOf<FavoriteMetadata>()
             }
             repeat(it.maxFavoriteGroups.friend) { i ->
-                friendList["group_$i"] = SnapshotStateList()
+                friendList["group_$i"] = mutableListOf<FavoriteMetadata>()
             }
         }
 
@@ -115,20 +112,20 @@ object FavoriteManager : BaseManager<Any>() {
         }?.awaitAll()
     }
 
-    fun getAvatarList(): SnapshotStateMap<String, SnapshotStateList<FavoriteMetadata>> {
+    fun getAvatarList(): MutableMap<String, MutableList<FavoriteMetadata>> {
         return avatarList
     }
 
-    fun getWorldList(): SnapshotStateMap<String, SnapshotStateList<FavoriteMetadata>> {
+    fun getWorldList(): MutableMap<String, MutableList<FavoriteMetadata>> {
         return worldList
     }
 
-    fun getFriendList(): SnapshotStateMap<String, SnapshotStateList<FavoriteMetadata>> {
+    fun getFriendList(): MutableMap<String, MutableList<FavoriteMetadata>> {
         return friendList
     }
 
     fun getDisplayNameFromTag(tag: String): String {
-        return tagToGroupMetadataMap[tag]?.displayName ?: tagToGroupMetadataMap[tag]?.name ?: "???"
+        return tagToGroupMetadataMap[tag]?.displayName ?: tagToGroupMetadataMap[tag]?.name ?: tag
     }
 
     fun getGroupMetadata(tag: String): FavoriteGroupMetadata? {
@@ -303,15 +300,13 @@ object FavoriteManager : BaseManager<Any>() {
         }
     }
 
-    fun getMaximumFavoritesFromTag(tag: String): Int {
-        tagToGroupMetadataMap[tag]?.let { metadata ->
-            favoriteLimits?.let { limits ->
-                return when (metadata.type) {
-                    "world" -> limits.maxFavoritesPerGroup.world
-                    "avatar" -> limits.maxFavoritesPerGroup.avatar
-                    "friend" -> limits.maxFavoritesPerGroup.friend
-                    else -> -1
-                }
+    fun getMaximumFavoritesForType(type: FavoriteType): Int {
+        favoriteLimits?.let { limits ->
+            return when (type) {
+                FavoriteType.FAVORITE_WORLD -> limits.maxFavoritesPerGroup.world
+                FavoriteType.FAVORITE_AVATAR -> limits.maxFavoritesPerGroup.avatar
+                FavoriteType.FAVORITE_FRIEND -> limits.maxFavoritesPerGroup.friend
+                FavoriteType.FAVORITE_NONE -> 0
             }
         }
         return -1

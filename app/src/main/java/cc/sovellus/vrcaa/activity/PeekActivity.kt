@@ -17,6 +17,8 @@
 package cc.sovellus.vrcaa.activity
 
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
@@ -29,6 +31,8 @@ import cc.sovellus.vrcaa.ui.screen.avatar.AvatarScreen
 import cc.sovellus.vrcaa.ui.screen.group.GroupScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
+import androidx.core.net.toUri
+
 
 class PeekActivity : BaseActivity() {
 
@@ -44,14 +48,24 @@ class PeekActivity : BaseActivity() {
 
         val data = path?.split("/")
 
-        data?.let {
-            if (it.size >= 2) {
+        val allowedPaths = listOf("world", "user", "avatar", "group")
+        var earlyFinish = false
+
+        try {
+            if (data != null && data.isNotEmpty() && allowedPaths.contains(data[0])) {
                 type = data[0]
                 id = data[1]
             } else {
-                type = "unknown"
-                id = "0"
+                earlyFinish = true
             }
+        } catch (_: Throwable) {
+            earlyFinish = true
+        }
+
+        if (earlyFinish) {
+            val intent = Intent(Intent.ACTION_VIEW, "http://www.vrchat.com/$path".toUri())
+            startActivity(intent)
+            finish()
         }
     }
 

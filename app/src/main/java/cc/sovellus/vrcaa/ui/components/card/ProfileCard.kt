@@ -30,16 +30,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Badge
-import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,7 +62,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 
-@OptIn(ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileCard(
     thumbnailUrl: String,
@@ -77,118 +86,111 @@ fun ProfileCard(
             .fillMaxWidth()
     ) {
 
-        LazyColumn(
+        Column(
             verticalArrangement = Arrangement.spacedBy((-50).dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            item {
-                GlideImage(
-                    model = thumbnailUrl,
-                    contentDescription = null,
+            GlideImage(
+                model = thumbnailUrl,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .clickable(
+                        enabled = !disablePeek,
+                        onClick = {
+                            onPeek(thumbnailUrl)
+                        }),
+                contentScale = ContentScale.Crop,
+                loading = placeholder(R.drawable.image_placeholder),
+                failure = placeholder(R.drawable.image_placeholder)
+            )
+
+            Column(
+                modifier = Modifier.padding(start = 16.dp)
+            ) {
+                Badge(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(160.dp)
+                        .size(80.dp)
+                        .align(Alignment.CenterHorizontally)
                         .clickable(
                             enabled = !disablePeek,
                             onClick = {
-                            onPeek(thumbnailUrl)
-                        }),
-                    contentScale = ContentScale.Crop,
-                    loading = placeholder(R.drawable.image_placeholder),
-                    failure = placeholder(R.drawable.image_placeholder)
-                )
-            }
-
-            item {
-                Column(
-                    modifier = Modifier.padding(start = 16.dp)
-                ) {
-                    Badge(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        modifier = Modifier
-                            .size(80.dp)
-                            .align(Alignment.CenterHorizontally)
-                            .clickable(
-                                enabled = !disablePeek,
-                                onClick = {
                                 onPeek(iconUrl)
                             })
-                    ) {
-                        GlideImage(
-                            model = iconUrl,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(72.dp)
-                                .clip(RoundedCornerShape(50)),
-                            contentScale = ContentScale.Crop,
-                            alignment = Alignment.Center,
-                            loading = placeholder(R.drawable.image_placeholder),
-                            failure = placeholder(R.drawable.image_placeholder)
-                        )
-                    }
+                ) {
+                    GlideImage(
+                        model = iconUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(RoundedCornerShape(50)),
+                        contentScale = ContentScale.Crop,
+                        alignment = Alignment.Center,
+                        loading = placeholder(R.drawable.image_placeholder),
+                        failure = placeholder(R.drawable.image_placeholder)
+                    )
                 }
             }
 
-            item {
-                Row {
-                    Row(
-                        modifier = Modifier.padding(start = 12.dp, top = 60.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        Text(
-                            text = displayName,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            color = trustRankColor,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        if (ageVerificationStatus == "18+") {
-                            Badge(
-                                containerColor = Color(0xFF606FE4),
-                                modifier = Modifier.padding(start = 8.dp)
-                            ) {
-                                Text(
-                                    modifier = Modifier.padding(2.dp),
-                                    text = "18+",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Left,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = Color.White
-                                )
-                            }
-                        }
-                        if (pronouns.isNotEmpty()) {
-                            Badge(
-                                containerColor = MaterialTheme.colorScheme.secondary,
-                                modifier = Modifier.padding(start = 8.dp)
-                            ) {
-                                Text(
-                                    modifier = Modifier.padding(2.dp),
-                                    text = pronouns,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Left,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
+            Row {
+                Row(
+                    modifier = Modifier.padding(start = 12.dp, top = 60.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Text(
+                        text = displayName,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Left,
+                        color = trustRankColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    if (ageVerificationStatus == "18+") {
+                        Badge(
+                            containerColor = Color(0xFF606FE4),
+                            modifier = Modifier.padding(start = 8.dp)
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(2.dp),
+                                text = "18+",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Left,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                color = Color.White
+                            )
                         }
                     }
+                    if (pronouns.isNotEmpty()) {
+                        Badge(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.padding(start = 8.dp)
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(2.dp),
+                                text = pronouns,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Left,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
+                }
 
-                    LazyRow(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(end = 4.dp),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        item {
-                            Languages(languages = tags, modifier = Modifier.padding(top = 8.dp))
-                        }
+                        Languages(languages = tags, modifier = Modifier.padding(top = 8.dp))
                     }
                 }
             }
@@ -211,22 +213,16 @@ fun ProfileCard(
                         )
                     }
 
-                    LazyRow(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(end = 8.dp),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        items(badges) { badge ->
-                            GlideImage(
-                                model = badge.badgeImageUrl,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .padding(horizontal = 4.dp)
-                                    .clickable { onBadgeClick(badge) },
-                                alpha = if (badge.showcased) 1.0f else 0.5f
-                            )
+                        for (badge in badges) {
+                            GlideImage(model = badge.badgeImageUrl, contentDescription = null, modifier = Modifier
+                                .size(28.dp)
+                                .padding(2.dp), alpha = if (badge.showcased) { 1.0f } else { 0.5f })
                         }
                     }
                 }

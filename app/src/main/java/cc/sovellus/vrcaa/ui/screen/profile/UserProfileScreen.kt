@@ -323,16 +323,15 @@ class UserProfileScreen(
                                         badges = profile.badges,
                                         pronouns = profile.pronouns,
                                         ageVerificationStatus = profile.ageVerificationStatus,
-                                        disablePeek = false,
-                                        onPeek = { url ->
+                                        disablePeek = false
+                                    ) { url ->
+                                        if (!isQuickMenuExpanded) {
                                             peekProfilePicture = true
                                             peekUrl = url
-                                        },
-                                        onBadgeClick = { badge ->
-                                            badgeDialogTitle = badge.badgeName
-                                            badgeDialogText = badge.badgeDescription.ifEmpty { badge.badgeName }
+                                        } else {
+                                            isQuickMenuExpanded = false
                                         }
-                                    )
+                                    }
                                 }
                             }
 
@@ -343,8 +342,12 @@ class UserProfileScreen(
                                         horizontalAlignment = Alignment.Start,
                                         modifier = Modifier.padding(top = 16.dp)
                                     ) {
-                                        InstanceCard(profile = profile, clickable = !isQuickMenuExpanded, instance = instance) {
-                                            navigator.push(WorldScreen(instance.worldId))
+                                        InstanceCard(profile = profile, instance = instance) {
+                                            if (!isQuickMenuExpanded) {
+                                                navigator.push(WorldScreen(instance.worldId))
+                                            } else {
+                                                isQuickMenuExpanded = false
+                                            }
                                         }
                                     }
                                 }

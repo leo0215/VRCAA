@@ -36,7 +36,6 @@ class ProfileScreenModel : StateScreenModel<ProfileScreenModel.ProfileState>(Pro
 
     private val cacheListener = object : CacheManager.CacheListener {
         override fun profileUpdated(profile: User) {
-            mutableState.value = ProfileState.Loading
             mutableState.value = ProfileState.Result(profile)
             fetchGroups()
         }
@@ -54,23 +53,15 @@ class ProfileScreenModel : StateScreenModel<ProfileScreenModel.ProfileState>(Pro
         mutableState.value = ProfileState.Loading
         CacheManager.addListener(cacheListener)
 
-        if (CacheManager.isBuilt())
+        if (CacheManager.isBuilt()) {
             fetchProfile()
+        }
     }
 
     private fun fetchProfile() {
         val profile = CacheManager.getProfile()
-        if (profile != null) {
-            mutableState.value = ProfileState.Result(profile)
-            fetchGroups()
-        }
-    }
-
-    private fun fetchGroups() {
-        screenModelScope.launch {
-            CacheManager.getProfile()?.let { me ->
-                myGroups.value = api.users.fetchGroupsByUserId(me.id)
-            }
+        profile?.let {
+            mutableState.value = ProfileState.Result(it)
         }
     }
 }
