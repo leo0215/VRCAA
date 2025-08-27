@@ -419,6 +419,14 @@ class NavigationScreen : Screen {
                         FavoritesTab.options.index -> {
                             TopAppBar(
                                 title = { Text(stringResource(R.string.tabs_label_favorites)) },
+                                navigationIcon = {
+                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Menu,
+                                            contentDescription = null
+                                        )
+                                    }
+                                },
                                 actions = {
                                 IconButton(onClick = { isMenuExpanded = true }) {
                                     Icon(

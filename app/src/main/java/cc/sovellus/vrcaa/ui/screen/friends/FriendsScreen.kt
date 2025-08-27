@@ -36,9 +36,12 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonOff
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Web
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.Icon
@@ -49,6 +52,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -74,7 +82,7 @@ class FriendsScreen : Screen {
 
     override val key = uniqueScreenKey
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -100,6 +108,9 @@ class FriendsScreen : Screen {
     fun ShowScreen(model: FriendsScreenModel)
     {
         val friends = model.friends.collectAsState()
+        var isRefreshing by remember { mutableStateOf(false) }
+        val scope = rememberCoroutineScope()
+        val pullToRefreshState = rememberPullToRefreshState()
 
         val options = stringArrayResource(R.array.friend_selection_options)
         val icons = listOf(Icons.Filled.Star, Icons.Filled.Person, Icons.Filled.Web, Icons.Filled.PersonOff)
@@ -120,11 +131,24 @@ class FriendsScreen : Screen {
                     .padding(horizontal = 16.dp)
             )
 
-            when (model.currentIndex.intValue) {
-                0 -> ShowFriendsFavorite(friends)
-                1 -> ShowFriends(friends)
-                2 -> ShowFriendsOnWebsite(friends)
-                3 -> ShowFriendsOffline(friends)
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    scope.launch {
+                        isRefreshing = true
+                        model.refreshCache()
+                        isRefreshing = false
+                    }
+                },
+                state = pullToRefreshState,
+                modifier = Modifier.weight(1f)
+            ) {
+                when (model.currentIndex.intValue) {
+                    0 -> ShowFriendsFavorite(friends)
+                    1 -> ShowFriends(friends)
+                    2 -> ShowFriendsOnWebsite(friends)
+                    3 -> ShowFriendsOffline(friends)
+                }
             }
         }
     }

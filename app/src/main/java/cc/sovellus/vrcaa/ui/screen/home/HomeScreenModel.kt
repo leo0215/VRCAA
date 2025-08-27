@@ -83,4 +83,10 @@ class HomeScreenModel : StateScreenModel<HomeState>(HomeState.Init) {
         friendsListFlow.value = FriendManager.getFriends().toMutableStateList()
         recentlyVisitedFlow.value = CacheManager.getRecentWorlds().toMutableStateList()
     }
+
+    fun refreshCache() {
+        screenModelScope.launch {
+            CacheManager.buildCache()
+        }
+    }
 }

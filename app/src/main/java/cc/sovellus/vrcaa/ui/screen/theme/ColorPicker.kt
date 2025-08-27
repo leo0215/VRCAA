@@ -21,13 +21,22 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,44 +53,95 @@ fun ColorPicker(
     title: String,
     selectedColor: Color,
     onColorSelected: (Color) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    gridMode: Boolean = false
 ) {
-    val colors = listOf(
-        Color(0xFF6200EE), // Purple
-        Color(0xFF03DAC6), // Teal
-        Color(0xFF018786), // Dark Teal
-        Color(0xFFB00020), // Error
-        Color(0xFF6750A4), // Primary
-        Color(0xFF625B71), // On Surface Variant
-        Color(0xFF7D5260), // Secondary
-        Color(0xFF1C1B1F), // Surface
-        Color(0xFF49454F), // On Surface
-        Color(0xFFE8DEF8), // Primary Container
-        Color(0xFFCCC2DC), // Secondary Container
-        Color(0xFFFEF7FF), // Background
-        Color(0xFF6750A4), // Tertiary
-        Color(0xFF7D5260), // Tertiary Container
-        Color(0xFFB4A5FD), // Primary Variant
-        Color(0xFF8B73FF), // Secondary Variant
+    val colorOptions = listOf(
+        // Material Design 3 主要色彩
+        Color(0xFF6750A4), // 紫色
+        Color(0xFF1976D2), // 藍色
+        Color(0xFF388E3C), // 綠色
+        Color(0xFFFF7043), // 橘色
+        Color(0xFFF57C00), // 深橘色
+        Color(0xFFE91E63), // 粉紅色
+        Color(0xFF9C27B0), // 深紫色
+        Color(0xFF673AB7), // 靛青色
+        Color(0xFF3F51B5), // 靛藍色
+        Color(0xFF2196F3), // 亮藍色
+        Color(0xFF00BCD4), // 青色
+        Color(0xFF009688), // 翠綠色
+        Color(0xFF4CAF50), // 淺綠色
+        Color(0xFF8BC34A), // 萊姆綠
+        Color(0xFFCDDC39), // 黃綠色
+        Color(0xFFFFEB3B), // 黃色
+        Color(0xFFFFC107), // 琥珀色
+        Color(0xFFFF9800), // 橙色
+        Color(0xFF795548), // 棕色
+        Color(0xFF607D8B), // 藍灰色
+        Color(0xFF212121), // 深黑色
+        Color(0xFF424242), // 灰色
+        Color(0xFF37474F), // 深藍灰
+        Color(0xFF263238), // 藍灰800
     )
 
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(bottom = 8.dp)
-    )
+    Column(modifier = modifier) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
 
-    LazyRow(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(colors) { color ->
-            ColorOption(
-                color = color,
-                isSelected = color == selectedColor,
-                onClick = { onColorSelected(color) }
-            )
+        if (gridMode) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(6),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(colorOptions) { color ->
+                    ColorOption(
+                        color = color,
+                        isSelected = color.value.toLong() == selectedColor.value.toLong(),
+                        onClick = { onColorSelected(color) }
+                    )
+                }
+            }
+        } else {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(colorOptions.take(12)) { color ->
+                    ColorOption(
+                        color = color,
+                        isSelected = color.value.toLong() == selectedColor.value.toLong(),
+                        onClick = { onColorSelected(color) }
+                    )
+                }
+                
+                // "更多" 選項
+                item {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outline,
+                                shape = CircleShape
+                            )
+                            .clickable { /* 可以在這裡實作展開功能 */ },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreHoriz,
+                            contentDescription = "More colors",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -106,10 +166,11 @@ private fun ColorOption(
         contentAlignment = Alignment.Center
     ) {
         if (isSelected) {
-            Text(
-                text = "✓",
-                color = if (color.luminance() > 0.5f) Color.Black else Color.White,
-                style = MaterialTheme.typography.labelMedium
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = "Selected",
+                tint = if (color.luminance() > 0.5f) Color.Black else Color.White,
+                modifier = Modifier.size(16.dp)
             )
         }
     }

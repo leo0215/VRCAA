@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.toMutableStateList
 import cafe.adriel.voyager.core.model.StateScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
 import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
 import cc.sovellus.vrcaa.api.vrchat.http.models.User
 import cc.sovellus.vrcaa.manager.CacheManager
@@ -28,6 +29,7 @@ import cc.sovellus.vrcaa.ui.screen.friends.FriendsScreenModel.FriendsState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
 
@@ -69,6 +71,12 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
             mutableState.value = FriendsState.Result
         } else {
             mutableState.value = FriendsState.Loading
+        }
+    }
+
+    fun refreshCache() {
+        screenModelScope.launch {
+            CacheManager.buildCache()
         }
     }
 }

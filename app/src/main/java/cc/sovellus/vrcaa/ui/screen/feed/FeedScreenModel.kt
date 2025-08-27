@@ -68,4 +68,10 @@ class FeedScreenModel : StateScreenModel<FeedScreenModel.FeedState>(FeedState.In
             mutableState.value = FeedState.Result
         }
     }
+
+    fun refreshCache() {
+        screenModelScope.launch {
+            CacheManager.buildCache()
+        }
+    }
 }

@@ -185,4 +185,10 @@ class NavigationScreenModel : ScreenModel {
 
         filteredFeedStateFlow.value = filteredFeed
     }
+
+    fun refreshCache() {
+        screenModelScope.launch {
+            CacheManager.buildCache()
+        }
+    }
 }
