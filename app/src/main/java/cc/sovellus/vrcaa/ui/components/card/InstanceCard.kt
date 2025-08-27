@@ -17,7 +17,6 @@
 package cc.sovellus.vrcaa.ui.components.card
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.models.Instance
 import cc.sovellus.vrcaa.api.vrchat.http.models.LimitedUser
+import cc.sovellus.vrcaa.extension.clickableIf
 import cc.sovellus.vrcaa.helper.LocationHelper
 import cc.sovellus.vrcaa.ui.components.misc.SubHeader
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -54,7 +54,7 @@ import com.bumptech.glide.integration.compose.placeholder
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun InstanceCard(profile: LimitedUser, instance: Instance, clickable: Boolean, callback: () -> Unit) {
+fun InstanceCard(profile: LimitedUser, instance: Instance, disabled: Boolean, callback: () -> Unit) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -63,7 +63,8 @@ fun InstanceCard(profile: LimitedUser, instance: Instance, clickable: Boolean, c
             .height(160.dp)
             .widthIn(Dp.Unspecified, 520.dp)
             .fillMaxWidth()
-            .clickable(
+            .clickableIf(
+                enabled = !disabled,
                 onClick = {
                     callback()
                 })

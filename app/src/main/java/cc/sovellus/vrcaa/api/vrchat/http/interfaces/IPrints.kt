@@ -6,9 +6,9 @@ import java.time.LocalDateTime
 
 interface IPrints {
 
-    suspend fun fetchPrintsByUserId(userId: String): ArrayList<Print>
+    suspend fun fetchPrintsByUserId(userId: String, n: Int = 100, offset: Int = 0, prints: ArrayList<Print> = arrayListOf()): ArrayList<Print>
     suspend fun fetchPrint(printId: String): Print?
     suspend fun deletePrint(printId: String): Print?
     suspend fun editPrint(printId: String): Print?
-    suspend fun uploadPrint(file: Uri, note: String, timestamp: LocalDateTime): Print?
+    suspend fun uploadPrint(file: Uri, note: String, timestamp: LocalDateTime, border: Boolean): Print?
 }

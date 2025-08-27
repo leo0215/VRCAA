@@ -1,6 +1,5 @@
 @file:OptIn(ExperimentalEncodingApi::class)
 
-import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 plugins {
@@ -17,9 +16,9 @@ android {
     defaultConfig {
         applicationId = "cc.sovellus.vrcaa"
         minSdk = 27
-        targetSdk = 35
-        versionCode = 200604
-        versionName = "2.6.4"
+        targetSdk = 36
+        versionCode = 200609
+        versionName = "2.6.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

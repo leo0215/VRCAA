@@ -5,10 +5,10 @@
     <string name="legal_disclaimer">VRCAA 未獲得 VRChat Inc. 或其任何附屬公司的認可。</string>
     <!-- Friends -->
     <string-array name="friend_selection_options">
-        <item>Favorite</item>
-        <item>Online</item>
-        <item>Website</item>
-        <item>Offline</item>
+        <item>收藏</item>
+        <item>上線</item>
+        <item>網頁</item>
+        <item>離線</item>
     </string-array>
     <!-- Home -->
     <string name="home_active_friends">上線的好友</string>
@@ -22,7 +22,17 @@
     <string name="login_button_text">登入</string>
     <string name="login_toast_wrong_credentials">使用者名稱或密碼輸入錯誤。</string>
     <string name="login_toast_wrong_code">驗證失敗，請檢察驗證碼是否輸入正確。</string>
+    <string name="login_text">登入VRC Android Assistant</string>
+    <string name="login_label_username">使用者名稱或電子郵件地址</string>
+    <string name="login_label_password">密碼</string>
+    <string name="login_button_text">登入</string>
+    <string name="login_toast_wrong_credentials">使用者名稱或密碼輸入錯誤。</string>
+    <string name="login_toast_wrong_code">驗證失敗，請檢察驗證碼是否輸入正確。</string>
     <!-- Two Auth -->
+    <string name="auth_text_email">輸入寄送到你電子郵件的驗證碼</string>
+    <string name="auth_text_app">輸入二步驟驗證應用程式產生的驗證碼</string>
+    <string name="auth_button_text">驗證</string>
+    <string name="auth_button_paste">貼上</string>
     <string name="auth_text_email">輸入寄送到你電子郵件的驗證碼</string>
     <string name="auth_text_app">輸入二步驟驗證應用程式產生的驗證碼</string>
     <string name="auth_button_text">驗證</string>
@@ -30,6 +40,13 @@
     <!-- Main -->
     <string name="main_search_placeholder">搜尋世界、使用者和模型…</string>
     <!-- Profile -->
+    <string name="profile_label_current_location">目前位置</string>
+    <string name="profile_label_note">備註</string>
+    <string name="profile_label_biography">簡介</string>
+    <string name="profile_label_last_activity">上次活動</string>
+    <string name="profile_label_date_joined">帳號創立日期</string>
+    <string name="profile_text_no_biography">沒有填寫自我介紹。</string>
+    <string name="profile_user_dropdown_manage_notifications">管理通知</string>
     <string name="profile_label_current_location">目前位置</string>
     <string name="profile_label_note">備註</string>
     <string name="profile_label_biography">簡介</string>
@@ -58,12 +75,16 @@
     <string name="search_filter_label_count">數量</string>
     <string name="search_filter_button_reset">重設</string>
     <string name="search_filter_button_apply">套用</string>
+    <string name="search_filter_label_count">數量</string>
+    <string name="search_filter_button_reset">重設</string>
+    <string name="search_filter_button_apply">套用</string>
     <string-array name="search_selection_options">
-        <item>Worlds</item>
-        <item>Users</item>
-        <item>Avatars</item>
-        <item>Groups</item>
+        <item>世界</item>
+        <item>用戶</item>
+        <item>模型</item>
+        <item>群组</item>
     </string-array>
+    <string name="search_button_more">更多…</string>
     <string name="search_button_more">更多…</string>
     <!-- Settings -->
     <string name="settings_item_about">關於</string>
@@ -93,7 +114,7 @@
     <string name="world_title_popularity">知名度</string>
     <string name="world_toast_not_found">世界已被設定為私人或已被移除。</string>
     <string-array name="world_selection_options">
-        <item>Info</item>
+        <item>資訊</item>
         <item>Instances</item>
     </string-array>
     <string name="world_author_label">作者：%1$s</string>

@@ -33,8 +33,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,7 +42,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -71,8 +68,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -103,8 +98,6 @@ import cc.sovellus.vrcaa.ui.components.card.ProfileCard
 import cc.sovellus.vrcaa.ui.components.card.QuickMenuCard
 import cc.sovellus.vrcaa.ui.components.dialog.FavoriteDialog
 import cc.sovellus.vrcaa.ui.components.dialog.ImagePreviewDialog
-import cc.sovellus.vrcaa.ui.components.layout.FavoriteHorizontalRow
-import cc.sovellus.vrcaa.ui.components.layout.RowItem
 import cc.sovellus.vrcaa.ui.components.misc.Description
 import cc.sovellus.vrcaa.ui.components.misc.SubHeader
 import cc.sovellus.vrcaa.ui.components.controls.SelectionChipsRow
@@ -300,16 +293,11 @@ class UserProfileScreen(
                                         badges = profile.badges,
                                         pronouns = profile.pronouns,
                                         ageVerificationStatus = profile.ageVerificationStatus,
-                                        disablePeek = false,
-                                        onPeek = { url ->
-                                            if (!isQuickMenuExpanded) {
-                                                peekProfilePicture = true
-                                                peekUrl = url
-                                            } else {
-                                                isQuickMenuExpanded = false
-                                            }
-                                        }
-                                    )
+                                        disablePeek = isQuickMenuExpanded
+                                    ) { url ->
+                                        peekUrl = url
+                                        peekProfilePicture = true
+                                    }
                                 }
                             }
 
@@ -320,12 +308,8 @@ class UserProfileScreen(
                                         horizontalAlignment = Alignment.Start,
                                         modifier = Modifier.padding(top = 16.dp)
                                     ) {
-                                        InstanceCard(profile = profile, instance = instance, clickable = true) {
-                                            if (!isQuickMenuExpanded) {
-                                                navigator.push(WorldScreen(instance.worldId))
-                                            } else {
-                                                isQuickMenuExpanded = false
-                                            }
+                                        InstanceCard(profile = profile, instance = instance, disabled = isQuickMenuExpanded) {
+                                            navigator.push(WorldScreen(instance.worldId))
                                         }
                                     }
                                 }

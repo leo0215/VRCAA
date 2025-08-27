@@ -990,7 +990,7 @@ class HttpClient : BaseClient(), CoroutineScope {
                     val json = Gson().fromJson(result.body, Favorites::class.java)
 
                     favorites.addAll(json)
-                    fetchFavorites(type, tag, n, offset + n, favorites)
+                    fetchFavoritesByUserId(userId, type, tag, n, offset + n, favorites)
                 }
 
                 is Result.NotModified -> {
@@ -1538,13 +1538,18 @@ class HttpClient : BaseClient(), CoroutineScope {
     }
 
     val prints = object : IPrints {
-        override suspend fun fetchPrintsByUserId(userId: String): ArrayList<Print> {
+        override tailrec suspend fun fetchPrintsByUserId(
+            userId: String,
+            n: Int,
+            offset: Int,
+            prints: ArrayList<Print>
+        ): ArrayList<Print> {
             val headers = Headers.Builder()
                 .add("User-Agent", Config.API_USER_AGENT)
 
             val result = doRequest(
                 method = "GET",
-                url = "${Config.API_BASE_URL}/prints/user/${userId}",
+                url = "${Config.API_BASE_URL}/prints/user/${userId}?n=${n}&offset=${offset}",
                 headers = headers,
                 body = null
             )
@@ -1552,8 +1557,12 @@ class HttpClient : BaseClient(), CoroutineScope {
             return when (result) {
                 is Result.Succeeded -> {
                     if (result.body == "[]")
-                        return arrayListOf()
-                    return Gson().fromJson(result.body, Prints::class.java)
+                        return prints
+
+                    val json = Gson().fromJson(result.body, Prints::class.java)
+                    prints.addAll(json)
+
+                    fetchPrintsByUserId(userId, n, offset + n, prints)
                 }
                 is Result.NotModified -> {
                     return arrayListOf()
@@ -1631,7 +1640,8 @@ class HttpClient : BaseClient(), CoroutineScope {
         override suspend fun uploadPrint(
             file: Uri,
             note: String,
-            timestamp: LocalDateTime
+            timestamp: LocalDateTime,
+            border: Boolean
         ): Print? {
             val headers = Headers.Builder()
                 .add("User-Agent", Config.API_USER_AGENT)
@@ -1641,7 +1651,8 @@ class HttpClient : BaseClient(), CoroutineScope {
                 url = "${Config.API_BASE_URL}/prints",
                 fileUri = file,
                 formFields = mapOf("note" to note, "timestamp" to timestamp.toString()),
-                headers = headers
+                headers = headers,
+                addWhiteBorder = border
             )
 
             return when (result) {
