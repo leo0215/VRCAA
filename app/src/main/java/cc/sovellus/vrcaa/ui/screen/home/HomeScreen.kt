@@ -246,8 +246,6 @@ class HomeScreen : Screen {
                         }
                     }
                 }
-
-                }
             }
         }
     }

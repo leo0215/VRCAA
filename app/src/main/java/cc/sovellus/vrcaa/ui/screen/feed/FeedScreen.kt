@@ -72,7 +72,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
             when (item.type) {
                 FeedManager.FeedType.FRIEND_FEED_ONLINE -> {
                     val text = buildAnnotatedString {
-                        append(stringResource(R.string.feed_friend_label))
+                        append(item.friendName)
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_online_text))
@@ -95,7 +95,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
 
                 FeedManager.FeedType.FRIEND_FEED_OFFLINE -> {
                     val text = buildAnnotatedString {
-                        append(stringResource(R.string.feed_friend_label))
+                        append(item.friendName)
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_offline_text))
@@ -118,7 +118,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
 
                 FeedManager.FeedType.FRIEND_FEED_LOCATION -> {
                     val text = buildAnnotatedString {
-                        append(stringResource(R.string.feed_friend_label))
+                        append(item.friendName)
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_location_text))
@@ -143,7 +143,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
 
                 FeedManager.FeedType.FRIEND_FEED_STATUS -> {
                     val text = buildAnnotatedString {
-                        append(stringResource(R.string.feed_friend_label))
+                        append(item.friendName)
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_status_text))
@@ -168,7 +168,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
 
                 FeedManager.FeedType.FRIEND_FEED_ADDED -> {
                     val text = buildAnnotatedString {
-                        append(stringResource(R.string.feed_friend_label))
+                        append(item.friendName)
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_added_text))
@@ -191,7 +191,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
 
                 FeedManager.FeedType.FRIEND_FEED_REMOVED -> {
                     val text = buildAnnotatedString {
-                        append(stringResource(R.string.feed_friend_label))
+                        append(item.friendName)
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_removed_text))
@@ -214,7 +214,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
 
                 FeedManager.FeedType.FRIEND_FEED_FRIEND_REQUEST -> {
                     val text = buildAnnotatedString {
-                        append(stringResource(R.string.feed_friend_label))
+                        append(item.friendName)
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_friend_request_text))
@@ -237,7 +237,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
 
                 FeedManager.FeedType.FRIEND_FEED_AVATAR -> {
                     val text = buildAnnotatedString {
-                        append(stringResource(R.string.feed_friend_label))
+                        append(item.friendName)
                         append(" ")
                         withStyle(style = SpanStyle(color = Color.Gray)) {
                             append(stringResource(R.string.feed_friend_avatar_text))

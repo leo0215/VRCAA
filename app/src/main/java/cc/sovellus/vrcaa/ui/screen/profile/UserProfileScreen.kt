@@ -293,11 +293,12 @@ class UserProfileScreen(
                                         badges = profile.badges,
                                         pronouns = profile.pronouns,
                                         ageVerificationStatus = profile.ageVerificationStatus,
-                                        disablePeek = isQuickMenuExpanded
-                                    ) { url ->
-                                        peekUrl = url
-                                        peekProfilePicture = true
-                                    }
+                                        disablePeek = isQuickMenuExpanded,
+                                        onPeek = { url ->
+                                            peekUrl = url
+                                            peekProfilePicture = true
+                                        }
+                                    )
                                 }
                             }
 

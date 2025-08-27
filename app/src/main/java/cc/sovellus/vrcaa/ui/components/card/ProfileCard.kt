@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.extension.clickableIf
 import cc.sovellus.vrcaa.api.vrchat.http.models.Badge as UserBadge
 import cc.sovellus.vrcaa.ui.components.misc.Languages
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
