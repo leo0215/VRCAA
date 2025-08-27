@@ -51,12 +51,11 @@ import com.bumptech.glide.integration.compose.placeholder
 @Composable
 fun FriendItem(
     friend: Friend,
-    anonymousMode: Boolean = false,
     callback: () -> Unit
 ) {
     ListItem(
         headlineContent = {
-            Text(if (anonymousMode) "Friend" else friend.displayName)
+            Text(friend.displayName)
         },
         overlineContent = {
             Text(friend.statusDescription.ifEmpty {

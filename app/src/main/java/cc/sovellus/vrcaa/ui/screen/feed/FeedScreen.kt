@@ -48,7 +48,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.App
-import cc.sovellus.vrcaa.extension.anonymousMode
+
 import cc.sovellus.vrcaa.manager.FeedManager
 import cc.sovellus.vrcaa.ui.components.layout.FeedItem
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
@@ -58,19 +58,8 @@ import android.content.SharedPreferences
 import androidx.compose.material3.Text
 
 @Composable
-fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false, anonymousModeEnabled: Boolean = false) {
+fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
     val navigator = LocalNavigator.currentOrThrow
-
-    if (anonymousModeEnabled) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = stringResource(R.string.feed_anonymous_mode_message))
-        }
-        return
-    }
 
     LazyColumn(
         Modifier
@@ -296,20 +285,9 @@ class FeedScreen : Screen {
 
     @Composable
     fun ShowScreen(model: FeedScreenModel) {
-        // Real-time observe anonymous mode
-        val preferences = App.getPreferences()
-        var anonymousModeEnabled by remember { mutableStateOf(preferences.anonymousMode) }
-        DisposableEffect(preferences) {
-            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                if (key == "isAnonymousModeEnabled") {
-                    anonymousModeEnabled = preferences.anonymousMode
-                }
-            }
-            preferences.registerOnSharedPreferenceChangeListener(listener)
-            onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
-        }
+
 
         val feed = model.feed.collectAsState()
-        FeedList(feed.value, anonymousModeEnabled = anonymousModeEnabled)
+        FeedList(feed.value)
     }
 }

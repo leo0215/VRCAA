@@ -121,31 +121,7 @@ class AdvancedScreen : Screen {
                         )
                     }
 
-                    item {
-                        ListItem(
-                            headlineContent = { Text("Anonymous Mode") },
-                            supportingContent = { Text(text = "Hide user IDs when viewing profiles") },
-                            trailingContent = {
-                                Switch(
-                                    checked = model.anonymousModeEnabled.value,
-                                    onCheckedChange = {
-                                        model.toggleAnonymousMode()
-                                    },
-                                    thumbContent = {
-                                        if (model.anonymousModeEnabled.value) {
-                                            Icon(
-                                                imageVector = Icons.Filled.Check,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    }
-                                )
-                            },
-                            modifier = Modifier.clickable {
-                                model.toggleAnonymousMode()
-                            }
-                        )
-                    }
+
 
                     item {
                         ListItem(

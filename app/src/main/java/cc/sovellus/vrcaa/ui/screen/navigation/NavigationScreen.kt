@@ -111,7 +111,7 @@ import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.BuildConfig
 import cc.sovellus.vrcaa.R
-import cc.sovellus.vrcaa.extension.anonymousMode
+
 import cc.sovellus.vrcaa.activity.MainActivity
 import cc.sovellus.vrcaa.helper.StatusHelper
 import cc.sovellus.vrcaa.helper.TrustHelper
@@ -193,18 +193,7 @@ class NavigationScreen : Screen {
 
             val scope = rememberCoroutineScope()
 
-            // Real-time observe anonymous mode
-            val preferences = App.getPreferences()
-            var anonymousModeEnabled by remember { mutableStateOf(preferences.anonymousMode) }
-            DisposableEffect(preferences) {
-                val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                    if (key == "isAnonymousModeEnabled") {
-                        anonymousModeEnabled = preferences.anonymousMode
-                    }
-                }
-                preferences.registerOnSharedPreferenceChangeListener(listener)
-                onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
-            }
+
 
             var pressBackCounter by remember { mutableIntStateOf(0) }
 
@@ -1107,7 +1096,7 @@ class NavigationScreen : Screen {
                                                 QuickMenuCard(
                                                     thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
                                                     iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
-                                                    displayName = if (anonymousModeEnabled) "You" else it.displayName,
+                                                    displayName = it.displayName,
                                                     statusDescription = it.statusDescription.ifEmpty {  StatusHelper.getStatusFromString(it.status).toString() },
                                                     trustRankColor = TrustHelper.getTrustRankFromTags(it.tags).toColor(),
                                                     statusColor = StatusHelper.getStatusFromString(it.status).toColor(),
