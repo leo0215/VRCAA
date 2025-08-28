@@ -17,6 +17,7 @@
 package cc.sovellus.vrcaa.ui.components.card
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -83,142 +84,157 @@ fun ProfileCard(
             .widthIn(Dp.Unspecified, 520.dp)
             .fillMaxWidth()
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy((-50).dp),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            GlideImage(
-                model = thumbnailUrl,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clickableIf(
-                        enabled = !disablePeek,
-                        onClick = {
-                            onPeek(thumbnailUrl)
-                        }),
-                contentScale = ContentScale.Crop,
-                loading = placeholder(R.drawable.image_placeholder),
-                failure = placeholder(R.drawable.image_placeholder)
-            )
-
+        Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.padding(start = 16.dp)
+                verticalArrangement = Arrangement.spacedBy((-50).dp),
+                modifier = Modifier.fillMaxSize()
             ) {
-                Badge(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                GlideImage(
+                    model = thumbnailUrl,
+                    contentDescription = null,
                     modifier = Modifier
-                        .size(80.dp)
-                        .align(Alignment.CenterHorizontally)
+                        .fillMaxWidth()
+                        .height(160.dp)
                         .clickableIf(
                             enabled = !disablePeek,
                             onClick = {
-                                onPeek(iconUrl)
-                            })
+                                onPeek(thumbnailUrl)
+                            }),
+                    contentScale = ContentScale.Crop,
+                    loading = placeholder(R.drawable.image_placeholder),
+                    failure = placeholder(R.drawable.image_placeholder)
+                )
+
+                Column(
+                    modifier = Modifier.padding(start = 16.dp)
                 ) {
-                    GlideImage(
-                        model = iconUrl,
-                        contentDescription = null,
+                    Badge(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                         modifier = Modifier
-                            .size(72.dp)
-                            .clip(RoundedCornerShape(50)),
-                        contentScale = ContentScale.Crop,
-                        alignment = Alignment.Center,
-                        loading = placeholder(R.drawable.image_placeholder),
-                        failure = placeholder(R.drawable.image_placeholder)
-                    )
-                }
-            }
-
-            Row {
-                Row(
-                    modifier = Modifier.padding(start = 12.dp, top = 60.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Text(
-                        text = displayName,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Left,
-                        color = trustRankColor,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    if (ageVerificationStatus == "18+") {
-                        Badge(
-                            containerColor = Color(0xFF606FE4),
-                            modifier = Modifier.padding(start = 8.dp)
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(2.dp),
-                                text = "18+",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Left,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                color = Color.White
-                            )
-                        }
-                    }
-                    if (pronouns.isNotEmpty()) {
-                        Badge(
-                            containerColor = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.padding(start = 8.dp)
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(2.dp),
-                                text = pronouns,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Left,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 4.dp),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Languages(languages = tags, modifier = Modifier.padding(top = 8.dp))
-                }
-
-                Row(
-                    modifier = Modifier.padding(start = 12.dp, top = 50.dp),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                            .size(80.dp)
+                            .align(Alignment.CenterHorizontally)
+                            .clickableIf(
+                                enabled = !disablePeek,
+                                onClick = {
+                                    onPeek(iconUrl)
+                                })
                     ) {
-                        Badge(containerColor = statusColor, modifier = Modifier.size(16.dp))
-                        Text(
-                            modifier = Modifier.padding(start = 8.dp),
-                            text = statusDescription,
-                            textAlign = TextAlign.Left,
-                            fontWeight = FontWeight.SemiBold,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
+                        GlideImage(
+                            model = iconUrl,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(72.dp)
+                                .clip(RoundedCornerShape(50)),
+                            contentScale = ContentScale.Crop,
+                            alignment = Alignment.Center,
+                            loading = placeholder(R.drawable.image_placeholder),
+                            failure = placeholder(R.drawable.image_placeholder)
                         )
+                    }
+                }
+
+                Row {
+                    Row(
+                        modifier = Modifier.padding(start = 12.dp, top = 60.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(
+                            text = displayName,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            color = trustRankColor,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        if (ageVerificationStatus == "18+") {
+                            Badge(
+                                containerColor = Color(0xFF606FE4),
+                                modifier = Modifier.padding(start = 8.dp)
+                            ) {
+                                Text(
+                                    modifier = Modifier.padding(2.dp),
+                                    text = "18+",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Left,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = Color.White
+                                )
+                            }
+                        }
+                        if (pronouns.isNotEmpty()) {
+                            Badge(
+                                containerColor = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.padding(start = 8.dp)
+                            ) {
+                                Text(
+                                    modifier = Modifier.padding(2.dp),
+                                    text = pronouns,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Left,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
                     }
 
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(end = 8.dp),
+                            .padding(end = 4.dp),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        for (badge in badges) {
-                            GlideImage(model = badge.badgeImageUrl, contentDescription = null, modifier = Modifier
-                                .size(28.dp)
-                                .padding(2.dp), alpha = if (badge.showcased) { 1.0f } else { 0.5f })
+                        Languages(languages = tags, modifier = Modifier.padding(top = 8.dp))
+                    }
+
+                    Row(
+                        modifier = Modifier.padding(start = 12.dp, top = 50.dp),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Badge(containerColor = statusColor, modifier = Modifier.size(16.dp))
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = statusDescription,
+                                textAlign = TextAlign.Left,
+                                fontWeight = FontWeight.SemiBold,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1
+                            )
                         }
+                    }
+                }
+            }
+            
+            // Badges overlay in top-right corner
+            val visibleBadges = badges.filter { !it.hidden }
+            if (visibleBadges.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    for (badge in visibleBadges) {
+                        GlideImage(
+                            model = badge.badgeImageUrl, 
+                            contentDescription = badge.badgeName, 
+                            modifier = Modifier
+                                .size(32.dp)
+                                .padding(2.dp)
+                                .clickableIf(
+                                    enabled = true,
+                                    onClick = { onBadgeClick(badge) }
+                                ), 
+                            alpha = if (badge.showcased) { 1.0f } else { 0.5f }
+                        )
                     }
                 }
             }

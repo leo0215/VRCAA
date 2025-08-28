@@ -297,6 +297,10 @@ class UserProfileScreen(
                                         onPeek = { url ->
                                             peekUrl = url
                                             peekProfilePicture = true
+                                        },
+                                        onBadgeClick = { badge ->
+                                            badgeDialogTitle = badge.badgeName
+                                            badgeDialogText = badge.badgeDescription
                                         }
                                     )
                                 }

@@ -164,8 +164,23 @@ class ProfileScreen : Screen {
     private fun RenderProfile(model: ProfileScreenModel, profile: User) {
         val navigator = LocalNavigator.currentOrThrow
         var fabMenuExpanded by remember { mutableStateOf(false) }
+        var badgeDialogTitle by remember { mutableStateOf<String?>(null) }
+        var badgeDialogText by remember { mutableStateOf<String?>(null) }
         
         Box(modifier = Modifier.fillMaxSize()) {
+            if (badgeDialogText != null) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { badgeDialogText = null; badgeDialogTitle = null },
+                    title = { Text(text = badgeDialogTitle ?: "Badge") },
+                    text = { Text(text = badgeDialogText!!) },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(onClick = { badgeDialogText = null; badgeDialogTitle = null }) {
+                            Text(text = stringResource(android.R.string.ok))
+                        }
+                    }
+                )
+            }
+            
             Scaffold(
                 modifier = Modifier.fillMaxSize()
             ) { padding ->
@@ -194,7 +209,11 @@ class ProfileScreen : Screen {
                                 badges = profile.badges,
                                 pronouns = profile.pronouns,
                                 ageVerificationStatus = profile.ageVerificationStatus,
-                                onPeek = { }
+                                onPeek = { },
+                                onBadgeClick = { badge ->
+                                    badgeDialogTitle = badge.badgeName
+                                    badgeDialogText = badge.badgeDescription
+                                }
                             )
                         }
                     }

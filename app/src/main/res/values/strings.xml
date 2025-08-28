@@ -385,9 +385,6 @@
     </string-array>
 
     <string name="theme_page_section_theme_title">Theme</string>
-    <string name="theme_page_section_color_title">Custom Colors</string>
-    <string name="theme_page_primary_color_title">Primary Color</string>
-    <string name="theme_page_secondary_color_title">Secondary Color</string>
     <string name="theme_page_section_display_title">Display</string>
     <string name="theme_page_section_column_title">Column Count</string>
 

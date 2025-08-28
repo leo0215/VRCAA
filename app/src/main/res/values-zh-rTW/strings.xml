@@ -298,12 +298,9 @@
         <item>Adaptive</item>
         <item>Fixed</item>
     </string-array>
-    <string name="theme_page_section_theme_title">主題</string>
-    <string name="theme_page_section_color_title">自定義顏色</string>
-    <string name="theme_page_primary_color_title">主要顏色</string>
-    <string name="theme_page_secondary_color_title">次要顏色</string>
-    <string name="theme_page_section_display_title">顯示</string>
-    <string name="theme_page_section_column_title">列數</string>
+    <string name="theme_page_section_theme_title">Theme</string>
+    <string name="theme_page_section_display_title">Display</string>
+    <string name="theme_page_section_column_title">Column Count</string>
     <!-- Advanced Settings -->
     <string name="advanced_page_title">Advanced Settings</string>
     <string name="advanced_page_section_networking">Networking</string>

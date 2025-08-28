@@ -29,5 +29,7 @@ data class Badge(
     @SerializedName("badgeName")
     var badgeName: String = "",
     @SerializedName("showcased")
-    var showcased: Boolean = false
+    var showcased: Boolean = false,
+    @SerializedName("hidden")
+    var hidden: Boolean = false
 )

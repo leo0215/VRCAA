@@ -42,17 +42,9 @@ open class BaseActivity : ComponentActivity() {
     private val currentTheme = mutableIntStateOf(-1)
     lateinit var preferences: SharedPreferences
 
-    private val themeListener = object : ThemeManager.ThemeListener {
-        override fun onPreferenceUpdate(theme: Int) {
-            currentTheme.intValue = theme
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        ThemeManager.addListener(themeListener)
 
         preferences = getSharedPreferences(App.PREFERENCES_NAME, MODE_PRIVATE)
         currentTheme.intValue = preferences.currentThemeOption

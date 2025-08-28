@@ -180,46 +180,6 @@ class ThemeScreen : Screen {
                     }
 
                     item {
-                        Spacer(modifier = Modifier.padding(4.dp))
-
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = stringResource(R.string.theme_page_section_color_title),
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        )
-                    }
-
-                    item {
-                        ColorPicker(
-                            title = stringResource(R.string.theme_page_primary_color_title),
-                            selectedColor = model.primaryColor.value,
-                            onColorSelected = { color ->
-                                model.primaryColor.value = color
-                                model.preferences.primaryColorOverride = color.value.toInt()
-                                ThemeManager.setCustomColors(color, model.secondaryColor.value)
-                            },
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                        )
-                    }
-
-                    item {
-                        ColorPicker(
-                            title = stringResource(R.string.theme_page_secondary_color_title),
-                            selectedColor = model.secondaryColor.value,
-                            onColorSelected = { color ->
-                                model.secondaryColor.value = color
-                                model.preferences.secondaryColorOverride = color.value.toInt()
-                                ThemeManager.setCustomColors(model.primaryColor.value, color)
-                            },
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                        )
-                    }
-
-                    item {
 
                         Spacer(modifier = Modifier.padding(4.dp))
 

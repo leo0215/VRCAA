@@ -16,25 +16,17 @@
 
 package cc.sovellus.vrcaa.manager
 
-import androidx.compose.ui.graphics.Color
 import cc.sovellus.vrcaa.base.BaseManager
 
 object ThemeManager : BaseManager<ThemeManager.ThemeListener>() {
 
     interface ThemeListener {
         fun onPreferenceUpdate(theme: Int)
-        fun onColorUpdate(primaryColor: Color?, secondaryColor: Color?)
     }
 
     fun setTheme(theme: Int) {
         getListeners().forEach { listener ->
             listener.onPreferenceUpdate(theme)
-        }
-    }
-
-    fun setCustomColors(primaryColor: Color?, secondaryColor: Color?) {
-        getListeners().forEach { listener ->
-            listener.onColorUpdate(primaryColor, secondaryColor)
         }
     }
 }
