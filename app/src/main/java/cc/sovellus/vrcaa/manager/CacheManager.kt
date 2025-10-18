@@ -27,6 +27,7 @@ import cc.sovellus.vrcaa.manager.ApiManager.api
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import java.util.Collections
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.collections.map
 
@@ -50,8 +51,8 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
     private val profileLock = Any()
 
     private var profile: User? = null
-    private var worldList: MutableList<WorldCache> = CopyOnWriteArrayList()
-    private var recentWorldList: MutableList<WorldCache> = CopyOnWriteArrayList()
+    private var worldList = Collections.synchronizedList(mutableListOf<WorldCache>())
+    private var recentWorldList = Collections.synchronizedList(mutableListOf<WorldCache>())
 
     private var cacheHasBeenBuilt: Boolean = false
 
@@ -68,6 +69,9 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
         val onlineFriends = async { api.friends.fetchFriends(false) }.await()
         val offlineFriends = async { api.friends.fetchFriends(true) }.await()
         val recentWorlds = async { api.worlds.fetchRecent() }.await()
+        val notifications = async { api.user.fetchNotifications() }.await()
+        val notificationsV2 = async { api.notifications.fetchNotifications() }.await()
+
         async { FavoriteManager.refresh() }.await()
 
         val userLocations = onlineFriends.mapNotNull { friend ->
@@ -78,25 +82,34 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
             }
         }.awaitAll()
 
-        profile = user
+        synchronized(profileLock) {
+            profile = user
+        }
 
         val friendList: MutableList<Friend> = mutableListOf()
         friendList.addAll((onlineFriends + offlineFriends))
         FriendManager.setFriends(friendList)
 
-        worldList.addAll(userLocations.filterNotNull().filter { !isWorldCached(it.id) }.map {
-            WorldCache(it.id).apply {
-                name = it.name
-                thumbnailUrl = it.thumbnailImageUrl
-            }
-        })
+        NotificationManager.setNotifications(notifications)
+        NotificationManager.setNotificationsV2(notificationsV2)
 
-        recentWorldList.addAll(recentWorlds.map {
-            WorldCache(it.id).apply {
-                name = it.name
-                thumbnailUrl = it.thumbnailImageUrl
-            }
-        })
+        synchronized(worldListLock) {
+            worldList.addAll(userLocations.filterNotNull().filter { !isWorldCached(it.id) }.map {
+                WorldCache(it.id).apply {
+                    name = it.name
+                    thumbnailUrl = it.thumbnailImageUrl
+                }
+            })
+        }
+
+        synchronized(recentWorldLock) {
+            recentWorldList.addAll(recentWorlds.map {
+                WorldCache(it.id).apply {
+                    name = it.name
+                    thumbnailUrl = it.thumbnailImageUrl
+                }
+            })
+        }
 
         getListeners().forEach { listener ->
             listener.endCacheRefresh()
@@ -111,13 +124,17 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
     }
 
     fun isWorldCached(worldId: String): Boolean {
-        val listSnapshot = worldList.toList()
-        return listSnapshot.any { it.id == worldId }
+        synchronized(worldListLock) {
+            val snapshot = worldList.toList()
+            return snapshot.any { it.id == worldId }
+        }
     }
 
     fun getWorld(worldId: String): WorldCache {
-        val listSnapshot = worldList.toList()
-        return listSnapshot.firstOrNull { it.id == worldId } ?: WorldCache("invalid")
+        synchronized(worldListLock) {
+            val snapshot = worldList.toList()
+            return snapshot.firstOrNull { it.id == worldId } ?: WorldCache("invalid")
+        }
     }
 
     fun addWorld(world: World) {
@@ -141,7 +158,9 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
     }
 
     fun getProfile(): User? {
-        return profile
+        synchronized(profileLock) {
+            return profile
+        }
     }
 
     fun updateProfile(profile: User) {
@@ -157,7 +176,10 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
     }
 
     fun getRecentWorlds(): List<WorldCache> {
-        return recentWorldList
+        synchronized(recentWorldLock) {
+            val snapshot = recentWorldList.toList()
+            return snapshot
+        }
     }
 
     fun addRecentWorld(world: World) {

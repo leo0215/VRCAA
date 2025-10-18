@@ -78,7 +78,7 @@ fun AvatarCard(avatar: Avatar) {
     Card(
         modifier = Modifier
             .height(240.dp)
-            .widthIn(Dp.Unspecified, 520.dp)
+            .widthIn(0.dp, 520.dp)
             .fillMaxWidth()
     ) {
         Box(

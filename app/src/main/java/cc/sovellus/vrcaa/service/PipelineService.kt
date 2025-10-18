@@ -30,7 +30,6 @@ import android.os.Process.THREAD_PRIORITY_FOREGROUND
 import androidx.core.app.NotificationCompat
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
-import cc.sovellus.vrcaa.api.discord.GatewaySocket
 import cc.sovellus.vrcaa.api.discord.GatewaySocket.PresenceInfo
 import cc.sovellus.vrcaa.api.vrchat.pipeline.PipelineSocket
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendActive
@@ -40,11 +39,16 @@ import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendLocation
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendOffline
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendOnline
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendUpdate
+import cc.sovellus.vrcaa.api.vrchat.pipeline.models.HideNotification
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.Notification
+import cc.sovellus.vrcaa.api.vrchat.pipeline.models.NotificationV2
+import cc.sovellus.vrcaa.api.vrchat.pipeline.models.NotificationV2Delete
+import cc.sovellus.vrcaa.api.vrchat.pipeline.models.SeeNotification
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.UserLocation
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.UserUpdate
 import cc.sovellus.vrcaa.extension.richPresenceEnabled
 import cc.sovellus.vrcaa.helper.ApiHelper
+import cc.sovellus.vrcaa.helper.JsonHelper
 import cc.sovellus.vrcaa.helper.LocationHelper
 import cc.sovellus.vrcaa.helper.NotificationHelper
 import cc.sovellus.vrcaa.helper.StatusHelper
@@ -53,11 +57,11 @@ import cc.sovellus.vrcaa.manager.CacheManager
 import cc.sovellus.vrcaa.manager.FeedManager
 import cc.sovellus.vrcaa.manager.FriendManager
 import cc.sovellus.vrcaa.manager.GatewayManager
+import cc.sovellus.vrcaa.manager.NotificationManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -78,6 +82,7 @@ class PipelineService : Service(), CoroutineScope {
 
     private var refreshTask: Runnable = Runnable {
         launch {
+            Runtime.getRuntime().gc()
             CacheManager.buildCache()
             pipeline?.reconnect()
         }
@@ -246,6 +251,15 @@ class PipelineService : Service(), CoroutineScope {
                             FeedManager.addFeed(feed)
                         }
 
+                        if (friend.displayName != update.user.displayName) {
+                            val feed = FeedManager.Feed(FeedManager.FeedType.FRIEND_FEED_USERNAME_CHANGE).apply {
+                                friendId = update.userId
+                                friendName = friend.displayName // store the old name
+                                friendPictureUrl = update.user.userIcon.ifEmpty { update.user.profilePicOverride.ifEmpty { update.user.currentAvatarImageUrl } }
+                            }
+                            FeedManager.addFeed(feed)
+                        }
+
                         // Oh... You don't have VRChat+ I'm sorry to hear that...
                         if (friend.profilePicOverride.isEmpty() && friend.currentAvatarImageUrl.isNotEmpty() && friend.currentAvatarImageUrl != update.user.currentAvatarImageUrl) {
                             launch {
@@ -400,6 +414,9 @@ class PipelineService : Service(), CoroutineScope {
                 is Notification -> {
                     val notification = msg.obj as Notification
 
+                    val convertedNotification = JsonHelper.convert(notification, cc.sovellus.vrcaa.api.vrchat.http.models.Notification::class.java)
+                    NotificationManager.addNotification(convertedNotification)
+
                     launch {
                         val sender = api.users.fetchUserByUserId(notification.senderUserId)
 
@@ -416,6 +433,29 @@ class PipelineService : Service(), CoroutineScope {
 
                             else -> {}
                         }
+                    }
+                }
+
+                is SeeNotification -> {
+                    val notification = msg.obj as SeeNotification
+                    NotificationManager.removeNotification(notification.notificationId)
+                }
+
+                is HideNotification -> {
+                    val notification = msg.obj as HideNotification
+                    NotificationManager.removeNotification(notification.notificationId)
+                }
+
+                is NotificationV2 -> {
+                    val notification = msg.obj as NotificationV2
+                    val convertedNotification = JsonHelper.convert(notification, cc.sovellus.vrcaa.api.vrchat.http.models.NotificationV2::class.java)
+                    NotificationManager.addNotificationV2(convertedNotification)
+                }
+
+                is NotificationV2Delete -> {
+                    val notification = msg.obj as NotificationV2Delete
+                    notification.ids.forEach { id ->
+                        NotificationManager.removeNotificationV2(id)
                     }
                 }
 

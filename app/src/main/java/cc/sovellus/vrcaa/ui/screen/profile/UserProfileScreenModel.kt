@@ -17,6 +17,7 @@
 package cc.sovellus.vrcaa.ui.screen.profile
 
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.toMutableStateList
@@ -27,13 +28,17 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.search.avtrdb.AvtrDbProvider
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites.FavoriteType
+import cc.sovellus.vrcaa.api.vrchat.http.models.FriendStatus
 import cc.sovellus.vrcaa.api.vrchat.http.models.Instance
 import cc.sovellus.vrcaa.api.vrchat.http.models.LimitedUser
 import cc.sovellus.vrcaa.api.vrchat.http.models.UserGroup
 import cc.sovellus.vrcaa.helper.ApiHelper
+import cc.sovellus.vrcaa.helper.JsonHelper
 import cc.sovellus.vrcaa.manager.ApiManager.api
 import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.manager.FavoriteManager.FavoriteMetadata
+import cc.sovellus.vrcaa.manager.FriendManager
+import cc.sovellus.vrcaa.manager.NotificationManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
@@ -57,17 +62,19 @@ class UserProfileScreenModel(
 
     private var profile: LimitedUser? = null
     private var instance: Instance? = null
+    var status: FriendStatus? = null
+    val note = mutableStateOf("")
 
     val userGroups = kotlinx.coroutines.flow.MutableStateFlow<List<UserGroup>>(emptyList())
     val mutualGroups = kotlinx.coroutines.flow.MutableStateFlow<List<UserGroup>>(emptyList())
 
     init {
-        mutableState.value = UserProfileState.Loading
-        App.setLoadingText(R.string.loading_text_user)
         fetchProfile()
     }
 
     private fun fetchProfile() {
+        mutableState.value = UserProfileState.Loading
+        App.setLoadingText(R.string.loading_text_user)
         screenModelScope.launch {
             api.users.fetchUserByUserId(userId)?.let {
                 it.location.let { location ->
@@ -81,6 +88,8 @@ class UserProfileScreenModel(
                 }
                 profile = it
 
+                status = api.friends.fetchFriendStatus(it.id)
+                note.value = profile?.note ?: ""
                 mutableState.value = UserProfileState.Result(profile, instance)
 
                 // Fetch groups: full list + extract mutual
@@ -109,10 +118,12 @@ class UserProfileScreenModel(
                             val nameAvatars = avatarProvider.searchAll(name[1])
                             if (nameAvatars.isNotEmpty()) {
                                 for (avatar in nameAvatars) {
-                                    val avatarFileId = ApiHelper.extractFileIdFromUrl(avatar.imageUrl)
-                                    if (avatarFileId == fileId) {
-                                        callback(avatar.vrcId)
-                                        return@launch
+                                    avatar.imageUrl?.let {
+                                        val avatarFileId = ApiHelper.extractFileIdFromUrl(avatar.imageUrl)
+                                        if (avatarFileId == fileId) {
+                                            callback(avatar.id)
+                                            return@launch
+                                        }
                                     }
                                 }
                             }
@@ -121,10 +132,12 @@ class UserProfileScreenModel(
                             val authorAvatars = avatarProvider.searchAll(metadata.ownerId)
                             if (authorAvatars.isNotEmpty()) {
                                 for (avatar in authorAvatars) {
-                                    val avatarFileId = ApiHelper.extractFileIdFromUrl(avatar.imageUrl)
-                                    if (avatarFileId == fileId) {
-                                        callback(avatar.vrcId)
-                                        return@launch
+                                    avatar.imageUrl?.let {
+                                        val avatarFileId = ApiHelper.extractFileIdFromUrl(avatar.imageUrl)
+                                        if (avatarFileId == fileId) {
+                                            callback(avatar.id)
+                                            return@launch
+                                        }
                                     }
                                 }
                             }
@@ -143,10 +156,47 @@ class UserProfileScreenModel(
         }
     }
 
+    fun updateNote() {
+        screenModelScope.launch {
+            val user = api.notes.updateNote(userId, note.value)
+            if (user != null) {
+                fetchProfile()
+            }
+        }
+    }
+
+    fun handleFriendStatus(callback: (type: String, result: Boolean) -> Unit) {
+        screenModelScope.launch {
+            status?.let {
+                if (it.incomingRequest) {
+                    val result = api.friends.sendFriendRequest(userId)
+                    callback("accept", result != null)
+                } else {
+                    if (it.outgoingRequest) {
+                        val result = api.friends.deleteFriendRequest(userId)
+                        callback("outgoing", result)
+                    } else {
+                        if (it.isFriend) {
+                            val result = api.friends.removeFriend(userId)
+                            if (result) {
+                                FavoriteManager.removeFavorite(FavoriteType.FAVORITE_FRIEND, userId)
+                                FriendManager.removeFriend(userId)
+                            }
+                            callback("remove", result)
+                        } else {
+                            val result = api.friends.sendFriendRequest(userId)
+                            callback("request", result != null)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun removeFavorite(callback: (result: Boolean) -> Unit) {
         screenModelScope.launch {
             profile?.let {
-                val result = FavoriteManager.removeFavorite(IFavorites.FavoriteType.FAVORITE_FRIEND, it.id)
+                val result = FavoriteManager.removeFavorite(FavoriteType.FAVORITE_FRIEND, it.id)
                 callback(result)
             }
         }

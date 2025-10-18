@@ -45,10 +45,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.Cabin
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
@@ -76,7 +78,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -98,6 +99,7 @@ import cc.sovellus.vrcaa.ui.components.card.ProfileCard
 import cc.sovellus.vrcaa.ui.components.card.QuickMenuCard
 import cc.sovellus.vrcaa.ui.components.dialog.FavoriteDialog
 import cc.sovellus.vrcaa.ui.components.dialog.ImagePreviewDialog
+import cc.sovellus.vrcaa.ui.components.dialog.InputDialog
 import cc.sovellus.vrcaa.ui.components.misc.Description
 import cc.sovellus.vrcaa.ui.components.misc.SubHeader
 import cc.sovellus.vrcaa.ui.components.controls.SelectionChipsRow
@@ -180,6 +182,21 @@ class UserProfileScreen(
         var isQuickMenuExpanded by remember { mutableStateOf(false) }
         var badgeDialogTitle by remember { mutableStateOf<String?>(null) }
         var badgeDialogText by remember { mutableStateOf<String?>(null) }
+        var noteDialogShown by remember { mutableStateOf(false) }
+
+        if (noteDialogShown) {
+            InputDialog(
+                onDismiss = {
+                    noteDialogShown = false
+                },
+                onConfirmation = {
+                    noteDialogShown = false
+                    model.updateNote()
+                },
+                title = stringResource(R.string.profile_user_note_dialog_title),
+                text = model.note
+            )
+        }
 
         if (profile == null) {
             Toast.makeText(
@@ -191,7 +208,11 @@ class UserProfileScreen(
                     context.finish()
                 }
             } else {
-                navigator.pop()
+                val once = remember(Unit) { mutableStateOf(false) }
+                if (!once.value) {
+                    navigator.pop()
+                    once.value = true
+                }
             }
         } else {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -330,7 +351,7 @@ class UserProfileScreen(
                                         modifier = Modifier
                                             .padding(top = 16.dp)
                                             .defaultMinSize(minHeight = 80.dp)
-                                            .widthIn(Dp.Unspecified, 520.dp),
+                                            .widthIn(0.dp, 520.dp),
                                     ) {
                                         if (profile.note.isNotEmpty()) {
                                             SubHeader(title = stringResource(R.string.profile_label_note))
@@ -424,13 +445,40 @@ class UserProfileScreen(
                                     val icons: MutableList<ImageVector> =
                                         mutableListOf<ImageVector>()
 
+                                    var friendIndex = -1
                                     var notificationIndex = -1
                                     var favoriteIndex = -1
+                                    var inviteIndex = -1
+                                    var noteIndex = -1
                                     var avatarIndex = -1
                                     var worldsIndex = -1
                                     var groupsIndex = -1
                                     var favoritesIndex = -1
                                     var copyIndex = -1
+
+                                    model.status?.let {
+                                        if (it.incomingRequest) {
+                                            options.add(stringResource(R.string.user_overlay_friend_accept))
+                                            icons.add(Icons.Default.Person)
+                                            friendIndex = options.size - 1
+                                        } else {
+                                            if (it.outgoingRequest) {
+                                                options.add(stringResource(R.string.user_overlay_friend_cancel))
+                                                icons.add(Icons.Default.Person)
+                                                friendIndex = options.size - 1
+                                            } else {
+                                                if (it.isFriend) {
+                                                    options.add(stringResource(R.string.user_overlay_friend_remove))
+                                                    icons.add(Icons.Default.Person)
+                                                    friendIndex = options.size - 1
+                                                } else {
+                                                    options.add(stringResource(R.string.user_overlay_friend_add))
+                                                    icons.add(Icons.Default.Person)
+                                                    friendIndex = options.size - 1
+                                                }
+                                            }
+                                        }
+                                    }
 
                                     if (profile.isFriend) {
                                         options.add(stringResource(R.string.profile_user_dropdown_manage_notifications))
@@ -449,6 +497,16 @@ class UserProfileScreen(
                                             favoriteIndex = options.size - 1
                                         }
                                     }
+
+                                    if (instance != null) {
+                                        options.add(stringResource(R.string.user_overlay_invite))
+                                        icons.add(Icons.Default.Navigation)
+                                        inviteIndex = options.size - 1
+                                    }
+
+                                    options.add(stringResource(R.string.user_overlay_note))
+                                    icons.add(Icons.AutoMirrored.Filled.Notes)
+                                    noteIndex = options.size - 1
 
                                     options.add(stringResource(R.string.user_overlay_find_avatar))
                                     icons.add(Icons.Default.Person)
@@ -484,6 +542,84 @@ class UserProfileScreen(
                                                 )
                                                 .clickable(onClick = {
                                                     when (index) {
+                                                        friendIndex -> {
+                                                            model.handleFriendStatus { type, result ->
+                                                                when (type) {
+                                                                    "outgoing" -> {
+                                                                        if (result) {
+                                                                            Toast.makeText(
+                                                                                context,
+                                                                                context.getString(R.string.friend_toast_friend_request_cancelled)
+                                                                                    .format(profile.displayName),
+                                                                                Toast.LENGTH_SHORT
+                                                                            ).show()
+                                                                        } else {
+                                                                            Toast.makeText(
+                                                                                context,
+                                                                                context.getString(R.string.friend_toast_friend_request_cancel_failed)
+                                                                                    .format(profile.displayName),
+                                                                                Toast.LENGTH_SHORT
+                                                                            ).show()
+                                                                        }
+                                                                    }
+
+                                                                    "remove" -> {
+                                                                        if (result) {
+                                                                            Toast.makeText(
+                                                                                context,
+                                                                                context.getString(R.string.friend_toast_friend_removed)
+                                                                                    .format(profile.displayName),
+                                                                                Toast.LENGTH_SHORT
+                                                                            ).show()
+                                                                        } else {
+                                                                            Toast.makeText(
+                                                                                context,
+                                                                                context.getString(R.string.friend_toast_friend_remove_failed)
+                                                                                    .format(profile.displayName),
+                                                                                Toast.LENGTH_SHORT
+                                                                            ).show()
+                                                                        }
+                                                                    }
+
+                                                                    "request" -> {
+                                                                        if (result) {
+                                                                            Toast.makeText(
+                                                                                context,
+                                                                                context.getString(R.string.friend_toast_friend_requested)
+                                                                                    .format(profile.displayName),
+                                                                                Toast.LENGTH_SHORT
+                                                                            ).show()
+                                                                        } else {
+                                                                            Toast.makeText(
+                                                                                context,
+                                                                                context.getString(R.string.friend_toast_friend_request_failed)
+                                                                                    .format(profile.displayName),
+                                                                                Toast.LENGTH_SHORT
+                                                                            ).show()
+                                                                        }
+                                                                    }
+
+                                                                    "accept" -> {
+                                                                        if (result) {
+                                                                            Toast.makeText(
+                                                                                context,
+                                                                                context.getString(R.string.friend_toast_friend_request_accepted)
+                                                                                    .format(profile.displayName),
+                                                                                Toast.LENGTH_SHORT
+                                                                            ).show()
+                                                                        } else {
+                                                                            Toast.makeText(
+                                                                                context,
+                                                                                context.getString(R.string.friend_toast_friend_request_accept_failed)
+                                                                                    .format(profile.displayName),
+                                                                                Toast.LENGTH_SHORT
+                                                                            ).show()
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+
                                                         notificationIndex -> {
                                                             navigator.push(
                                                                 NotificationScreen(
@@ -519,6 +655,16 @@ class UserProfileScreen(
                                                             } else {
                                                                 favoriteDialogShown = true
                                                             }
+                                                        }
+
+                                                        inviteIndex -> {
+                                                            if (instance != null) {
+                                                                model.inviteToFriend(instance.location)
+                                                            }
+                                                        }
+
+                                                        noteIndex -> {
+                                                            noteDialogShown = true
                                                         }
 
                                                         avatarIndex -> {

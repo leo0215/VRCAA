@@ -20,17 +20,19 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.widget.Toast
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.toMutableStateList
 import androidx.core.os.bundleOf
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.activity.MainActivity
 import cc.sovellus.vrcaa.api.vrchat.http.HttpClient
+import cc.sovellus.vrcaa.api.vrchat.http.models.Notification
+import cc.sovellus.vrcaa.api.vrchat.http.models.NotificationV2
+import cc.sovellus.vrcaa.api.vrchat.http.models.Notifications
+import cc.sovellus.vrcaa.api.vrchat.http.models.NotificationsV2
 import cc.sovellus.vrcaa.extension.avatarProvider
 import cc.sovellus.vrcaa.extension.avatarsAmount
 import cc.sovellus.vrcaa.extension.groupsAmount
@@ -41,10 +43,8 @@ import cc.sovellus.vrcaa.extension.worldsAmount
 import cc.sovellus.vrcaa.manager.ApiManager.api
 import cc.sovellus.vrcaa.manager.CacheManager
 import cc.sovellus.vrcaa.manager.DatabaseManager
-import cc.sovellus.vrcaa.manager.FeedManager
+import cc.sovellus.vrcaa.manager.NotificationManager
 import cc.sovellus.vrcaa.service.PipelineService
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 
@@ -75,12 +75,8 @@ class NavigationScreenModel : ScreenModel {
     val verifiedStatus = mutableStateOf("")
     val pronouns = mutableStateOf("")
 
-    var feedFilterQuery = mutableStateOf("")
-    var showFilteredFeed = mutableStateOf(false)
+    val notificationsCount = mutableIntStateOf(0)
     var cacheBuilt = mutableStateOf(false)
-
-    private var filteredFeedStateFlow = MutableStateFlow(listOf<FeedManager.Feed>())
-    var filteredFeed = filteredFeedStateFlow.asStateFlow()
 
     private val apiListener = object : HttpClient.SessionListener {
         override fun onSessionInvalidate() {
@@ -115,9 +111,19 @@ class NavigationScreenModel : ScreenModel {
         }
     }
 
+    private val notificationListener = object : NotificationManager.NotificationListener {
+        override fun onUpdateNotifications(notifications: List<Notification>) { }
+        override fun onUpdateNotificationsV2(notifications: List<NotificationV2>) { }
+
+        override fun onUpdateNotificationCount(count: Int) {
+            notificationsCount.intValue = count
+        }
+    }
+
     init {
         api.setSessionListener(apiListener)
         CacheManager.addListener(cacheListener)
+        NotificationManager.addListener(notificationListener)
     }
 
     fun addSearchHistory() {
@@ -175,20 +181,6 @@ class NavigationScreenModel : ScreenModel {
 
             ageVerified.value = it.ageVerified
             verifiedStatus.value = it.ageVerificationStatus
-        }
-    }
-
-    fun filterFeed() {
-        val filteredFeed = FeedManager.getFeed().filter { feed ->
-            feed.friendName.contains(feedFilterQuery.value, ignoreCase = true) || (feed.travelDestination.contains(feedFilterQuery.value, ignoreCase = true) && feed.type == FeedManager.FeedType.FRIEND_FEED_LOCATION) || (feed.avatarName.contains(feedFilterQuery.value, ignoreCase = true) && feed.type == FeedManager.FeedType.FRIEND_FEED_AVATAR)
-        }
-
-        filteredFeedStateFlow.value = filteredFeed
-    }
-
-    fun refreshCache() {
-        screenModelScope.launch {
-            CacheManager.buildCache()
         }
     }
 }

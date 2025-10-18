@@ -16,6 +16,7 @@
 
 package cc.sovellus.vrcaa.base
 
+import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -37,7 +38,7 @@ import cc.sovellus.vrcaa.ui.theme.LocalTheme
 import cc.sovellus.vrcaa.ui.theme.Theme
 import androidx.compose.ui.graphics.Color
 
-open class BaseActivity : ComponentActivity() {
+open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
 
     private val currentTheme = mutableIntStateOf(-1)
     lateinit var preferences: SharedPreferences
@@ -48,6 +49,9 @@ open class BaseActivity : ComponentActivity() {
 
         preferences = getSharedPreferences(App.PREFERENCES_NAME, MODE_PRIVATE)
         currentTheme.intValue = preferences.currentThemeOption
+
+        // Register as theme listener
+        ThemeManager.addListener(this)
 
         setContent {
             CompositionLocalProvider(LocalTheme provides currentTheme.intValue) {
@@ -63,6 +67,16 @@ open class BaseActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Unregister theme listener
+        ThemeManager.removeListener(this)
+    }
+
+    override fun onPreferenceUpdate(theme: Int) {
+        currentTheme.intValue = theme
     }
 
     @Composable

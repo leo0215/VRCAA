@@ -10,6 +10,14 @@
         <item>網頁</item>
         <item>離線</item>
     </string-array>
+    <string name="friend_toast_friend_request_cancelled">Your friend request for %1$s was cancelled.</string>
+    <string name="friend_toast_friend_request_cancel_failed">Failed to cancel friend request for %1$s.</string>
+    <string name="friend_toast_friend_removed">Removed %1$s from your friend list.</string>
+    <string name="friend_toast_friend_remove_failed">Failed to remove %1$s from your friend list.</string>
+    <string name="friend_toast_friend_requested">Your friend request was sent to %1$s.</string>
+    <string name="friend_toast_friend_request_failed">Failed to send friend request for %1$s.</string>
+    <string name="friend_toast_friend_request_accepted">Accepted friend request from %1$s.</string>
+    <string name="friend_toast_friend_request_accept_failed">Failed to accept friend request for %1$s.</string>
     <!-- Home -->
     <string name="home_active_friends">上線的好友</string>
     <string name="home_recently_visited">最近訪問</string>
@@ -32,15 +40,17 @@
     <!-- Profile -->
     <string name="profile_label_current_location">目前位置</string>
     <string name="profile_label_note">備註</string>
+    <string name="profile_label_account_info">帳號資訊</string>
+    <string name="profile_label_age_verification">年齡驗證</string>
     <string name="profile_label_biography">簡介</string>
     <string name="profile_label_last_activity">上次活動</string>
     <string name="profile_label_date_joined">帳號創立日期</string>
     <string name="profile_text_no_biography">沒有填寫自我介紹。</string>
     <string name="profile_user_dropdown_manage_notifications">管理通知</string>
-    <!-- removed; 06-07-25 -->
-    <string name="profile_user_not_found_message">該使用者不存在</string>
+    <string name="profile_user_not_found_message">該使用者不存在。</string>
     <string name="profile_user_avatar_private">該模型被設定為私人！</string>
     <string name="profile_user_avatar_unreachable">無法存取該模型！</string>
+    <string name="profile_user_note_dialog_title">Set Note</string>
     <!-- Search -->
     <string name="search_text_result">搜尋結果：</string>
     <string name="search_filter_category_worlds">世界</string>
@@ -70,9 +80,9 @@
     <string name="settings_item_about">關於</string>
     <string name="settings_item_about_description">關於你的設備和VRCAA的詳細資訊</string>
     <string name="settings_item_theming">外觀與主題</string>
-    <string name="settings_item_theming_description">外觀設定, 簡潔模式</string>
-    <string name="settings_item_rich_presence">Discord遊戲狀態 (實驗性功能)</string>
-    <string name="settings_item_rich_presence_description">Discord遊戲狀態整合設定</string>
+    <string name="settings_item_theming_description">外觀設定, 簡約模式</string>
+    <string name="settings_item_rich_presence" tools:keep="@string/settings_item_rich_presence">Discord遊戲狀態（實驗性功能）</string>
+    <string name="settings_item_rich_presence_description" tools:keep="@string/settings_item_rich_presence_description">Discord遊戲狀態整合設定</string>
     <string name="settings_item_advanced_settings">進階設定</string>
     <string name="settings_item_advanced_settings_description">進階日誌及功能</string>
     <string name="settings_item_database_settings">資料庫及統計資料</string>
@@ -95,55 +105,78 @@
     <string name="world_toast_not_found">世界已被設定為私人或已被移除。</string>
     <string-array name="world_selection_options">
         <item>資訊</item>
-        <item>Instances</item>
+        <item>房間</item>
     </string-array>
     <string name="world_author_label">作者：%1$s</string>
-    <string name="world_instance_invite_dialog_title">你確定要這樣做嗎?</string>
-    <string name="world_instance_invite_dialog_description">你即將邀請你自己到該房間，你確定要這樣做嗎?</string>
-    <string name="world_instance_no_public_instances_message">無公開的房間。</string>
+    <string name="world_instance_invite_dialog_title">你確定嗎？</string>
+    <string name="world_instance_invite_dialog_description">你正在將邀請傳送至自己的這個房間，你真的要這麼做嗎？</string>
+    <string name="world_instance_no_public_instances_message">沒有公開房間</string>
     <!-- Tabs -->
     <string name="tabs_label_friends">好友</string>
-    <string name="tabs_label_home">首頁</string>
+    <string name="tabs_label_home">主頁</string>
     <string name="tabs_label_favorites">收藏</string>
-    <string name="tabs_label_feed">動態</string>
-    <string name="tabs_label_profile">個人資料</string>
+    <string name="tabs_label_feed">紀錄</string>
+    <string name="tabs_label_profile">個人檔案</string>
     <string name="tabs_label_settings">設定</string>
     <!-- Notifications -->
-    <string name="service_notification">VRCAA已在後台啟動來及時監督你的好友即時動態。</string>
-    <string name="service_killed_by_vendor_notification">VRCAA已被你的系統強制終止了! 造訪https://dontkillmyapp.com 來詳細了解</string>
-    <string name="service_notification_rich_presence">VRCAA 現在正在由Discord rich presence推送玩家狀態了</string>
-    <string name="notification_service_title_online">有好友上線了</string>
-    <string name="notification_service_description_online">%1$s 上線了</string>
-    <string name="notification_service_title_offline">有好友離線了</string>
-    <string name="notification_service_description_offline">%1$s 離線了</string>
-    <string name="notification_service_title_location">你的好友換世界了</string>
-    <string name="notification_service_description_location">%1$s 加入了 %2$s.</string>
-    <string name="notification_service_title_friend_removed">你的好友和你結下心結了</string>
-    <string name="notification_service_description_friend_removed">%1$s 把你從他的好友清單移除了:(</string>
-    <string name="notification_service_title_friend_added">你有一個新的好友</string>
-    <string name="notification_service_description_friend_added">%1$s 現在是你的好友了</string>
+    <string name="service_notification">VRCAA 現在正在後台自動追蹤你的好友動態</string>
+    <string name="service_killed_by_vendor_notification">VRCAA 已被你的系統終止了！請檢查 https://dontkillmyapp.com/ 以取得更多資訊</string>
+    <string name="service_notification_rich_presence" tools:keep="@string/service_notification_rich_presence">VRCAA 現在會回報詳細的遊戲狀態資訊</string>
+    <string name="notification_service_title_online">好友已上線！</string>
+    <string name="notification_service_description_online">你的好友，%1$s 已上線！</string>
+    <string name="notification_service_title_offline">好友已離線！</string>
+    <string name="notification_service_description_offline">你的好友，%1$s 已離線！</string>
+    <string name="notification_service_title_location">好友位置變更！</string>
+    <string name="notification_service_description_location">你的好友，%1$s 前往 %2$s</string>
+    <string name="notification_service_title_friend_removed">你的好友已解除好友</string>
+    <string name="notification_service_description_friend_removed">你的好友，%1$s 已跟你斷絕好友關係 :(</string>
+    <string name="notification_service_title_friend_added">你交到新好友！</string>
+    <string name="notification_service_description_friend_added">%1$s 現在是你的好友！</string>
     <string name="notification_title_player">的通知</string>
-    <string name="notification_label_enable">啟用通知</string>
+    <string name="notification_label_enable">開啟通知</string>
     <string name="notification_label_intent_online">上線通知</string>
     <string name="notification_label_intent_offline">離線通知</string>
     <string name="notification_label_intent_location">位置通知</string>
     <string name="notification_label_intent_status">狀態變更通知</string>
-    <string name="notification_service_title_status">好友更改了目前狀態！</string>
-    <string name="notification_service_description_status">%1$s 把她的狀態從 %2$s 更改成 %3$s.</string>
+    <string name="notification_service_title_status">好友狀態變更！</string>
+    <string name="notification_service_description_status">你的好友，%1$s 已經將狀態從 %2$s 變更至 %3$s</string>
+    <string name="notifications_page_title">Notifications</string>
+    <string name="notifications_type_invite">Invite</string>
+    <string name="notifications_type_invite_response">Invite Response</string>
+    <string name="notifications_type_invite_request">Invite Request</string>
+    <string name="notifications_type_invite_request_response">Invite Request Response</string>
+    <string name="notifications_type_friend_request">Friend Request</string>
+    <string name="notifications_type_friend_request_content">%1$s - wants to be your friend!</string>
+    <string name="notification_dialog_title">Notification</string>
+    <string name="notification_dialog_description">What do you want to do with this notification?</string>
+    <string name="notification_dialog_button_delete">Delete</string>
+    <string name="notification_dialog_button_read">Mark As Read</string>
+    <string name="notification_dialog_button_unsubscribe">Unsubscribe</string>
+    <string name="notification_dialog_button_accept">Accept</string>
+    <string name="notification_dialog_button_reject">Reject</string>
+    <string name="notification_dialog_button_block">Block</string>
+    <string name="notification_dialog_button_start">Start</string>
+    <string name="notification_dialog_button_continue">Continue</string>
+    <string name="notification_dialog_button_restart">Restart</string>
+    <string name="notification_dialog_button_abandon">Abandon</string>
+    <string name="notification_invite_text">has invited you to</string>
+    <string name="notification_invite_response_text">rejected your request to join</string>
+    <string name="notification_invite_request_text">wants to join you</string>
+    <string name="notification_invite_request_response_text">rejected your invite request</string>
     <!-- Avatars -->
-    <string name="avatar_dropdown_label_select">更改為此模型</string>
-    <string name="avatar_dropdown_toast_select_avatar">已經選擇此模型！</string>
+    <string name="avatar_dropdown_label_select">變更為此角色</string>
+    <string name="avatar_dropdown_toast_select_avatar">角色已選擇！</string>
     <string name="avatar_title_description">描述</string>
-    <string name="avatar_title_created_at">建立時間</string>
+    <string name="avatar_title_created_at">建立日期</string>
     <string name="avatar_title_updated_at">最近更新</string>
-    <string name="avatar_title_content_labels">內容警告標籤</string>
-    <string name="avatar_text_author">作者： %1$s</string>
+    <string name="avatar_title_content_labels">內容標籤</string>
+    <string name="avatar_text_author">作者：%1$s</string>
     <string name="avatar_title_version">版本</string>
-    <string name="avatar_text_content_labels_not_found">此模型没有提及内容警告。</string>
-    <string name="avatar_toast_avatar_not_found_message">此模型是私人或是無效的。</string>
+    <string name="avatar_text_content_labels_not_found">此角色沒有特定內容警告</string>
+    <string name="avatar_toast_avatar_not_found_message">此角色是私有的或已被移除了</string>
     <!-- Feed -->
     <string name="feed_online_label">上線</string>
-    <string name="feed_online_text">已上線。</string>
+    <string name="feed_online_text">已上線</string>
     <string name="feed_offline_label">離線</string>
     <string name="feed_offline_text">已離線。</string>
     <string name="feed_location_label">GPS</string>
@@ -151,32 +184,34 @@
     <string name="feed_status_label">狀態</string>
     <string name="feed_status_text">狀態改成</string>
     <string name="feed_added_label">新增好友</string>
-    <string name="feed_added_text">已增加你為好友。</string>
-    <string name="feed_removed_label">移除好友</string>
-    <string name="feed_removed_text">已將你從好友名單移除。</string>
-    <string name="feed_friend_request_label">好友邀請</string>
-    <string name="feed_friend_request_text">想要邀請你加入好友。</string>
-    <string name="feed_search_placeholder">搜尋使用者或是房間…</string>
-    <string name="feed_friend_avatar_label">模型更換</string>
-    <string name="feed_friend_avatar_text">更改模型為</string>
+    <string name="feed_added_text">已新增你為好友</string>
+    <string name="feed_removed_label">好友已移除</string>
+    <string name="feed_removed_text">已將你從好友移除</string>
+    <string name="feed_friend_request_label">好友請求</string>
+    <string name="feed_friend_request_text">想要新增你為好友</string>
+    <string name="feed_search_placeholder">搜尋用戶或地點...</string>
+    <string name="feed_friend_avatar_label">角色變更</string>
+    <string name="feed_friend_avatar_text">變更角色為</string>
+    <string name="feed_friend_username_changed_label">Username Change</string>
+    <string name="feed_friend_username_changed_text">changed their username to</string>
     <!-- About -->
     <string name="about_page_title">關於</string>
     <string name="about_page_open_source_licenses_title">開放原始碼授權</string>
-    <string name="about_page_translate_title">為翻譯做出貢獻</string>
-    <string name="about_page_battery_optimizations_toast">已停用電池最佳化。.</string>
+    <string name="about_page_translate_title">協助翻譯</string>
+    <string name="about_page_battery_optimizations_toast" tools:keep="@string/about_page_battery_optimizations_toast">電池最佳化已停用</string>
     <string name="license_title">開放原始碼授權</string>
     <!-- API -->
-    <string name="api_session_has_expired_text">您的工作階段已過期，請重新登入。</string>
+    <string name="api_session_has_expired_text">你的連線已逾期. 請重新再登入.</string>
     <!-- Discord Rich Presence -->
-    <string name="discord_login_restarted_service_toast">已重新啟動服務以生效。</string>
-    <string name="discord_login_label_enable">啟用Discord Rich Presence</string>
-    <string name="discord_login_label_set_webhook">設定Webhook 連結</string>
-    <string name="discord_login_description_set_webhook">需要Webhook以顯示目前世界的縮圖 (可選)</string>
-    <string name="discord_login_description_enable">在你的Discord顯示你的遊戲狀態</string>
+    <string name="discord_login_restarted_service_toast" tools:keep="@string/discord_login_restarted_service_toast">已重啟服務並生效</string>
+    <string name="discord_login_label_enable" tools:keep="@string/discord_login_label_enable">啟用 Discord 狀態 (RPC)</string>
+    <string name="discord_login_label_set_webhook" tools:keep="@string/discord_login_label_set_webhook">設定 Webhook Url</string>
+    <string name="discord_login_description_set_webhook" tools:keep="@string/discord_login_description_set_webhook">顯示世界縮圖 (可選)</string>
+    <string name="discord_login_description_enable" tools:keep="@string/discord_login_description_enable">在 Discord 中顯示你的當前狀態</string>
     <!-- Crash -->
-    <string name="crash_title_text">應用程式發生了嚴重錯誤。.</string>
-    <string name="crash_button_restart_text">重新啟動</string>
-    <string name="crash_button_copy_log_text">複製除錯訊息</string>
+    <string name="crash_title_text">應用程式遇到致命錯誤</string>
+    <string name="crash_button_restart_text">重啟</string>
+    <string name="crash_button_copy_log_text">複製資訊</string>
     <string name="crash_button_report_text">回報問題</string>
     <!-- Groups -->
     <string-array name="group_selection_options">
@@ -206,32 +241,43 @@
     <string name="misc_no_internet_description">請確認您已連上網路，此應用程式無法在沒有網路連線的情況下執行。</string>
     <string name="misc_no_internet_label">重新啟動應用程式</string>
     <string name="misc_exit_toast_label">再按一次即可退出。</string>
-    <string name="misc_no_premium_subscription">操作此功能需要您擁有有效的 VRC+ 付費訂閱。</string>
+    <string name="misc_no_premium_subscription">此功能需要您擁有有效的 VRC+ 付費訂閱。</string>
     <string name="global_app_default_loading_text">載入中…</string>
+    <string name="generic_text_public">Public</string>
+    <string name="generic_text_private">Private</string>
+    <string name="generic_text_upload">Upload</string>
+    <string name="generic_text_cancel">Cancel</string>
+    <string name="generic_text_ok">OK</string>
     <!-- User -->
+    <string name="user_overlay_friend_add">Add Friend</string>
+    <string name="user_overlay_friend_remove">Remove Friend</string>
+    <string name="user_overlay_friend_accept">Accept Request</string>
+    <string name="user_overlay_friend_cancel">Cancel Request</string>
     <string name="user_overlay_groups">Groups</string>
     <string name="user_overlay_worlds">Worlds</string>
     <string name="user_overlay_favorites">Favorites</string>
     <string name="user_overlay_find_avatar">Find Avatar</string>
+    <string name="user_overlay_invite">Invite Me</string>
+    <string name="user_overlay_note">Add Note</string>
     <!-- Profile Edit Dialog -->
     <string name="profile_edit_dialog_title_status">狀態</string>
-    <string name="profile_edit_dialog_title_age_verification_visibility">年齡驗證可見度</string>
+    <string name="profile_edit_dialog_title_age_verification_visibility">年齡驗證可見性</string>
     <string name="profile_edit_dialog_title_status_description">狀態描述</string>
     <string name="profile_edit_dialog_title_bio">簡介</string>
-    <string name="profile_edit_dialog_title_bio_links">社群連結</string>
-    <string name="profile_edit_dialog_toast_updated">已更新個人檔案。</string>
-    <string name="profile_edit_dialog_toast_cancelled">變更已捨棄。</string>
-    <string name="profile_edit_dialog_title_pronouns">代名詞</string>
+    <string name="profile_edit_dialog_title_bio_links">社交連結</string>
+    <string name="profile_edit_dialog_toast_updated">已更新個人資料</string>
+    <string name="profile_edit_dialog_toast_cancelled" tools:keep="@string/profile_edit_dialog_toast_cancelled">變動已被捨棄</string>
+    <string name="profile_edit_dialog_title_pronouns">人稱代詞</string>
     <string name="profile_edit_dialog_button_cancel">取消</string>
     <string name="profile_edit_dialog_button_apply">套用</string>
     <!-- Logout dialog -->
-    <string name="logout_dialog_title">您確定要這樣做嗎？</string>
-    <string name="logout_dialog_description">按下下方的「繼續」後，您將登出 VRCAA，若想繼續使用本應用程式，必須重新登入。</string>
+    <string name="logout_dialog_title">你確定嗎？</string>
+    <string name="logout_dialog_description">按下下方的「繼續」，你將登出 VRCAA，並必須重新登入才能繼續使用應用程式。</string>
     <string name="logout_dialog_continue">繼續</string>
     <string name="logout_dialog_cancel">取消</string>
     <!-- Widgets -->
-    <string name="widget_name_friend_list">查看目前好友位置</string>
-    <string name="widget_name_loading_text">一切都會好起來的，朋友。</string>
+    <string name="widget_name_friend_list" tools:keep="@string/widget_name_friend_list">查看當前好友位置</string>
+    <string name="widget_name_loading_text" tools:keep="@string/widget_name_loading_text">一切都會好起來的，朋友。</string>
     <string name="favorite_page_title">收藏</string>
     <string-array name="favorites_selection_options">
         <item>世界</item>
@@ -259,6 +305,8 @@
     <string name="favorite_dialog_button_edit">Edit</string>
     <string name="favorite_tab_refresh_favorites">Refresh Favorites</string>
     <string name="favorite_toast_refreshed_favorites">Refreshed favorites.</string>
+    <string name="favorite_remove_dialog_title">Do you want remove this favorite?</string>
+    <string name="favorite_remove_dialog_description">This favorite is no longer available, it might have been deleted or made private by the author do you want to remove it from the list?</string>
     <!-- Activities -->
     <!-- Worlds -->
     <string name="worlds_page_title">%1$s\'s Worlds</string>
@@ -285,6 +333,7 @@
     <string name="loading_text_emojis">Loading emojis…</string>
     <string name="loading_text_items">Loading items…</string>
     <string name="loading_text_favorites">Loading favorites…</string>
+    <string name="loading_text_notifications">Loading notifications…</string>
     <!-- Theming -->
     <string name="theme_page_title">Theme</string>
     <string name="theme_page_minimalist_mode_text">Minimalist Mode</string>
@@ -308,8 +357,8 @@
     <string name="advanced_page_network_logging_description">Intercept HTTP and WebSocket traffic</string>
     <string name="advanced_page_view_network_logs">Show Network Logs</string>
     <string name="advanced_page_section_background_activities">Background Activities</string>
-    <string name="advanced_page_battery_optimization">Disable Battery Optimizations</string>
-    <string name="advanced_page_battery_optimization_description">May help with not receiving real-time network events</string>
+    <string name="advanced_page_battery_optimization" tools:keep="@string/advanced_page_battery_optimization">Disable Battery Optimizations</string>
+    <string name="advanced_page_battery_optimization_description" tools:keep="@string/advanced_page_battery_optimization_description">May help with not receiving real-time network events</string>
     <string name="advanced_page_kill_service">Kill background service</string>
     <string name="advanced_page_kill_service_description">Kills the background service responsible for real-time events</string>
     <string name="advanced_page_section_database">Database</string>
@@ -369,4 +418,6 @@
         <item>Archive</item>
     </string-array>
     <string name="image_preview_dialog_title">Preview</string>
+    <string name="image_preview_toast_picture_saved">Saved picture.</string>
+    <string name="image_preview_toast_picture_save_failed">Unable to save picture.</string>
 </resources>

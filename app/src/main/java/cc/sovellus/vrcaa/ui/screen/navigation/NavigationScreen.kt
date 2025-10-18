@@ -55,10 +55,14 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Cabin
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -79,7 +83,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -121,7 +124,8 @@ import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.ui.components.card.QuickMenuCard
 import cc.sovellus.vrcaa.ui.components.dialog.NoInternetDialog
 import cc.sovellus.vrcaa.ui.components.input.ComboInput
-import cc.sovellus.vrcaa.ui.screen.feed.FeedList
+import cc.sovellus.vrcaa.ui.screen.feed.FeedSearchScreen
+import cc.sovellus.vrcaa.ui.screen.notifications.NotificationsScreen
 import cc.sovellus.vrcaa.ui.screen.search.SearchResultScreen
 import cc.sovellus.vrcaa.ui.tabs.FavoritesTab
 import cc.sovellus.vrcaa.ui.tabs.FeedTab
@@ -464,103 +468,53 @@ class NavigationScreen : Screen {
                         }
 
                         FeedTab.options.index -> {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                SearchBar(
-                                    modifier = Modifier.widthIn(max = 720.dp),
-                                    inputField = {
-                                        InputField(
-                                            enabled = true,
-                                            query = model.feedFilterQuery.value,
-                                            onQueryChange = {
-                                                model.feedFilterQuery.value = it
-                                            },
-                                            expanded = model.showFilteredFeed.value,
-                                            onExpandedChange = {
-                                                model.showFilteredFeed.value = it
-                                            },
-                                            placeholder = { Text(text = stringResource(id = R.string.feed_search_placeholder)) },
-                                            leadingIcon = {
-                                                if (model.showFilteredFeed.value) {
-                                                    IconButton(onClick = {
-                                                        model.showFilteredFeed.value = false
-                                                    }) {
-                                                        Icon(
-                                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                            contentDescription = null
-                                                        )
-                                                    }
-                                                } else {
-                                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
-                                                        Icon(
-                                                            imageVector = Icons.Filled.Menu,
-                                                            contentDescription = null
-                                                        )
-                                                    }
-                                                }
-                                            },
-                                            trailingIcon = {
-                                                Row(
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                                ) {
-                                                    if (!model.showFilteredFeed.value) {
-                                                        val profile = CacheManager.getProfile()
-                                                        if (model.cacheBuilt.value && profile != null) {
-                                                            val avatarUrl = profile.userIcon.ifEmpty {
-                                                                profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl }
-                                                            }
-                                                            GlideImage(
-                                                                model = avatarUrl,
-                                                                contentDescription = null,
-                                                                modifier = Modifier
-                                                                    .size(48.dp)
-                                                                    .clip(CircleShape)
-                                                                    .clickable { tabNavigator.current = ProfileTab },
-                                                                loading = placeholder(R.drawable.image_placeholder),
-                                                                failure = placeholder(R.drawable.image_placeholder)
-                                                            )
-                                                        } else if (profile != null) {
-                                                            GlideImage(
-                                                                model = profile.userIcon,
-                                                                contentDescription = null,
-                                                                modifier = Modifier
-                                                                    .size(48.dp)
-                                                                    .clip(CircleShape)
-                                                                    .clickable { tabNavigator.current = ProfileTab },
-                                                                loading = placeholder(R.drawable.image_placeholder),
-                                                                failure = placeholder(R.drawable.image_placeholder)
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            onSearch = {
-                                                model.filterFeed()
-                                                model.feedFilterQuery.value = ""
+                            TopAppBar(
+                                actions = {
+                                    IconButton(
+                                        modifier = Modifier.size(64.dp, 64.dp),
+                                        onClick = {
+                                            if (CacheManager.isBuilt()) {
+                                                navigator.push(FeedSearchScreen())
                                             }
-                                        )
-                                    },
-                                    expanded = model.showFilteredFeed.value,
-                                    onExpandedChange = {},
-                                    shape = SearchBarDefaults.inputFieldShape,
-                                    colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.background),
-                                    tonalElevation = if (model.showFilteredFeed.value) {
-                                        0.dp
-                                    } else {
-                                        8.dp
-                                    },
-                                    windowInsets = SearchBarDefaults.windowInsets.exclude(
-                                        WindowInsets(left = 2.dp, right = 2.dp)
+                                        }) {
+                                        Icon(Icons.Filled.Search, contentDescription = null)
+                                    }
+                                    IconButton(
+                                        modifier = Modifier.size(64.dp, 64.dp),
+                                        onClick = {
+                                            if (CacheManager.isBuilt()) {
+                                                navigator.push(NotificationsScreen())
+                                            }
+                                        }) {
+                                        BadgedBox(
+                                            badge = {
+                                                if (model.notificationsCount.intValue > 0) {
+                                                    Badge {
+                                                        Text("${model.notificationsCount.intValue}")
+                                                    }
+                                                }
+                                            }
+                                        ) {
+                                            Icon(Icons.Filled.Notifications, contentDescription = null)
+                                        }
+                                    }
+                                },
+                                title = {
+                                    Text(
+                                        text = stringResource(id = R.string.tabs_label_feed),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
-                                ) {
-                                    val feed = model.filteredFeed.collectAsState()
-                                    FeedList(feed.value, true)
+                                },
+                                navigationIcon = {
+                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Menu,
+                                            contentDescription = null
+                                        )
+                                    }
                                 }
-                            }
+                            )
                         }
 
                         SettingsTab.options.index -> {
@@ -1050,7 +1004,7 @@ class NavigationScreen : Screen {
                     }
                 },
                     bottomBar = {
-                    // 移除底部導航列，改為側邊選單
+                    // 側邊選單，無需底部導航列
                 })
 
                 AnimatedVisibility(

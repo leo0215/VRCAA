@@ -24,6 +24,10 @@ open class BaseManager<T> {
         listeners.add(listener)
     }
 
+    fun removeListener(listener: T) {
+        listeners.remove(listener)
+    }
+
     fun getListeners(): MutableList<T> {
         return listeners
     }

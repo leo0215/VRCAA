@@ -41,12 +41,12 @@ import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -56,6 +56,7 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.manager.FriendManager
 import cc.sovellus.vrcaa.ui.components.dialog.FavoriteEditDialog
+import cc.sovellus.vrcaa.ui.components.dialog.GenericDialog
 import cc.sovellus.vrcaa.ui.components.layout.FavoriteHorizontalRow
 import cc.sovellus.vrcaa.ui.components.layout.RowItem
 import cc.sovellus.vrcaa.ui.screen.avatar.AvatarScreen
@@ -104,6 +105,20 @@ class FavoritesScreen : Screen {
                 onConfirmation = {
                     model.editDialogShown.value = false
                     model.currentSelectedIsFriend.value = false
+                }
+            )
+        }
+
+        if (model.deleteDialogShown.value) {
+            GenericDialog(
+                title = stringResource(R.string.favorite_remove_dialog_title),
+                description = stringResource(R.string.favorite_remove_dialog_description),
+                onDismiss = {
+                    model.deleteDialogShown.value = false
+                },
+                onConfirmation = {
+                    model.removeFavorite()
+                    model.deleteDialogShown.value = false
                 }
             )
         }
@@ -173,7 +188,7 @@ class FavoritesScreen : Screen {
         val worldList = model.worldList.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
 
-        val sortedWorldList = worldList.value.toSortedMap(compareBy { it.substring(6).toInt() })
+        val sortedWorldList = worldList.value
         sortedWorldList.forEach { item ->
             if (item.value.isNotEmpty()) {
                 FavoriteHorizontalRow(
@@ -187,7 +202,15 @@ class FavoritesScreen : Screen {
                     items(item.value) {
                         RowItem(name = it.name, url = it.thumbnailUrl) {
                             if (it.name != "???") {
-                                navigator.parent?.parent?.push(WorldScreen(it.id))
+                                navigator.parent?.parent?.push(WorldScreen(it.id) {
+                                    model.deleteDialogShown.value = true
+                                    model.currentSelectedType.value = FavoriteType.FAVORITE_WORLD
+                                    model.currentSelectedId.value = it.id
+                                })
+                            } else {
+                                model.deleteDialogShown.value = true
+                                model.currentSelectedType.value = FavoriteType.FAVORITE_WORLD
+                                model.currentSelectedId.value = it.id
                             }
                         }
                     }
@@ -205,7 +228,7 @@ class FavoritesScreen : Screen {
         val avatarList = model.avatarList.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
 
-        val sortedAvatarList = avatarList.value.toSortedMap(compareBy { it.substring(7).toInt() })
+        val sortedAvatarList = avatarList.value
         sortedAvatarList.forEach { item ->
             if (item.value.isNotEmpty()) {
                 FavoriteHorizontalRow(
@@ -219,7 +242,15 @@ class FavoritesScreen : Screen {
                     items(item.value) {
                         RowItem(name = it.name, url = it.thumbnailUrl) {
                             if (it.name != "???") {
-                                navigator.parent?.parent?.push(AvatarScreen(it.id))
+                                navigator.parent?.parent?.push(AvatarScreen(it.id) {
+                                    model.deleteDialogShown.value = true
+                                    model.currentSelectedType.value = FavoriteType.FAVORITE_AVATAR
+                                    model.currentSelectedId.value = it.id
+                                })
+                            } else {
+                                model.deleteDialogShown.value = true
+                                model.currentSelectedType.value = FavoriteType.FAVORITE_AVATAR
+                                model.currentSelectedId.value = it.id
                             }
                         }
                     }
@@ -237,7 +268,7 @@ class FavoritesScreen : Screen {
         val friendList = model.friendList.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
 
-        val sortedFriendList = friendList.value.toSortedMap(compareBy { it.substring(6).toInt() })
+        val sortedFriendList = friendList.value
         sortedFriendList.forEach { item ->
             if (item.value.isNotEmpty()) {
                 FavoriteHorizontalRow(

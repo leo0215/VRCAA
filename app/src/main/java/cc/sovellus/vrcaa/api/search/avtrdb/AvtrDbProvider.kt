@@ -20,8 +20,6 @@ import cc.sovellus.vrcaa.api.search.Config
 import cc.sovellus.vrcaa.base.BaseClient
 import cc.sovellus.vrcaa.api.search.models.SearchAvatar
 import cc.sovellus.vrcaa.api.search.avtrdb.models.AvtrDbResponse
-import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
-import cc.sovellus.vrcaa.api.vrchat.http.models.Friends
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import okhttp3.Headers
@@ -32,16 +30,19 @@ class AvtrDbProvider : BaseClient() {
         query: String,
         n: Int = 50,
         offset: Int = 0
-    ): Pair<Boolean, ArrayList<SearchAvatar>>
-    {
-        val headers = Headers.Builder()
-            .add("User-Agent", Config.API_USER_AGENT)
-            .add("Referer", Config.API_REFERER)
+    ): Pair<Boolean, ArrayList<SearchAvatar>> {
 
         val result = doRequest(
             method = "GET",
-            url = "${Config.AVTR_DB_API_BASE_URL}/avatar/search?query=$query&page_size=$n&page=$offset",
-            headers = headers,
+            url = buildString {
+                append(Config.AVTR_DB_API_BASE_URL)
+                append("/avatar/search")
+                append("?query=${query}")
+                append("&page_size=${n}")
+                append("&page=${offset}")
+                append("&legacy=true")
+            },
+            headers = GENERIC_HEADER,
             body = null,
             retryAfterFailure = false
         )
@@ -51,7 +52,6 @@ class AvtrDbProvider : BaseClient() {
 
                 val avatars: ArrayList<SearchAvatar> = arrayListOf()
                 val json = Gson().fromJson(result.body, AvtrDbResponse::class.java)
-
                 avatars.addAll(json.avatars)
                 return Pair(!json.hasMore, avatars)
             }
@@ -70,16 +70,19 @@ class AvtrDbProvider : BaseClient() {
         n: Int = 50,
         offset: Int = 0,
         avatars: ArrayList<SearchAvatar> = arrayListOf()
-    ): ArrayList<SearchAvatar>
-    {
-        val headers = Headers.Builder()
-            .add("User-Agent", Config.API_USER_AGENT)
-            .add("Referer", Config.API_REFERER)
+    ): ArrayList<SearchAvatar> {
 
         val result = doRequest(
             method = "GET",
-            url = "${Config.AVTR_DB_API_BASE_URL}/avatar/search?query=$query&page_size=$n&page=$offset",
-            headers = headers,
+            url = buildString {
+                append(Config.AVTR_DB_API_BASE_URL)
+                append("/avatar/search")
+                append("?query=${query}")
+                append("&page_size=${n}")
+                append("&page=${offset}")
+                append("&legacy=true")
+            },
+            headers = GENERIC_HEADER,
             body = null,
             retryAfterFailure = false
         )
@@ -88,11 +91,11 @@ class AvtrDbProvider : BaseClient() {
             is Result.Succeeded -> {
 
                 val json = Gson().fromJson(result.body, AvtrDbResponse::class.java)
+                avatars.addAll(json.avatars)
 
                 if (!json.hasMore)
                     return avatars
 
-                avatars.addAll(json.avatars)
                 delay(1000) // 1rq/s rl
                 searchAll(query, n, offset + 1, avatars)
             }
@@ -104,5 +107,12 @@ class AvtrDbProvider : BaseClient() {
                 return arrayListOf()
             }
         }
+    }
+
+    companion object {
+        private val GENERIC_HEADER = Headers.Builder()
+            .add("User-Agent", Config.API_USER_AGENT)
+            .add("Referer", Config.API_REFERER)
+            .build()
     }
 }

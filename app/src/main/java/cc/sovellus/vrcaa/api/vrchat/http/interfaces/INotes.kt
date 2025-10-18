@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-package cc.sovellus.vrcaa.api.search.models
+package cc.sovellus.vrcaa.api.vrchat.http.interfaces
 
-import com.google.gson.annotations.SerializedName
+import cc.sovellus.vrcaa.api.vrchat.http.models.Notification
 
-data class SearchAvatarLegacy(
-    @SerializedName("id")
-    val id: String,
-    @SerializedName("imageUrl")
-    val imageUrl: String?,
-    @SerializedName("name")
-    val name: String,
-    @SerializedName("authorId")
-    val authorId: String = "",
-    @SerializedName("authorName")
-    val authorName: String = "",
-)
+interface INotes {
+    suspend fun updateNote(userId: String, note: String): Notification?
+}

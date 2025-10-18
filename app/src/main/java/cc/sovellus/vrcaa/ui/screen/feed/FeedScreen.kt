@@ -35,8 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,6 +53,7 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.App
 
 import cc.sovellus.vrcaa.manager.FeedManager
+import cc.sovellus.vrcaa.manager.FriendManager
 import cc.sovellus.vrcaa.ui.components.layout.FeedItem
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
@@ -72,7 +71,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
             .padding(1.dp),
         state = rememberLazyListState()
     ) {
-        items(feed.reversed())
+        items(feed)
         { item ->
             when (item.type) {
                 FeedManager.FeedType.FRIEND_FEED_ONLINE -> {
@@ -90,7 +89,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
                         resourceStringTitle = R.string.feed_online_label,
                         onClick = {
                             if (filter) {
-                                navigator.parent?.push(UserProfileScreen(item.friendId))
+                                navigator.push(UserProfileScreen(item.friendId))
                             } else {
                                 navigator.parent?.parent?.push(UserProfileScreen(item.friendId))
                             }
@@ -113,7 +112,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
                         resourceStringTitle = R.string.feed_offline_label,
                         onClick = {
                             if (filter) {
-                                navigator.parent?.push(UserProfileScreen(item.friendId))
+                                navigator.push(UserProfileScreen(item.friendId))
                             } else {
                                 navigator.parent?.parent?.push(UserProfileScreen(item.friendId))
                             }
@@ -138,7 +137,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
                         resourceStringTitle = R.string.feed_location_label,
                         onClick = {
                             if (filter) {
-                                navigator.parent?.push(WorldScreen(item.worldId))
+                                navigator.push(WorldScreen(item.worldId))
                             } else {
                                 navigator.parent?.parent?.push(WorldScreen(item.worldId))
                             }
@@ -163,7 +162,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
                         resourceStringTitle = R.string.feed_status_label,
                         onClick = {
                             if (filter) {
-                                navigator.parent?.push(UserProfileScreen(item.friendId))
+                                navigator.push(UserProfileScreen(item.friendId))
                             } else {
                                 navigator.parent?.parent?.push(UserProfileScreen(item.friendId))
                             }
@@ -186,7 +185,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
                         resourceStringTitle = R.string.feed_added_label,
                         onClick = {
                             if (filter) {
-                                navigator.parent?.push(UserProfileScreen(item.friendId))
+                                navigator.push(UserProfileScreen(item.friendId))
                             } else {
                                 navigator.parent?.parent?.push(UserProfileScreen(item.friendId))
                             }
@@ -209,7 +208,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
                         resourceStringTitle = R.string.feed_removed_label,
                         onClick = {
                             if (filter) {
-                                navigator.parent?.push(UserProfileScreen(item.friendId))
+                                navigator.push(UserProfileScreen(item.friendId))
                             } else {
                                 navigator.parent?.parent?.push(UserProfileScreen(item.friendId))
                             }
@@ -232,7 +231,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
                         resourceStringTitle = R.string.feed_friend_request_label,
                         onClick = {
                             if (filter) {
-                                navigator.parent?.push(UserProfileScreen(item.friendId))
+                                navigator.push(UserProfileScreen(item.friendId))
                             } else {
                                 navigator.parent?.parent?.push(UserProfileScreen(item.friendId))
                             }
@@ -257,7 +256,32 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
                         resourceStringTitle = R.string.feed_friend_avatar_label,
                         onClick = {
                             if (filter) {
-                                navigator.parent?.push(UserProfileScreen(item.friendId))
+                                navigator.push(UserProfileScreen(item.friendId))
+                            } else {
+                                navigator.parent?.parent?.push(UserProfileScreen(item.friendId))
+                            }
+                        }
+                    )
+                }
+
+                FeedManager.FeedType.FRIEND_FEED_USERNAME_CHANGE -> {
+                    val text = buildAnnotatedString {
+                        append(FriendManager.getFriend(item.friendId)?.displayName)
+                        append(" ")
+                        withStyle(style = SpanStyle(color = Color.Gray)) {
+                            append(stringResource(R.string.feed_friend_username_changed_text))
+                        }
+                        append(" ")
+                        append(item.friendName)
+                    }
+                    FeedItem(
+                        text = text,
+                        friendPictureUrl = item.friendPictureUrl,
+                        feedTimestamp = item.feedTimestamp,
+                        resourceStringTitle = R.string.feed_friend_username_changed_label,
+                        onClick = {
+                            if (filter) {
+                                navigator.push(UserProfileScreen(item.friendId))
                             } else {
                                 navigator.parent?.parent?.push(UserProfileScreen(item.friendId))
                             }
@@ -306,7 +330,7 @@ class FeedScreen : Screen {
             state = pullToRefreshState,
             modifier = Modifier.fillMaxSize()
         ) {
-            val feed = model.feed.collectAsState()
+            val feed = model.feedList.collectAsState()
             FeedList(feed.value)
         }
     }

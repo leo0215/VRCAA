@@ -21,68 +21,70 @@ import com.google.gson.annotations.SerializedName
 
 data class NotificationV2(
     @SerializedName("canDelete")
-    val canDelete: Boolean,
+    var canDelete: Boolean = false,
     @SerializedName("category")
-    val category: String,
+    var category: String = "",
     @SerializedName("createdAt")
-    val createdAt: String,
+    var createdAt: String = "",
     @SerializedName("data")
-    val `data`: Any?,
+    var `data`: Any = Any(),
     @SerializedName("expiresAt")
-    val expiresAt: String,
+    var expiresAt: String = "",
     @SerializedName("expiryAfterSeen")
-    val expiryAfterSeen: Any?,
+    var expiryAfterSeen: Int = 0,
     @SerializedName("id")
-    val id: String,
+    var id: String = "",
     @SerializedName("ignoreDND")
-    val ignoreDND: Boolean,
+    var ignoreDND: Boolean = false,
     @SerializedName("imageUrl")
-    val imageUrl: String,
+    var imageUrl: String?,
     @SerializedName("isSystem")
-    val isSystem: Boolean,
+    var isSystem: Boolean = false,
     @SerializedName("link")
-    val link: String,
+    var link: String?,
     @SerializedName("linkText")
-    val linkText: String,
+    var linkText: String?,
+    @SerializedName("linkTextKey")
+    var linkTextKey: String?,
     @SerializedName("message")
-    val message: String,
+    var message: String = "",
     @SerializedName("messageKey")
-    val messageKey: String,
+    var messageKey: String?,
     @SerializedName("receiverUserId")
-    val receiverUserId: String,
+    var receiverUserId: String = "",
     @SerializedName("relatedNotificationsId")
-    val relatedNotificationsId: String,
+    var relatedNotificationsId: String = "",
     @SerializedName("requireSeen")
-    val requireSeen: Boolean,
+    var requireSeen: Boolean = false,
     @SerializedName("responses")
-    val responses: List<Response>,
+    var responses: List<Response> = listOf(),
     @SerializedName("seen")
-    val seen: Boolean,
+    var seen: Boolean = false,
     @SerializedName("senderUserId")
-    val senderUserId: String,
+    var senderUserId: String?,
     @SerializedName("senderUsername")
-    val senderUsername: String,
+    var senderUsername: String?,
     @SerializedName("title")
-    val title: String,
+    var title: String?,
     @SerializedName("titleKey")
-    val titleKey: Any?,
+    var titleKey: String?,
     @SerializedName("type")
-    val type: String,
+    var type: String = "",
     @SerializedName("updatedAt")
-    val updatedAt: String,
+    var updatedAt: String = "",
     @SerializedName("version")
-    val version: Int
+    var version: Int = 0
 ) {
     data class Response(
         @SerializedName("data")
-        val `data`: String,
+        var `data`: String = "",
         @SerializedName("icon")
-        val icon: String,
+        var icon: String = "",
         @SerializedName("text")
-        val text: String,
+        var text: String = "",
         @SerializedName("textKey")
-        val textKey: String,
+        var textKey: String = "",
         @SerializedName("type")
-        val type: String
+        var type: String = ""
     )
 }

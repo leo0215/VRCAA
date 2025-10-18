@@ -22,14 +22,48 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 
 object JsonHelper {
+    private val gson = Gson()
+
     fun <T> mergeJson(old: T, new: T, type: Class<T>): T {
-        val merged = mergeObjects(JsonParser.parseString(Gson().toJson(old)).asJsonObject, JsonParser.parseString(Gson().toJson(new)).asJsonObject)
-        return Gson().fromJson(merged, type)
+        val merged = mergeObjects(JsonParser.parseString(gson.toJson(old)).asJsonObject, JsonParser.parseString(gson.toJson(new)).asJsonObject)
+        return gson.fromJson(merged, type)
     }
 
     fun <T, N> mergeDiffJson(old: T, new: N, type: Class<T>): T {
-        val merged = mergeObjects(JsonParser.parseString(Gson().toJson(old)).asJsonObject, JsonParser.parseString(Gson().toJson(new)).asJsonObject)
-        return Gson().fromJson(merged, type)
+        val merged = mergeObjects(JsonParser.parseString(gson.toJson(old)).asJsonObject, JsonParser.parseString(gson.toJson(new)).asJsonObject)
+        return gson.fromJson(merged, type)
+    }
+
+    fun <T, N> convert(data: T, type: Class<N>): N {
+        return gson.fromJson(JsonParser.parseString(gson.toJson(data)), type)
+    }
+
+    fun getJsonField(data: Any?, field: String): String? {
+        return try {
+            var elem = JsonParser.parseString(gson.toJson(data))
+
+            if (elem.isJsonPrimitive && elem.asJsonPrimitive.isString) {
+                val s = elem.asString.trim()
+                if (s.startsWith("{") || s.startsWith("[")) {
+                    elem = JsonParser.parseString(s)
+                }
+            }
+
+            if (!elem.isJsonObject)
+                return null
+
+            val value = elem.asJsonObject.get(field) ?:
+                return null
+
+            when {
+                value.isJsonPrimitive -> value.asJsonPrimitive.run {
+                    if (isString) asString else toString()
+                }
+                else -> value.toString()
+            }
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun mergeObjects(old: JsonObject, new: JsonObject): JsonObject {

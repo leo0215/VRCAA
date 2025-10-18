@@ -79,8 +79,8 @@ fun WorldCard(
 
     Card(
         modifier = Modifier
-            .heightIn(Dp.Unspecified, 260.dp)
-            .widthIn(Dp.Unspecified, 520.dp)
+            .heightIn(0.dp, 260.dp)
+            .widthIn(0.dp, 520.dp)
     ) {
         Box(
             Modifier
