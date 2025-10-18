@@ -202,6 +202,7 @@ class HttpClient : BaseClient(), CoroutineScope {
             val headers = Headers.Builder()
                 .add("Authorization", "Basic $token")
                 .add("User-Agent", Config.API_USER_AGENT)
+                .build()
 
             val result = doRequest(
                 method = "GET",
@@ -209,7 +210,7 @@ class HttpClient : BaseClient(), CoroutineScope {
                     append(Config.API_BASE_URL)
                     append("/auth/user")
                 },
-                headers = headers.build(),
+                headers = headers,
                 body = null,
                 retryAfterFailure = false,
                 skipAuthorizationFailure = true
