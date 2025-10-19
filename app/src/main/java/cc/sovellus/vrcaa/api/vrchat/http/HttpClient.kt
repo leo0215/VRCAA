@@ -43,6 +43,7 @@ import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IPrints
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IUser
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IUsers
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IWorlds
+import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IEconomy
 import cc.sovellus.vrcaa.api.vrchat.http.models.Avatar
 import cc.sovellus.vrcaa.api.vrchat.http.models.Avatars
 import cc.sovellus.vrcaa.api.vrchat.http.models.Code
@@ -86,7 +87,9 @@ import cc.sovellus.vrcaa.api.vrchat.http.models.Notifications
 import cc.sovellus.vrcaa.api.vrchat.http.models.NotificationsV2
 import cc.sovellus.vrcaa.api.vrchat.http.models.Print
 import cc.sovellus.vrcaa.api.vrchat.http.models.Prints
+import cc.sovellus.vrcaa.api.vrchat.http.models.UserBalance
 import cc.sovellus.vrcaa.api.vrchat.http.models.UserNoteUpdate
+import cc.sovellus.vrcaa.api.vrchat.http.models.UserSubscription
 import cc.sovellus.vrcaa.extension.authToken
 import cc.sovellus.vrcaa.extension.twoFactorToken
 import cc.sovellus.vrcaa.extension.userCredentials
@@ -2129,6 +2132,52 @@ class HttpClient : BaseClient(), CoroutineScope {
                 else -> {
                     handleExceptions(result)
                     return arrayListOf()
+                }
+            }
+        }
+    }
+
+    val economy = object : IEconomy {
+        override suspend fun fetchUserBalance(userId: String): UserBalance? {
+            val result = doRequest(
+                method = "GET",
+                url = buildString {
+                    append(Config.API_BASE_URL)
+                    append("/user/${userId}/balance")
+                },
+                headers = GENERIC_HEADER,
+                body = null
+            )
+
+            when (result) {
+                is Result.Succeeded -> {
+                    return gson.fromJson(result.body, UserBalance::class.java)
+                }
+                else -> {
+                    handleExceptions(result)
+                    return null
+                }
+            }
+        }
+
+        override suspend fun fetchCurrentSubscriptions(): List<UserSubscription> {
+            val result = doRequest(
+                method = "GET",
+                url = buildString {
+                    append(Config.API_BASE_URL)
+                    append("/auth/user/subscription")
+                },
+                headers = GENERIC_HEADER,
+                body = null
+            )
+
+            when (result) {
+                is Result.Succeeded -> {
+                    return gson.fromJson(result.body, Array<UserSubscription>::class.java).toList()
+                }
+                else -> {
+                    handleExceptions(result)
+                    return emptyList()
                 }
             }
         }

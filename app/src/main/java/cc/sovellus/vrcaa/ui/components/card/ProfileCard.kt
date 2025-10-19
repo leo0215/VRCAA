@@ -79,10 +79,14 @@ fun ProfileCard(
     onBadgeClick: (UserBadge) -> Unit = { }
 ) {
     Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        ),
         modifier = Modifier
             .height(270.dp)
             .widthIn(0.dp, 520.dp)
             .fillMaxWidth()
+
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(

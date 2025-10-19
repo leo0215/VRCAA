@@ -223,11 +223,13 @@ class ProfileScreen : Screen {
                             verticalArrangement = Arrangement.SpaceBetween,
                             horizontalAlignment = Alignment.Start
                         ) {
-                            ElevatedCard(
-                                elevation = CardDefaults.cardElevation(
-                                    defaultElevation = 6.dp
+                            Card(
+
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
                                 ),
                                 modifier = Modifier.padding(top = 16.dp).defaultMinSize(minHeight = 80.dp).widthIn(Dp.Unspecified, 520.dp),
+
                             ) {
                                 SubHeader(title = stringResource(R.string.profile_label_biography))
                                 Description(text = profile.bio)
