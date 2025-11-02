@@ -17,26 +17,25 @@
 package cc.sovellus.vrcaa.ui.screen.about
 
 import android.os.Build
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
@@ -46,6 +45,9 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.BuildConfig
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.ui.components.misc.Logo
+import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
+import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
+import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.screen.licenses.LicensesScreen
 
 class AboutScreen : Screen {
@@ -56,8 +58,6 @@ class AboutScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-
-        val scrollState = rememberScrollState()
 
         Scaffold(
             topBar = {
@@ -70,75 +70,88 @@ class AboutScreen : Screen {
                             )
                         }
                     },
-
                     title = { Text(text = stringResource(R.string.about_page_title)) }
                 )
             },
             content = {
-                Column(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .verticalScroll(scrollState)
                         .padding(
                             bottom = it.calculateBottomPadding(),
                             top = it.calculateTopPadding()
-                        ),
-                ) {
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    Logo(size = 128.dp)
-
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    ListItem(
-                        headlineContent = {
-                            Text("Version")
-                        },
-                        supportingContent = {
-                            Text(text = "${BuildConfig.VERSION_NAME} ${BuildConfig.FLAVOR} (${BuildConfig.GIT_BRANCH}, ${BuildConfig.GIT_HASH})")
-                        }
-                    )
-
-                    ListItem(
-                        headlineContent = {
-                            Text("Model")
-                        },
-                        supportingContent = {
-                            Text(text = Build.MODEL)
-                        }
-                    )
-
-                    ListItem(
-                        headlineContent = {
-                            Text("Vendor")
-                        },
-                        supportingContent = {
-                            Text(text = Build.MANUFACTURER)
-                        }
-                    )
-
-                    ListItem(
-                        headlineContent = {
-                            Text("System Version")
-                        },
-                        supportingContent = {
-                            Text(text = "Android ${Build.VERSION.RELEASE}")
-                        }
-                    )
-
-                    HorizontalDivider(
-                        color = Color.Gray,
-                        thickness = 0.5.dp
-                    )
-
-                    ListItem(
-                        headlineContent = { Text(stringResource(R.string.about_page_open_source_licenses_title)) },
-                        modifier = Modifier.clickable(
-                            onClick = {
-                                navigator.push(LicensesScreen())
-                            }
                         )
-                    )
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Logo(size = 128.dp)
+                        }
+                    }
+
+                    item {
+                        SectionHeader("版本資訊")
+                    }
+
+                    item {
+                        SettingsGroup(
+                            items = listOf(
+                                SettingsItem(
+                                    title = "Version",
+                                    description = "${BuildConfig.VERSION_NAME} ${BuildConfig.FLAVOR} (${BuildConfig.GIT_BRANCH}, ${BuildConfig.GIT_HASH})",
+                                    icon = null,
+                                    onClick = {}
+                                ),
+                                SettingsItem(
+                                    title = "Model",
+                                    description = Build.MODEL,
+                                    icon = null,
+                                    onClick = {}
+                                ),
+                                SettingsItem(
+                                    title = "Vendor",
+                                    description = Build.MANUFACTURER,
+                                    icon = null,
+                                    onClick = {}
+                                ),
+                                SettingsItem(
+                                    title = "System Version",
+                                    description = "Android ${Build.VERSION.RELEASE}",
+                                    icon = null,
+                                    onClick = {}
+                                )
+                            )
+                        )
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        SectionHeader("其他")
+                    }
+
+                    item {
+                        SettingsGroup(
+                            items = listOf(
+                                SettingsItem(
+                                    title = stringResource(R.string.about_page_open_source_licenses_title),
+                                    description = null,
+                                    icon = Icons.Outlined.Code,
+                                    onClick = {
+                                        navigator.push(LicensesScreen())
+                                    }
+                                )
+                            )
+                        )
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
             }
         )

@@ -16,10 +16,12 @@
 
 package cc.sovellus.vrcaa.ui.screen.presence
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -31,11 +33,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -44,7 +43,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
@@ -52,6 +51,10 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.ui.components.dialog.InputDialog
+import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
+import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
+import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
+import cc.sovellus.vrcaa.ui.screen.presence.RichPresenceWebViewLogin
 
 class RichPresenceScreen : Screen {
 
@@ -104,107 +107,87 @@ class RichPresenceScreen : Screen {
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight()
-                        .padding(top = padding.calculateTopPadding()),
+                        .padding(top = padding.calculateTopPadding())
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = "Account",
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        )
+                        SectionHeader("Account")
                     }
 
                     item {
-                        ListItem(
-                            headlineContent = { Text(if (model.token.value.isNotEmpty()) { "Connected" } else { "Disconnected" }) },
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Filled.AccountCircle,
-                                    contentDescription = null
-                                )
-                            },
-                            trailingContent = {
-                                if (model.token.value.isNotEmpty()) {
-                                    Button(onClick = { model.revoke() }) {
-                                        Text(text = "Disconnect Discord")
-                                    }
-                                } else {
-                                    Button(onClick = { navigator.push(RichPresenceWebViewLogin()) }) {
-                                        Text(text = "Connect Discord")
-                                    }
-                                }
-                            }
-                        )
-                    }
-
-                    item {
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = "Settings",
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        )
-                    }
-
-                    item {
-
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.discord_login_label_enable)) },
-                            supportingContent = { Text(stringResource(R.string.discord_login_description_enable)) },
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Filled.Image,
-                                    contentDescription = null
-                                )
-                            },
-                            trailingContent = {
-                                Switch(
-                                    enabled = model.token.value.isNotEmpty(),
-                                    checked = model.enabled.value,
-                                    onCheckedChange = {
-                                        model.toggle()
-                                    },
-                                    thumbContent = {
-                                        if (model.enabled.value) {
-                                            Icon(
-                                                imageVector = Icons.Filled.Check,
-                                                contentDescription = null
-                                            )
+                        SettingsGroup(
+                            items = listOf(
+                                SettingsItem(
+                                    title = if (model.token.value.isNotEmpty()) { "Connected" } else { "Disconnected" },
+                                    description = null,
+                                    icon = Icons.Filled.AccountCircle,
+                                    onClick = {},
+                                    trailingContent = {
+                                        if (model.token.value.isNotEmpty()) {
+                                            Button(onClick = { model.revoke() }) {
+                                                Text(text = "Disconnect Discord")
+                                            }
+                                        } else {
+                                            Button(onClick = { navigator.push(RichPresenceWebViewLogin()) }) {
+                                                Text(text = "Connect Discord")
+                                            }
                                         }
                                     }
                                 )
-                            },
-                            modifier = Modifier.clickable(
-                                enabled = model.token.value.isNotEmpty(),
-                                onClick = {
-                                    model.toggle()
-                                }
                             )
                         )
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.discord_login_label_set_webhook)) },
-                            supportingContent = { Text(stringResource(R.string.discord_login_description_set_webhook)) },
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Filled.ImageSearch,
-                                    contentDescription = null
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        SectionHeader("Settings")
+                    }
+
+                    item {
+                        SettingsGroup(
+                            items = listOf(
+                                SettingsItem(
+                                    title = stringResource(R.string.discord_login_label_enable),
+                                    description = stringResource(R.string.discord_login_description_enable),
+                                    icon = Icons.Filled.Image,
+                                    onClick = {
+                                        if (model.token.value.isNotEmpty()) {
+                                            model.toggle()
+                                        }
+                                    },
+                                    trailingContent = {
+                                        Switch(
+                                            enabled = model.token.value.isNotEmpty(),
+                                            checked = model.enabled.value,
+                                            onCheckedChange = { model.toggle() },
+                                            thumbContent = {
+                                                if (model.enabled.value) {
+                                                    Icon(
+                                                        imageVector = Icons.Filled.Check,
+                                                        contentDescription = null
+                                                    )
+                                                }
+                                            }
+                                        )
+                                    }
+                                ),
+                                SettingsItem(
+                                    title = stringResource(R.string.discord_login_label_set_webhook),
+                                    description = stringResource(R.string.discord_login_description_set_webhook),
+                                    icon = Icons.Filled.ImageSearch,
+                                    onClick = {
+                                        if (model.token.value.isNotEmpty() && model.enabled.value) {
+                                            dialogState.value = true
+                                        }
+                                    }
                                 )
-                            },
-                            modifier = Modifier.clickable(
-                                enabled = model.enabled.value,
-                                onClick = {
-                                    if (model.token.value.isNotEmpty())
-                                        dialogState.value = true
-                                }
                             )
                         )
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             }

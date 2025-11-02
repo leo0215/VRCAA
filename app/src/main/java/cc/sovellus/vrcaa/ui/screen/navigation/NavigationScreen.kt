@@ -21,11 +21,6 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -74,6 +69,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -84,6 +82,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -100,6 +102,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -192,11 +195,11 @@ class NavigationScreen : Screen {
         }) { tabNavigator ->
             val settingsSheetState = rememberModalBottomSheetState()
             val profileSheetState = rememberModalBottomSheetState()
+            val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
             var showSettingsSheet by remember { mutableStateOf(false) }
             var isMenuExpanded by remember { mutableStateOf(false) }
             var showProfileSheet by remember { mutableStateOf(false) }
-            var isQuickMenuExpanded by remember { mutableStateOf(false) }
 
             val scope = rememberCoroutineScope()
 
@@ -204,7 +207,13 @@ class NavigationScreen : Screen {
 
             var pressBackCounter by remember { mutableIntStateOf(0) }
 
-            BackHandler(enabled = true, onBack = {
+            BackHandler(enabled = drawerState.isOpen) {
+                scope.launch {
+                    drawerState.close()
+                }
+            }
+
+            BackHandler(enabled = !drawerState.isOpen, onBack = {
                 if (tabNavigator.current != HomeTab) {
                     tabNavigator.current = HomeTab
                 } else {
@@ -225,15 +234,129 @@ class NavigationScreen : Screen {
                     }
                 }
             })
-            Box(modifier = Modifier.fillMaxSize()) {
+
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // 用戶資料卡片
+                            CacheManager.getProfile()?.let {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(topEnd = 16.dp))
+                                ) {
+                                    QuickMenuCard(
+                                        thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
+                                        iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
+                                        displayName = it.displayName,
+                                        statusDescription = it.statusDescription.ifEmpty { StatusHelper.getStatusFromString(it.status).toString() },
+                                        trustRankColor = TrustHelper.getTrustRankFromTags(it.tags).toColor(),
+                                        statusColor = StatusHelper.getStatusFromString(it.status).toColor(),
+                                        tags = it.tags,
+                                        badges = it.badges
+                                    )
+
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .padding(4.dp)
+                                            .background(Color.Black.copy(alpha = 0.6f), shape = CircleShape)
+                                    ) {
+                                        IconButton(
+                                            onClick = {
+                                                scope.launch {
+                                                    drawerState.close()
+                                                }
+                                                showProfileSheet = true
+                                            },
+                                            modifier = Modifier.size(36.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Edit,
+                                                contentDescription = null,
+                                                tint = Color.White
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                            // 導航項目
+                            Column(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                tabs.forEach { tab ->
+                                    val isSelected = tabNavigator.current.key == tab.key
+                                    NavigationDrawerItem(
+                                        icon = {
+                                            Icon(
+                                                painter = tab.options.icon!!,
+                                                contentDescription = tab.options.title
+                                            )
+                                        },
+                                        label = { Text(tab.options.title) },
+                                        selected = isSelected,
+                                        onClick = {
+                                            pressBackCounter = 0
+                                            tabNavigator.current = tab
+                                            scope.launch {
+                                                drawerState.close()
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                            // 訂閱與餘額
+                            Column(
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            ) {
+                                NavigationDrawerItem(
+                                    icon = {
+                                        Icon(
+                                            imageVector = Icons.Filled.AccountBalanceWallet,
+                                            contentDescription = "訂閱與餘額"
+                                        )
+                                    },
+                                    label = { Text("訂閱與餘額") },
+                                    selected = false,
+                                    onClick = {
+                                        navigator.push(EconomyScreen())
+                                        scope.launch {
+                                            drawerState.close()
+                                        }
+                                    }
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            // 版本號
+                            Text(
+                                text = "VRCAA Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            ) {
                 Scaffold(
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            isQuickMenuExpanded = false
-                        },
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ),
                     topBar = {
                     when (tabNavigator.current.options.index) {
                         HomeTab.options.index -> {
@@ -277,7 +400,11 @@ class NavigationScreen : Screen {
                                                         )
                                                     }
                                                 } else {
-                                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
+                                                    IconButton(onClick = {
+                                                        scope.launch {
+                                                            drawerState.open()
+                                                        }
+                                                    }) {
                                                         Icon(
                                                             imageVector = Icons.Filled.Menu,
                                                             contentDescription = null
@@ -389,7 +516,35 @@ class NavigationScreen : Screen {
                                     )
                                 },
                                 navigationIcon = {
-                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
+                                    IconButton(onClick = {
+                                        scope.launch {
+                                            drawerState.open()
+                                        }
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Menu,
+                                            contentDescription = null
+                                        )
+                                    }
+                                }
+                            )
+                        }
+
+                        ProfileTab.options.index -> {
+                            TopAppBar(
+                                title = {
+                                    Text(
+                                        text = stringResource(id = R.string.tabs_label_profile),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                navigationIcon = {
+                                    IconButton(onClick = {
+                                        scope.launch {
+                                            drawerState.open()
+                                        }
+                                    }) {
                                         Icon(
                                             imageVector = Icons.Filled.Menu,
                                             contentDescription = null
@@ -411,7 +566,9 @@ class NavigationScreen : Screen {
                                 navigationIcon = {
                                     IconButton(onClick = {
                                         if (CacheManager.isBuilt()) {
-                                            isQuickMenuExpanded = true
+                                            scope.launch {
+                                                drawerState.open()
+                                            }
                                         }
                                     }) {
                                         Icon(
@@ -427,7 +584,11 @@ class NavigationScreen : Screen {
                             TopAppBar(
                                 title = { Text(stringResource(R.string.tabs_label_favorites)) },
                                 navigationIcon = {
-                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
+                                    IconButton(onClick = {
+                                        scope.launch {
+                                            drawerState.open()
+                                        }
+                                    }) {
                                         Icon(
                                             imageVector = Icons.Filled.Menu,
                                             contentDescription = null
@@ -510,7 +671,11 @@ class NavigationScreen : Screen {
                                     )
                                 },
                                 navigationIcon = {
-                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
+                                    IconButton(onClick = {
+                                        scope.launch {
+                                            drawerState.open()
+                                        }
+                                    }) {
                                         Icon(
                                             imageVector = Icons.Filled.Menu,
                                             contentDescription = null
@@ -530,7 +695,11 @@ class NavigationScreen : Screen {
                                     )
                                 },
                                 navigationIcon = {
-                                    IconButton(onClick = { isQuickMenuExpanded = true }) {
+                                    IconButton(onClick = {
+                                        scope.launch {
+                                            drawerState.open()
+                                        }
+                                    }) {
                                         Icon(
                                             imageVector = Icons.Filled.Menu,
                                             contentDescription = null
@@ -1009,187 +1178,6 @@ class NavigationScreen : Screen {
                     bottomBar = {
                     // 側邊選單，無需底部導航列
                 })
-
-                AnimatedVisibility(
-                    visible = isQuickMenuExpanded,
-                    enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(),
-                    exit = slideOutHorizontally(targetOffsetX = { -it }) + fadeOut(),
-                    modifier = Modifier.systemBarsPadding().navigationBarsPadding()
-                ) {
-                    // 變暗覆蓋層
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.5f))
-                            .clickable(
-                                onClick = { isQuickMenuExpanded = false },
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() }
-                            )
-                    ) {
-                        // 側邊選單
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .clip(
-                                    RoundedCornerShape(
-                                        topStart = 0.dp,
-                                        bottomStart = 0.dp,
-                                        topEnd = 16.dp,
-                                        bottomEnd = 16.dp
-                                    )
-                                )
-                                .fillMaxWidth(0.9f)
-                                .background(MaterialTheme.colorScheme.surfaceContainer)
-                                .zIndex(1f)
-                                .clickable(
-                                    onClick = { /* 防止事件冒泡 */ },
-                                    indication = null,
-                                    interactionSource = remember { MutableInteractionSource() }
-                                ),
-                            shadowElevation = 8.dp
-                        ) {
-                            Column(
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                LazyColumn(
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    item {
-                                        CacheManager.getProfile()?.let {
-                                            Box(modifier = Modifier.fillMaxWidth()) {
-                                                QuickMenuCard(
-                                                    thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
-                                                    iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
-                                                    displayName = it.displayName,
-                                                    statusDescription = it.statusDescription.ifEmpty {  StatusHelper.getStatusFromString(it.status).toString() },
-                                                    trustRankColor = TrustHelper.getTrustRankFromTags(it.tags).toColor(),
-                                                    statusColor = StatusHelper.getStatusFromString(it.status).toColor(),
-                                                    tags = it.tags,
-                                                    badges = it.badges
-                                                )
-
-                                                Box(
-                                                    modifier = Modifier
-                                                        .align(Alignment.TopEnd)
-                                                        .padding(4.dp)
-                                                        .background(Color.Black.copy(alpha = 0.6f), shape = CircleShape)
-                                                ) {
-                                                    IconButton(
-                                                        onClick = {
-                                                            isQuickMenuExpanded = false
-                                                            showProfileSheet = true
-                                                        },
-                                                        modifier = Modifier.size(36.dp)
-                                                    ) {
-                                                        Icon(
-                                                            imageVector = Icons.Default.Edit,
-                                                            contentDescription = null,
-                                                            tint = Color.White
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    item {
-                                        Column(modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 16.dp)) {
-
-                                            tabs.forEach { tab ->
-                                                Row(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(vertical = 4.dp, horizontal = 4.dp)
-                                                        .clip(RoundedCornerShape(80))
-                                                        .background(
-                                                            if (tabNavigator.current.key == tab.key) {
-                                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                                                            } else {
-                                                                Color.Transparent
-                                                            }
-                                                        )
-                                                        .clickable(onClick = {
-                                                            pressBackCounter = 0
-                                                            tabNavigator.current = tab
-                                                            isQuickMenuExpanded = false
-                                                        }).padding(vertical = 16.dp, horizontal = 16.dp),
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    Icon(
-                                                        painter = tab.options.icon!!,
-                                                        contentDescription = tab.options.title,
-                                                        tint = if (tabNavigator.current.key == tab.key) {
-                                                            MaterialTheme.colorScheme.primary
-                                                        } else {
-                                                            MaterialTheme.colorScheme.onSurface
-                                                        }
-                                                    )
-
-                                                    Text(
-                                                        text = tab.options.title,
-                                                        maxLines = 1,
-                                                        overflow = TextOverflow.Ellipsis,
-                                                        modifier = Modifier.padding(start = 16.dp),
-                                                        color = if (tabNavigator.current.key == tab.key) {
-                                                            MaterialTheme.colorScheme.primary
-                                                        } else {
-                                                            MaterialTheme.colorScheme.onSurface
-                                                        }
-                                                    )
-                                                }
-                                            }
-                                            
-                                            // 添加經濟頁面菜單項
-                                            Spacer(modifier = Modifier.height(8.dp))
-                                            
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(vertical = 4.dp, horizontal = 4.dp)
-                                                    .clip(RoundedCornerShape(80))
-                                                    .background(Color.Transparent)
-                                                    .clickable(onClick = {
-                                                        navigator.push(EconomyScreen())
-                                                        isQuickMenuExpanded = false
-                                                    }).padding(vertical = 16.dp, horizontal = 16.dp),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Filled.AccountBalanceWallet,
-                                                    contentDescription = "訂閱與餘額",
-                                                    tint = MaterialTheme.colorScheme.onSurface
-                                                )
-
-                                                Text(
-                                                    text = "訂閱與餘額",
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis,
-                                                    modifier = Modifier.padding(start = 16.dp),
-                                                    color = MaterialTheme.colorScheme.onSurface
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                // 版本號在底部
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        text = "VRCAA Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
     }

@@ -74,7 +74,8 @@ fun QuickMenuCard(
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp),
+                    .height(120.dp)
+                    .clip(RoundedCornerShape(topStart = 0.dp, topEnd = 16.dp, bottomStart = 0.dp, bottomEnd = 0.dp)),
                 contentScale = ContentScale.Crop,
                 loading = placeholder(R.drawable.image_placeholder),
                 failure = placeholder(R.drawable.image_placeholder)

@@ -17,14 +17,16 @@
 package cc.sovellus.vrcaa.ui.screen.theme
 
 import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -39,16 +41,18 @@ import androidx.compose.material.icons.outlined.Coffee
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ViewColumn
 import androidx.compose.material.icons.outlined.Work
 import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MultiChoiceSegmentedButtonRow
 import androidx.compose.material3.Scaffold
@@ -57,6 +61,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
@@ -75,6 +80,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.activity.ComponentActivity
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
@@ -86,6 +92,12 @@ import cc.sovellus.vrcaa.extension.currentThemeOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
 import cc.sovellus.vrcaa.extension.minimalistMode
 import cc.sovellus.vrcaa.manager.ThemeManager
+import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
+import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
+import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
+import cc.sovellus.vrcaa.ui.components.settings.ColorPicker
+import cc.sovellus.vrcaa.ui.components.settings.ColorPickerContent
+import cc.sovellus.vrcaa.ui.components.settings.SettingsCard
 import kotlin.math.roundToInt
 
 class ThemeScreen : Screen {
@@ -125,17 +137,11 @@ class ThemeScreen : Screen {
                             bottom = it.calculateBottomPadding(),
                             top = it.calculateTopPadding()
                         )
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = stringResource(R.string.theme_page_section_theme_title),
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        )
+                        SectionHeader(stringResource(R.string.theme_page_section_theme_title))
                     }
 
                     item {
@@ -145,53 +151,51 @@ class ThemeScreen : Screen {
                         val checkedIcons = listOf(Icons.Filled.LightMode, Icons.Filled.DarkMode, Icons.Filled.Settings)
                         var selectedIndex by remember { mutableIntStateOf(model.currentIndex.intValue) }
 
-                        Row(
-                            Modifier.padding(horizontal = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                            )
                         ) {
-                            val modifiers = listOf(Modifier.weight(1f), Modifier.weight(1f), Modifier.weight(1f))
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                            ) {
+                                val modifiers = listOf(Modifier.weight(1f), Modifier.weight(1f), Modifier.weight(1f))
 
-                            options.forEachIndexed { index, label ->
-                                ToggleButton(
-                                    checked = selectedIndex == index,
-                                    onCheckedChange = {
-                                        selectedIndex = index
-                                        model.currentIndex.intValue = index
-                                        model.preferences.currentThemeOption = index
-                                        ThemeManager.setTheme(index)
-                                    },
-                                    modifier = modifiers[index].semantics { role = Role.RadioButton },
-                                    shapes =
-                                        when (index) {
-                                            0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                                            options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                                            else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                options.forEachIndexed { index, label ->
+                                    ToggleButton(
+                                        checked = selectedIndex == index,
+                                        onCheckedChange = {
+                                            selectedIndex = index
+                                            model.currentIndex.intValue = index
+                                            model.preferences.currentThemeOption = index
+                                            ThemeManager.setTheme(index)
                                         },
-                                ) {
-                                    Icon(
-                                        if (selectedIndex == index) checkedIcons[index] else unCheckedIcons[index],
-                                        contentDescription = "Localized description",
-                                    )
-                                    Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
-                                    Text(label)
+                                        modifier = modifiers[index].semantics { role = Role.RadioButton },
+                                        shapes =
+                                            when (index) {
+                                                0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                                options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                                else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                            },
+                                    ) {
+                                        Icon(
+                                            if (selectedIndex == index) checkedIcons[index] else unCheckedIcons[index],
+                                            contentDescription = "Localized description",
+                                        )
+                                        Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
+                                        Text(label)
+                                    }
                                 }
                             }
                         }
                     }
 
                     item {
-
-                        Spacer(modifier = Modifier.padding(4.dp))
-
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = stringResource(R.string.theme_page_section_display_title),
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        SectionHeader(stringResource(R.string.theme_page_section_display_title))
                     }
 
                     item {
@@ -206,123 +210,189 @@ class ThemeScreen : Screen {
                         )
                         var selectedColumnIndex by remember { mutableIntStateOf(model.currentColumnIndex.intValue) }
 
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = stringResource(R.string.theme_page_section_column_title)
-                                )
-                            }
-                        )
-                        
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                            )
                         ) {
-                            val modifiers = List(options.size) { Modifier.weight(1f) }
-
-                            options.forEachIndexed { index, label ->
-                                ToggleButton(
-                                    checked = selectedColumnIndex == index,
-                                    onCheckedChange = {
-                                        selectedColumnIndex = index
-                                        model.currentColumnIndex.intValue = index
-                                        model.preferences.columnCountOption = index
-                                    },
-                                    modifier = modifiers[index].semantics { role = Role.RadioButton },
-                                    shapes =
-                                        when (index) {
-                                            0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                                            options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                                            else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                                        },
+                            Column(
+                                modifier = Modifier.padding(vertical = 12.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.theme_page_section_column_title),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Normal,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+                                
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
                                 ) {
-                                    Icon(
-                                        if (selectedColumnIndex == index) checkedIcons[index] else unCheckedIcons[index],
-                                        contentDescription = "Localized description",
+                                    val modifiers = List(options.size) { Modifier.weight(1f) }
+
+                                    options.forEachIndexed { index, label ->
+                                        ToggleButton(
+                                            checked = selectedColumnIndex == index,
+                                            onCheckedChange = {
+                                                selectedColumnIndex = index
+                                                model.currentColumnIndex.intValue = index
+                                                model.preferences.columnCountOption = index
+                                            },
+                                            modifier = modifiers[index].semantics { role = Role.RadioButton },
+                                            shapes =
+                                                when (index) {
+                                                    0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                                    options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                                    else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                                },
+                                        ) {
+                                            Icon(
+                                                if (selectedColumnIndex == index) checkedIcons[index] else unCheckedIcons[index],
+                                                contentDescription = "Localized description",
+                                            )
+                                            Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
+                                            Text(label)
+                                        }
+                                    }
+                                }
+
+                                if (model.currentColumnIndex.intValue == 1) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Slider(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp),
+                                        value = model.currentColumnAmount.floatValue,
+                                        onValueChange = { size ->
+                                            model.currentColumnAmount.floatValue = size.roundToInt().toFloat()
+                                            model.preferences.fixedColumnSize = model.currentColumnAmount.floatValue.roundToInt()
+                                        },
+                                        valueRange = 1f..6f
                                     )
-                                    Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
-                                    Text(label)
+                                    Text(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp),
+                                        text = "Fixed Column Size: ${model.currentColumnAmount.floatValue.roundToInt()}",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 }
                             }
-                        }
-
-                        if (model.currentColumnIndex.intValue == 1) {
-                            Slider(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 16.dp, end = 16.dp),
-                                value = model.currentColumnAmount.floatValue,
-                                onValueChange = { size ->
-                                    model.currentColumnAmount.floatValue = size.roundToInt().toFloat()
-                                    model.preferences.fixedColumnSize = model.currentColumnAmount.floatValue.roundToInt()
-                                },
-                                valueRange = 1f..6f
-                            )
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 16.dp, end = 16.dp),
-                                text = "Fixed Column Size: ${model.currentColumnAmount.floatValue.roundToInt()}"
-                            )
                         }
                     }
 
                     item {
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.theme_page_minimalist_mode_text)) },
-                            trailingContent = {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        SectionHeader("顏色")
+                    }
 
-                                Switch(
-                                    checked = model.minimalistMode.value,
-                                    onCheckedChange = {
-                                        model.minimalistMode.value =
-                                            !model.minimalistMode.value
-                                        model.preferences.minimalistMode =
-                                            !model.preferences.minimalistMode
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                            )
+                        ) {
+                            Column {
+                                SettingsCard(
+                                    title = "跟隨系統顏色主題",
+                                    description = "使用系統的動態顏色主題",
+                                    icon = Icons.Outlined.Palette,
+                                    onClick = {
+                                        model.setUseSystemColorTheme(!model.useSystemColorTheme.value)
+                                    },
+                                    trailingContent = {
+                                        Switch(
+                                            checked = model.useSystemColorTheme.value,
+                                            onCheckedChange = {
+                                                model.setUseSystemColorTheme(it)
+                                            },
+                                            thumbContent = {
+                                                if (model.useSystemColorTheme.value) {
+                                                    Icon(
+                                                        imageVector = Icons.Filled.Check,
+                                                        contentDescription = null
+                                                    )
+                                                }
+                                            }
+                                        )
+                                    }
+                                )
+                                
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    color = MaterialTheme.colorScheme.outlineVariant,
+                                    thickness = 1.dp
+                                )
+                                
+                                ColorPickerContent(
+                                    selectedColor = if (model.useSystemColorTheme.value) null else model.primaryColor,
+                                    onColorSelected = { color ->
+                                        model.setPrimaryColor(color)
+                                        // Theme will update automatically via SharedPreferences listener
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    item {
+                        SettingsGroup(
+                            items = listOf(
+                                SettingsItem(
+                                    title = stringResource(R.string.theme_page_minimalist_mode_text),
+                                    description = stringResource(R.string.theme_page_minimalist_mode_text_description),
+                                    icon = Icons.Outlined.Info,
+                                    onClick = {
+                                        model.minimalistMode.value = !model.minimalistMode.value
+                                        model.preferences.minimalistMode = !model.preferences.minimalistMode
                                         Toast.makeText(
                                             context,
                                             context.getString(R.string.developer_mode_toggle_toast),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     },
-                                    thumbContent = {
-                                        if (model.minimalistMode.value) {
-                                            Icon(
-                                                imageVector = Icons.Filled.Check,
-                                                contentDescription = null
-                                            )
-                                        }
+                                    trailingContent = {
+                                        Switch(
+                                            checked = model.minimalistMode.value,
+                                            onCheckedChange = {
+                                                model.minimalistMode.value = !model.minimalistMode.value
+                                                model.preferences.minimalistMode = !model.preferences.minimalistMode
+                                                Toast.makeText(
+                                                    context,
+                                                    context.getString(R.string.developer_mode_toggle_toast),
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            },
+                                            thumbContent = {
+                                                if (model.minimalistMode.value) {
+                                                    Icon(
+                                                        imageVector = Icons.Filled.Check,
+                                                        contentDescription = null
+                                                    )
+                                                }
+                                            }
+                                        )
                                     }
                                 )
-                            },
-                            modifier = Modifier.clickable {
-                                model.minimalistMode.value = !model.minimalistMode.value
-                                model.preferences.minimalistMode =
-                                    !model.preferences.minimalistMode
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.developer_mode_toggle_toast),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            )
                         )
+                    }
 
-                        ListItem(
-                            headlineContent = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Info,
-                                    contentDescription = null
-                                )
-                            },
-                            supportingContent = {
-                                Text(
-                                    text = stringResource(R.string.theme_page_minimalist_mode_text_description),
-                                    modifier = Modifier.padding(top = 8.dp)
-                                )
-                            },
-                        )
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             },

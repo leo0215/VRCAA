@@ -19,8 +19,12 @@ package cc.sovellus.vrcaa.ui.screen.settings
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -34,24 +38,24 @@ import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.ImagesearchRoller
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Storage
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
 import androidx.core.net.toUri
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -64,6 +68,9 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.richPresenceWarningAcknowledged
 import cc.sovellus.vrcaa.ui.components.dialog.DisclaimerDialog
 import cc.sovellus.vrcaa.ui.components.dialog.LogoutDialog
+import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
+import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
+import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.screen.about.AboutScreen
 import cc.sovellus.vrcaa.ui.screen.advanced.AdvancedScreen
 import cc.sovellus.vrcaa.ui.screen.database.DatabaseScreen
@@ -87,7 +94,7 @@ class SettingsScreen : Screen {
 
         // TODO: string to translatable
         val title = buildAnnotatedString {
-            withStyle(style = SpanStyle(color = Color.Red)) {
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
                 append("Notice!")
             }
             append(" ")
@@ -96,19 +103,19 @@ class SettingsScreen : Screen {
 
         val description = buildAnnotatedString {
             append("This feature is not ")
-            withStyle(style = SpanStyle(color = Color.Red)) {
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
                 append("condoned")
             }
             append(" nor supported by discord, it may bear ")
-            withStyle(style = SpanStyle(color = Color.Red)) {
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
                 append("consequences")
             }
             append(", that may get your account ")
-            withStyle(style = SpanStyle(color = Color.Red)) {
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
                 append("terminated")
             }
             append(", if you understand the ")
-            withStyle(style = SpanStyle(color = Color.Red)) {
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
                 append("risks")
             }
             append(" press \"Continue\" to continue, or press \"Go Back\".")
@@ -136,176 +143,157 @@ class SettingsScreen : Screen {
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(),
+                .fillMaxHeight()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
+                // Logo Header
                 Box(
                     modifier = Modifier
-                        .height(172.dp)
                         .fillMaxWidth()
-                        .padding(8.dp),
-                    contentAlignment = Alignment.TopCenter
+                        .height(200.dp)
+                        .padding(vertical = 24.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Image(
                         painter = if (App.isAppInDarkTheme()) { painterResource(R.drawable.logo_dark) } else { painterResource(R.drawable.logo_white) },
                         contentDescription = null,
-                        contentScale = ContentScale.FillHeight,
-                        alignment = Alignment.Center
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
-            item {
 
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_item_about)) },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.Info,
-                            contentDescription = null
-                        )
-                    },
-                    supportingContent = { Text(text = stringResource(R.string.settings_item_about_description)) },
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            navigator.parent?.parent?.push(AboutScreen())
-                        }
-                    )
-                )
-            }
+            // General Settings Section
             item {
+                SectionHeader("一般設置")
+            }
 
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_item_theming)) },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.ImagesearchRoller,
-                            contentDescription = null
+            item {
+                SettingsGroup(
+                    items = listOf(
+                        SettingsItem(
+                            title = stringResource(R.string.settings_item_about),
+                            description = stringResource(R.string.settings_item_about_description),
+                            icon = Icons.Outlined.Info,
+                            onClick = {
+                                navigator.parent?.parent?.push(AboutScreen())
+                            }
+                        ),
+                        SettingsItem(
+                            title = stringResource(R.string.settings_item_theming),
+                            description = stringResource(R.string.settings_item_theming_description),
+                            icon = Icons.Outlined.ImagesearchRoller,
+                            onClick = {
+                                navigator.parent?.parent?.push(ThemeScreen())
+                            }
                         )
-                    },
-                    supportingContent = { Text(text = stringResource(R.string.settings_item_theming_description)) },
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            navigator.parent?.parent?.push(ThemeScreen())
-                        }
                     )
                 )
             }
-            item {
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_item_rich_presence)) },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.Image,
-                            contentDescription = null
-                        )
-                    },
-                    supportingContent = { Text(text = stringResource(R.string.settings_item_rich_presence_description)) },
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            if (model.preferences.richPresenceWarningAcknowledged)
-                                navigator.parent?.parent?.push(RichPresenceScreen())
-                            else
-                                dialogState.value = true
-                        }
-                    )
-                )
-            }
-            item {
 
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_item_database_settings)) },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.Storage,
-                            contentDescription = null
-                        )
-                    },
-                    supportingContent = { Text(text = stringResource(R.string.settings_item_database_settings_description)) },
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            navigator.parent?.parent?.push(DatabaseScreen())
-                        }
-                    )
-                )
-            }
+            // Advanced Settings Section
             item {
+                Spacer(modifier = Modifier.height(8.dp))
+                SectionHeader("進階設置")
+            }
 
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_item_advanced_settings)) },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.DeveloperMode,
-                            contentDescription = null
+            item {
+                SettingsGroup(
+                    items = listOf(
+                        SettingsItem(
+                            title = stringResource(R.string.settings_item_rich_presence),
+                            description = stringResource(R.string.settings_item_rich_presence_description),
+                            icon = Icons.Outlined.Image,
+                            onClick = {
+                                if (model.preferences.richPresenceWarningAcknowledged)
+                                    navigator.parent?.parent?.push(RichPresenceScreen())
+                                else
+                                    dialogState.value = true
+                            }
+                        ),
+                        SettingsItem(
+                            title = stringResource(R.string.settings_item_database_settings),
+                            description = stringResource(R.string.settings_item_database_settings_description),
+                            icon = Icons.Outlined.Storage,
+                            onClick = {
+                                navigator.parent?.parent?.push(DatabaseScreen())
+                            }
+                        ),
+                        SettingsItem(
+                            title = stringResource(R.string.settings_item_advanced_settings),
+                            description = stringResource(R.string.settings_item_advanced_settings_description),
+                            icon = Icons.Outlined.DeveloperMode,
+                            onClick = {
+                                navigator.parent?.parent?.push(AdvancedScreen())
+                            }
                         )
-                    },
-                    supportingContent = { Text(text = stringResource(R.string.settings_item_advanced_settings_description)) },
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            navigator.parent?.parent?.push(AdvancedScreen())
-                        }
                     )
                 )
+            }
 
-                HorizontalDivider(
-                    color = Color.Gray,
-                    thickness = 0.5.dp
-                )
-            }
+            // Community Section
             item {
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.about_page_translate_title)) },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Filled.Translate,
-                            contentDescription = null
+                Spacer(modifier = Modifier.height(8.dp))
+                SectionHeader("社群")
+            }
+
+            item {
+                SettingsGroup(
+                    items = listOf(
+                        SettingsItem(
+                            title = stringResource(R.string.about_page_translate_title),
+                            description = null,
+                            icon = Icons.Filled.Translate,
+                            onClick = {
+                                val intent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    BuildConfig.CROWDIN_URL.toUri()
+                                )
+                                context.startActivity(intent)
+                            }
+                        ),
+                        SettingsItem(
+                            title = stringResource(R.string.settings_kofi_donation_button),
+                            description = null,
+                            icon = Icons.Filled.Coffee,
+                            onClick = {
+                                val intent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    BuildConfig.KOFI_URL.toUri()
+                                )
+                                context.startActivity(intent)
+                            }
                         )
-                    },
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            val intent = Intent(
-                                Intent.ACTION_VIEW,
-                                BuildConfig.CROWDIN_URL.toUri()
-                            )
-                            context.startActivity(intent)
-                        }
                     )
                 )
             }
+
+            // Account Section
             item {
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_kofi_donation_button)) },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Filled.Coffee,
-                            contentDescription = null
+                Spacer(modifier = Modifier.height(8.dp))
+                SectionHeader("帳戶")
+            }
+
+            item {
+                SettingsGroup(
+                    items = listOf(
+                        SettingsItem(
+                            title = stringResource(R.string.settings_item_logout),
+                            description = null,
+                            icon = Icons.AutoMirrored.Outlined.Logout,
+                            onClick = {
+                                logoutState.value = true
+                            },
+                            isDestructive = true
                         )
-                    },
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            val intent = Intent(
-                                Intent.ACTION_VIEW,
-                                BuildConfig.KOFI_URL.toUri()
-                            )
-                            context.startActivity(intent)
-                        }
                     )
                 )
             }
+
             item {
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_item_logout)) },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.Logout,
-                            contentDescription = null
-                        )
-                    },
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            logoutState.value = true
-                        }
-                    )
-                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }

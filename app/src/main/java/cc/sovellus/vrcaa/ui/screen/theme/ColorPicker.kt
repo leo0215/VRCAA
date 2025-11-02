@@ -39,52 +39,6 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-@Composable
-fun ColorPicker(
-    title: String,
-    selectedColor: Color,
-    onColorSelected: (Color) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val colors = listOf(
-        Color(0xFF6200EE), // Purple
-        Color(0xFF03DAC6), // Teal
-        Color(0xFF018786), // Dark Teal
-        Color(0xFFB00020), // Error
-        Color(0xFF6750A4), // Primary
-        Color(0xFF625B71), // On Surface Variant
-        Color(0xFF7D5260), // Secondary
-        Color(0xFF1C1B1F), // Surface
-        Color(0xFF49454F), // On Surface
-        Color(0xFFE8DEF8), // Primary Container
-        Color(0xFFCCC2DC), // Secondary Container
-        Color(0xFFFEF7FF), // Background
-        Color(0xFF6750A4), // Tertiary
-        Color(0xFF7D5260), // Tertiary Container
-        Color(0xFFB4A5FD), // Primary Variant
-        Color(0xFF8B73FF), // Secondary Variant
-    )
-
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(bottom = 8.dp)
-    )
-
-    LazyRow(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(colors) { color ->
-            ColorOption(
-                color = color,
-                isSelected = color == selectedColor,
-                onClick = { onColorSelected(color) }
-            )
-        }
-    }
-}
 
 @Composable
 private fun ColorOption(
