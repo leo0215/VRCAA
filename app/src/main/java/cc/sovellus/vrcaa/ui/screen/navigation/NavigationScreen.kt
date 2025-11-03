@@ -145,6 +145,7 @@ import com.bumptech.glide.integration.compose.placeholder
 import kotlinx.coroutines.launch
 import android.content.SharedPreferences
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 
 class NavigationScreen : Screen {
 
@@ -202,6 +203,18 @@ class NavigationScreen : Screen {
             var showProfileSheet by remember { mutableStateOf(false) }
 
             val scope = rememberCoroutineScope()
+
+            // 預載入 drawer 中的 banner 圖片
+            val profile = CacheManager.getProfile()
+            LaunchedEffect(profile?.id) {
+                profile?.let {
+                    val thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl }
+                    // 預載入 banner 圖片，確保在 drawer 打開前已載入
+                    com.bumptech.glide.Glide.with(context)
+                        .load(thumbnailUrl)
+                        .preload()
+                }
+            }
 
 
 
