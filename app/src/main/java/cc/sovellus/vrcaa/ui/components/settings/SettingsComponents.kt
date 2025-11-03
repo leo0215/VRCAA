@@ -80,7 +80,7 @@ fun SectionHeader(title: String) {
         text = title,
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.Medium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
     )
 }
@@ -88,11 +88,14 @@ fun SectionHeader(title: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsGroup(items: List<SettingsItem>) {
+    // 如果只有一個 item，使用更大的圓角使其看起來像圓角方塊
+    val cornerRadius = if (items.size == 1) 96.dp else 20.dp
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(cornerRadius),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
         )
     ) {
         Column {
@@ -171,7 +174,7 @@ fun SettingsCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp, vertical = 4.dp)
     )
 }
 
