@@ -152,13 +152,7 @@ class ThemeScreen : Screen {
                         val checkedIcons = listOf(Icons.Filled.LightMode, Icons.Filled.DarkMode, Icons.Filled.Settings)
                         var selectedIndex by remember { mutableIntStateOf(model.currentIndex.intValue) }
 
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(20.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer
-                            )
-                        ) {
+
                             Row(
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                                 horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
@@ -191,7 +185,7 @@ class ThemeScreen : Screen {
                                     }
                                 }
                             }
-                        }
+
                     }
 
                     item {
@@ -330,6 +324,10 @@ class ThemeScreen : Screen {
                                 ColorPickerContent(
                                     selectedColor = if (model.useSystemColorTheme.value) null else model.primaryColor,
                                     onColorSelected = { color ->
+                                        // 如果「跟隨系統顏色主題」啟用，自動禁用並應用選擇的顏色
+                                        if (model.useSystemColorTheme.value) {
+                                            model.setUseSystemColorTheme(false)
+                                        }
                                         model.setPrimaryColor(color)
                                         // Theme will update automatically via SharedPreferences listener
                                     }
