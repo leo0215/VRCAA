@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.PowerSettingsNew
 import androidx.compose.material.icons.outlined.Settings
@@ -49,6 +48,7 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
+import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
 import cc.sovellus.vrcaa.ui.screen.network.NetworkLogScreen
 
 class AdvancedScreen : Screen {
@@ -103,14 +103,7 @@ class AdvancedScreen : Screen {
                                         Switch(
                                             checked = model.networkLoggingMode.value,
                                             onCheckedChange = { model.toggleLogging() },
-                                            thumbContent = {
-                                                if (model.networkLoggingMode.value) {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.Check,
-                                                        contentDescription = null
-                                                    )
-                                                }
-                                            }
+                                            thumbContent = rememberThumbContent(isChecked = model.networkLoggingMode.value)
                                         )
                                     }
                                 ),

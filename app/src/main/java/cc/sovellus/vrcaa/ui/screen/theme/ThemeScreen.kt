@@ -95,6 +95,7 @@ import cc.sovellus.vrcaa.manager.ThemeManager
 import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
+import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
 import cc.sovellus.vrcaa.ui.components.settings.ColorPicker
 import cc.sovellus.vrcaa.ui.components.settings.ColorPickerContent
 import cc.sovellus.vrcaa.ui.components.settings.SettingsCard
@@ -315,14 +316,7 @@ class ThemeScreen : Screen {
                                             onCheckedChange = {
                                                 model.setUseSystemColorTheme(it)
                                             },
-                                            thumbContent = {
-                                                if (model.useSystemColorTheme.value) {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.Check,
-                                                        contentDescription = null
-                                                    )
-                                                }
-                                            }
+                                            thumbContent = rememberThumbContent(isChecked = model.useSystemColorTheme.value)
                                         )
                                     }
                                 )
@@ -376,14 +370,7 @@ class ThemeScreen : Screen {
                                                     Toast.LENGTH_SHORT
                                                 ).show()
                                             },
-                                            thumbContent = {
-                                                if (model.minimalistMode.value) {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.Check,
-                                                        contentDescription = null
-                                                    )
-                                                }
-                                            }
+                                            thumbContent = rememberThumbContent(isChecked = model.minimalistMode.value)
                                         )
                                     }
                                 )

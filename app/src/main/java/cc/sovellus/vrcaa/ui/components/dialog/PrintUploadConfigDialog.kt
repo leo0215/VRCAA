@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
 
 @Composable
 fun PrintUploadConfigDialog(
@@ -85,7 +86,8 @@ fun PrintUploadConfigDialog(
                         checked = enableBorder.value,
                         onCheckedChange = {
                             enableBorder.value = it
-                        }
+                        },
+                        thumbContent = rememberThumbContent(isChecked = enableBorder.value)
                     )
                 }
             }

@@ -204,14 +204,39 @@ class NavigationScreen : Screen {
 
             val scope = rememberCoroutineScope()
 
-            // 預載入 drawer 中的 banner 圖片
-            val profile = CacheManager.getProfile()
-            LaunchedEffect(profile?.id) {
-                profile?.let {
-                    val thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl }
-                    // 預載入 banner 圖片，確保在 drawer 打開前已載入
+            // 監聽 cache 建立狀態，預載入 drawer 中的 banner 和 icon 圖片
+            val cacheBuilt = model.cacheBuilt.value
+            LaunchedEffect(cacheBuilt) {
+                if (cacheBuilt) {
+                    CacheManager.getProfile()?.let { profile ->
+                        val thumbnailUrl = profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl }
+                        val iconUrl = profile.userIcon.ifEmpty { 
+                            profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl } 
+                        }
+                        // 預載入 banner 和 icon 圖片，確保在 drawer 打開前已載入
+                        com.bumptech.glide.Glide.with(context)
+                            .load(thumbnailUrl)
+                            .preload()
+                        com.bumptech.glide.Glide.with(context)
+                            .load(iconUrl)
+                            .preload()
+                    }
+                }
+            }
+
+            // 額外檢查：如果 cache 已經建立但之前沒有預載入，立即預載入
+            LaunchedEffect(Unit) {
+                val cachedProfile = CacheManager.getProfile()
+                if (cachedProfile != null && CacheManager.isBuilt()) {
+                    val thumbnailUrl = cachedProfile.profilePicOverride.ifEmpty { cachedProfile.currentAvatarImageUrl }
+                    val iconUrl = cachedProfile.userIcon.ifEmpty { 
+                        cachedProfile.profilePicOverride.ifEmpty { cachedProfile.currentAvatarImageUrl } 
+                    }
                     com.bumptech.glide.Glide.with(context)
                         .load(thumbnailUrl)
+                        .preload()
+                    com.bumptech.glide.Glide.with(context)
+                        .load(iconUrl)
                         .preload()
                 }
             }
@@ -426,53 +451,19 @@ class NavigationScreen : Screen {
                                                 }
                                             },
                                             trailingIcon = {
-                                                Row(
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                                ) {
-                                                    if (model.searchModeActivated.value) {
-                                                        IconButton(onClick = { model.clearSearchText() }) {
-                                                            Icon(
-                                                                imageVector = Icons.Filled.Close,
-                                                                contentDescription = null
-                                                            )
-                                                        }
-                                                    } else {
-                                                        IconButton(onClick = { showSettingsSheet = true }) {
-                                                            Icon(
-                                                                imageVector = Icons.Filled.MoreVert,
-                                                                contentDescription = null
-                                                            )
-                                                        }
+                                                if (model.searchModeActivated.value) {
+                                                    IconButton(onClick = { model.clearSearchText() }) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.Close,
+                                                            contentDescription = null
+                                                        )
                                                     }
-                                                    if (!model.searchModeActivated.value) {
-                                                        val profile = CacheManager.getProfile()
-                                                        if (model.cacheBuilt.value && profile != null) {
-                                                            val avatarUrl = profile.userIcon.ifEmpty {
-                                                                profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl }
-                                                            }
-                                                            GlideImage(
-                                                                model = avatarUrl,
-                                                                contentDescription = null,
-                                                                modifier = Modifier
-                                                                    .size(48.dp)
-                                                                    .clip(CircleShape)
-                                                                    .clickable { tabNavigator.current = ProfileTab },
-                                                                loading = placeholder(R.drawable.image_placeholder),
-                                                                failure = placeholder(R.drawable.image_placeholder)
-                                                            )
-                                                        } else if (profile != null) {
-                                                            GlideImage(
-                                                                model = profile.userIcon,
-                                                                contentDescription = null,
-                                                                modifier = Modifier
-                                                                    .size(48.dp)
-                                                                    .clip(CircleShape)
-                                                                    .clickable { tabNavigator.current = ProfileTab },
-                                                                loading = placeholder(R.drawable.image_placeholder),
-                                                                failure = placeholder(R.drawable.image_placeholder)
-                                                            )
-                                                        }
+                                                } else {
+                                                    IconButton(onClick = { showSettingsSheet = true }) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.MoreVert,
+                                                            contentDescription = null
+                                                        )
                                                     }
                                                 }
                                             })

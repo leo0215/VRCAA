@@ -54,6 +54,7 @@ import cc.sovellus.vrcaa.ui.components.dialog.InputDialog
 import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
+import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
 import cc.sovellus.vrcaa.ui.screen.presence.RichPresenceWebViewLogin
 
 class RichPresenceScreen : Screen {
@@ -161,14 +162,7 @@ class RichPresenceScreen : Screen {
                                             enabled = model.token.value.isNotEmpty(),
                                             checked = model.enabled.value,
                                             onCheckedChange = { model.toggle() },
-                                            thumbContent = {
-                                                if (model.enabled.value) {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.Check,
-                                                        contentDescription = null
-                                                    )
-                                                }
-                                            }
+                                            thumbContent = rememberThumbContent(isChecked = model.enabled.value)
                                         )
                                     }
                                 ),
