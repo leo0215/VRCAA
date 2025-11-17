@@ -120,16 +120,15 @@ class HttpClient : BaseClient(), CoroutineScope {
     override suspend fun onAuthorizationFailure() {
         setAuthorization(AuthorizationType.Cookie, preferences.twoFactorToken)
 
-        if (reAuthorizationFailureCount < Config.MAX_TOKEN_REFRESH_ATTEMPT) {
-            val response = api.auth.login(
+        if (reAuthorizationFailureCount <= Config.MAX_TOKEN_REFRESH_ATTEMPT) {
+            api.auth.login(
                 preferences.userCredentials.first,
                 preferences.userCredentials.second
             )
-
-            if (!response.success) {
-                reAuthorizationFailureCount++
-                listener?.onSessionInvalidate()
-            }
+            reAuthorizationFailureCount++
+        } else {
+            setAuthorization(AuthorizationType.Cookie, "")
+            listener?.onSessionInvalidate()
         }
     }
 
@@ -221,8 +220,6 @@ class HttpClient : BaseClient(), CoroutineScope {
 
             when (result) {
                 is Result.Succeeded -> {
-                    reAuthorizationFailureCount = 0
-
                     val cookies = result.response.headers("Set-Cookie")
                     if (cookies.isNotEmpty()) {
                         val dType = when {
@@ -231,6 +228,7 @@ class HttpClient : BaseClient(), CoroutineScope {
                             else -> AuthType.AUTH_NONE
                         }
 
+                        reAuthorizationFailureCount = 0
                         preferences.authToken = cookies[0]
                         setAuthorization(AuthorizationType.Cookie, preferences.authToken)
                         return IAuth.AuthResult(true, "", dType)
@@ -278,6 +276,8 @@ class HttpClient : BaseClient(), CoroutineScope {
 
             when (result) {
                 is Result.Succeeded -> {
+                    reAuthorizationFailureCount = 0
+
                     val cookies = result.response.headers("Set-Cookie")
                     preferences.twoFactorToken = cookies[0]
                     setAuthorization(AuthorizationType.Cookie, "${preferences.authToken} ${preferences.twoFactorToken}")
