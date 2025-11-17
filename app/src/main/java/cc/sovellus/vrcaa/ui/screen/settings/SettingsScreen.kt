@@ -167,7 +167,7 @@ class SettingsScreen : Screen {
 
             // General Settings Section
             item {
-                SectionHeader("一般設置")
+                SectionHeader(stringResource(R.string.settings_section_general))
             }
 
             item {
@@ -196,7 +196,7 @@ class SettingsScreen : Screen {
             // Advanced Settings Section
             item {
                 Spacer(modifier = Modifier.height(8.dp))
-                SectionHeader("進階設置")
+                SectionHeader(stringResource(R.string.settings_section_advanced))
             }
 
             item {
@@ -236,7 +236,7 @@ class SettingsScreen : Screen {
             // Community Section
             item {
                 Spacer(modifier = Modifier.height(8.dp))
-                SectionHeader("社群")
+                SectionHeader(stringResource(R.string.settings_section_community))
             }
 
             item {
@@ -273,7 +273,7 @@ class SettingsScreen : Screen {
             // Account Section
             item {
                 Spacer(modifier = Modifier.height(8.dp))
-                SectionHeader("帳戶")
+                SectionHeader(stringResource(R.string.settings_section_account))
             }
 
             item {

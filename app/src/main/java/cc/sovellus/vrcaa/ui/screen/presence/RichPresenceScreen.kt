@@ -79,7 +79,7 @@ class RichPresenceScreen : Screen {
                     dialogState.value = false
                     model.setWebSocket()
                 },
-                title = "Set Webhook Url",
+                title = stringResource(R.string.rich_presence_dialog_set_webhook_title),
                 text = model.websocket
             )
         }
@@ -100,7 +100,7 @@ class RichPresenceScreen : Screen {
                         }
                     },
 
-                    title = { Text(text = "Rich Presence") }
+                    title = { Text(text = stringResource(R.string.rich_presence_page_title)) }
                 )
             },
             content = { padding ->
@@ -113,25 +113,25 @@ class RichPresenceScreen : Screen {
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        SectionHeader("Account")
+                        SectionHeader(stringResource(R.string.rich_presence_section_account))
                     }
 
                     item {
                         SettingsGroup(
                             items = listOf(
                                 SettingsItem(
-                                    title = if (model.token.value.isNotEmpty()) { "Connected" } else { "Disconnected" },
+                                    title = if (model.token.value.isNotEmpty()) { stringResource(R.string.rich_presence_status_connected) } else { stringResource(R.string.rich_presence_status_disconnected) },
                                     description = null,
                                     icon = Icons.Filled.AccountCircle,
                                     onClick = {},
                                     trailingContent = {
                                         if (model.token.value.isNotEmpty()) {
                                             Button(onClick = { model.revoke() }) {
-                                                Text(text = "Disconnect Discord")
+                                                Text(text = stringResource(R.string.rich_presence_button_disconnect_discord))
                                             }
                                         } else {
                                             Button(onClick = { navigator.push(RichPresenceWebViewLogin()) }) {
-                                                Text(text = "Connect Discord")
+                                                Text(text = stringResource(R.string.rich_presence_button_connect_discord))
                                             }
                                         }
                                     }
@@ -142,7 +142,7 @@ class RichPresenceScreen : Screen {
 
                     item {
                         Spacer(modifier = Modifier.height(8.dp))
-                        SectionHeader("Settings")
+                        SectionHeader(stringResource(R.string.rich_presence_section_settings))
                     }
 
                     item {

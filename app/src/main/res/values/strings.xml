@@ -249,6 +249,12 @@
     <string name="about_page_translate_title">Contribute to Translation</string>
     <string name="about_page_battery_optimizations_toast" tools:keep="@string/about_page_battery_optimizations_toast">Battery optimizations are already disabled.</string>
     <string name="license_title">Open Source Licenses</string>
+    <string name="about_page_section_version_info">版本資訊</string>
+    <string name="about_page_section_other">其他</string>
+    <string name="about_page_version">Version</string>
+    <string name="about_page_model">Model</string>
+    <string name="about_page_vendor">Vendor</string>
+    <string name="about_page_system_version">System Version</string>
 
     <!-- API -->
 
@@ -261,6 +267,14 @@
     <string name="discord_login_label_set_webhook" tools:keep="@string/discord_login_label_set_webhook">Set Webhook Url</string>
     <string name="discord_login_description_set_webhook" tools:keep="@string/discord_login_description_set_webhook">Required for world thumbnail support (Optional)</string>
     <string name="discord_login_description_enable" tools:keep="@string/discord_login_description_enable">Shows your current status in discord</string>
+    <string name="rich_presence_page_title">Rich Presence</string>
+    <string name="rich_presence_section_account">Account</string>
+    <string name="rich_presence_section_settings">Settings</string>
+    <string name="rich_presence_status_connected">Connected</string>
+    <string name="rich_presence_status_disconnected">Disconnected</string>
+    <string name="rich_presence_button_connect_discord">Connect Discord</string>
+    <string name="rich_presence_button_disconnect_discord">Disconnect Discord</string>
+    <string name="rich_presence_dialog_set_webhook_title">Set Webhook Url</string>
 
     <!-- Crash -->
 
@@ -447,6 +461,10 @@
     <string name="theme_page_section_theme_title">Theme</string>
     <string name="theme_page_section_display_title">Display</string>
     <string name="theme_page_section_column_title">Column Count</string>
+    <string name="theme_page_section_color_title">顏色</string>
+    <string name="theme_page_follow_system_color_theme">跟隨系統顏色主題</string>
+    <string name="theme_page_follow_system_color_theme_description">使用系統的動態顏色主題</string>
+    <string name="theme_page_fixed_column_size">Fixed Column Size: %1$d</string>
 
     <!-- Advanced Settings -->
 

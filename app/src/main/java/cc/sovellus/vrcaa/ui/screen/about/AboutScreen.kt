@@ -95,32 +95,32 @@ class AboutScreen : Screen {
                     }
 
                     item {
-                        SectionHeader("版本資訊")
+                        SectionHeader(stringResource(R.string.about_page_section_version_info))
                     }
 
                     item {
                         SettingsGroup(
                             items = listOf(
                                 SettingsItem(
-                                    title = "Version",
+                                    title = stringResource(R.string.about_page_version),
                                     description = "${BuildConfig.VERSION_NAME} ${BuildConfig.FLAVOR} (${BuildConfig.GIT_BRANCH}, ${BuildConfig.GIT_HASH})",
                                     icon = null,
                                     onClick = {}
                                 ),
                                 SettingsItem(
-                                    title = "Model",
+                                    title = stringResource(R.string.about_page_model),
                                     description = Build.MODEL,
                                     icon = null,
                                     onClick = {}
                                 ),
                                 SettingsItem(
-                                    title = "Vendor",
+                                    title = stringResource(R.string.about_page_vendor),
                                     description = Build.MANUFACTURER,
                                     icon = null,
                                     onClick = {}
                                 ),
                                 SettingsItem(
-                                    title = "System Version",
+                                    title = stringResource(R.string.about_page_system_version),
                                     description = "Android ${Build.VERSION.RELEASE}",
                                     icon = null,
                                     onClick = {}
@@ -131,7 +131,7 @@ class AboutScreen : Screen {
 
                     item {
                         Spacer(modifier = Modifier.height(8.dp))
-                        SectionHeader("其他")
+                        SectionHeader(stringResource(R.string.about_page_section_other))
                     }
 
                     item {

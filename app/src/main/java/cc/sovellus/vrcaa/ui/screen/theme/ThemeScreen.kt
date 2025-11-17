@@ -274,7 +274,7 @@ class ThemeScreen : Screen {
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(horizontal = 16.dp),
-                                        text = "Fixed Column Size: ${model.currentColumnAmount.floatValue.roundToInt()}",
+                                        text = stringResource(R.string.theme_page_fixed_column_size, model.currentColumnAmount.floatValue.roundToInt()),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -285,7 +285,7 @@ class ThemeScreen : Screen {
 
                     item {
                         Spacer(modifier = Modifier.height(8.dp))
-                        SectionHeader("顏色")
+                        SectionHeader(stringResource(R.string.theme_page_section_color_title))
                     }
 
                     item {
@@ -298,8 +298,8 @@ class ThemeScreen : Screen {
                         ) {
                             Column {
                                 SettingsCard(
-                                    title = "跟隨系統顏色主題",
-                                    description = "使用系統的動態顏色主題",
+                                    title = stringResource(R.string.theme_page_follow_system_color_theme),
+                                    description = stringResource(R.string.theme_page_follow_system_color_theme_description),
                                     icon = Icons.Outlined.Palette,
                                     onClick = {
                                         model.setUseSystemColorTheme(!model.useSystemColorTheme.value)

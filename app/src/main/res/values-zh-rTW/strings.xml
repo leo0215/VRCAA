@@ -218,6 +218,38 @@
         <item>資訊</item>
         <item>房間</item>
     </string-array>
+<<<<<<< HEAD
+    <string name="group_toast_not_found_message">找不到群組，您確定它是存在的嗎？</string>
+    <string name="group_page_label_description">描述</string>
+    <string name="group_page_label_rules">群規</string>
+    <string name="group_page_dropdown_view_author">查看作者的個人檔案</string>
+    <string name="group_page_dropdown_request_invite">請求邀請</string>
+    <string name="group_page_dropdown_request_invite_cancel">取消邀請請求</string>
+    <string name="group_page_dropdown_join_group">加入該群組</string>
+    <string name="group_page_dropdown_leave_group">離開該群組</string>
+    <string name="group_page_toast_invite_requested">已送出邀請請求。</string>
+    <string name="group_page_toast_invite_requested_fail">邀請請求失敗。</string>
+    <string name="group_page_toast_invite_requested_cancel">已取消邀請請求。</string>
+    <string name="group_page_toast_invite_requested_cancel_fail">取消邀請請求失敗。</string>
+    <string name="group_page_toast_join_group">已加入該群組。</string>
+    <string name="group_page_toast_join_group_fail">加入該群組失敗。</string>
+    <string name="group_page_toast_leave_group">已離開該群組。</string>
+    <string name="group_page_toast_leave_group_fail">離開群組失敗。</string>
+    <string name="group_user_no_groups_message">此使用者未加入任何群組。</string>
+    <string name="group_user_viewing_groups_username">%1$s 的群組</string>
+    <!-- Misc -->
+    <string name="misc_no_internet_title">無網路連線</string>
+    <string name="misc_no_internet_description">請確認您已連上網路，此應用程式無法在沒有網路連線的情況下執行。</string>
+    <string name="misc_no_internet_label">重新啟動應用程式</string>
+    <string name="misc_exit_toast_label">再按一次即可退出。</string>
+    <string name="misc_no_premium_subscription">此功能需要您擁有有效的 VRC+ 付費訂閱。</string>
+    <string name="global_app_default_loading_text">載入中…</string>
+    <string name="generic_text_public">Public</string>
+    <string name="generic_text_private">Private</string>
+    <string name="generic_text_upload">Upload</string>
+    <string name="generic_text_cancel">Cancel</string>
+    <string name="generic_text_ok">OK</string>
+=======
     <string name="group_toast_not_found_message">無法找到該群組，你輸入的是正確的嗎？</string>
     <string name="group_page_label_description">描述</string>
     <string name="group_page_label_rules">規則</string>
@@ -248,6 +280,7 @@
     <string name="generic_text_upload">上傳</string>
     <string name="generic_text_cancel">取消</string>
     <string name="generic_text_ok">確認</string>
+>>>>>>> 28a8d67f3c74dbcc85521f60991d9f3590bb359e
     <!-- User -->
     <string name="user_overlay_friend_add">新增好友</string>
     <string name="user_overlay_friend_remove">刪除好友</string>
@@ -272,6 +305,18 @@
     <string name="profile_edit_dialog_button_apply">套用</string>
     <!-- Logout dialog -->
     <string name="logout_dialog_title">你確定嗎？</string>
+<<<<<<< HEAD
+    <string name="logout_dialog_description">按下下方的「繼續」，你將登出 VRCAA，並必須重新登入才能繼續使用應用程式。</string>
+    <string name="logout_dialog_continue">繼續</string>
+    <string name="logout_dialog_cancel">取消</string>
+    <!-- Widgets -->
+    <string name="widget_name_friend_list" tools:keep="@string/widget_name_friend_list">查看當前好友位置</string>
+    <string name="widget_name_loading_text" tools:keep="@string/widget_name_loading_text">一切都會好起來的，朋友。</string>
+    <string name="favorite_page_title">收藏</string>
+    <string-array name="favorites_selection_options">
+        <item>世界</item>
+        <item>模型</item>
+=======
     <string name="logout_dialog_description">按下下方的「繼續」，你將登出 VRCAA，並必須重新登入才能繼續使用這個應用程式。</string>
     <!-- Widgets -->
     <string name="widget_name_friend_list" tools:keep="@string/widget_name_friend_list">查看當前好友位置</string>
@@ -280,21 +325,45 @@
     <string-array name="favorites_selection_options">
         <item>世界</item>
         <item>角色</item>
+>>>>>>> 28a8d67f3c74dbcc85521f60991d9f3590bb359e
         <item>好友</item>
     </string-array>
     <string-array name="user_favorites_selection_options">
         <item>世界</item>
+<<<<<<< HEAD
+        <item>模型</item>
+    </string-array>
+    <string name="favorite_label_add">新增至收藏</string>
+    <string name="favorite_label_remove">從收藏中移除</string>
+    <string name="favorite_toast_favorite_added">已將 %1$s 新增至收藏。</string>
+    <string name="favorite_toast_favorite_added_failed">新增 %1$s 至收藏失敗。</string>
+    <string name="favorite_toast_favorite_removed">已將 %1$s 從收藏中移除。</string>
+    <string name="favorite_toast_favorite_removed_failed">從收藏中移除 %1$s 失敗。</string>
+    <string name="favorite_dialog_button_add">新增</string>
+    <string name="favorite_dialog_button_cancel">取消</string>
+    <string name="favorite_dialog_title">新增收藏</string>
+    <string name="favorite_edit_title">正在編輯 %1$s</string>
+    <string name="favorite_edit_display_name">顯示名稱</string>
+    <string name="favorite_edit_visibility">可見性</string>
+    <string name="favorite_edit_discarded">變更已捨棄。</string>
+    <string name="favorite_edit_applied">變更已套用。</string>
+    <string name="favorite_dialog_button_edit">Edit</string>
+    <string name="favorite_tab_refresh_favorites">Refresh Favorites</string>
+    <string name="favorite_toast_refreshed_favorites">Refreshed favorites.</string>
+    <string name="favorite_remove_dialog_title">Do you want remove this favorite?</string>
+    <string name="favorite_remove_dialog_description">This favorite is no longer available, it might have been deleted or made private by the author do you want to remove it from the list?</string>
+=======
         <item>角色</item>
     </string-array>
     <string name="favorite_label_add">加入收藏</string>
     <string name="favorite_label_remove">取消收藏</string>
-    <string name="favorite_toast_favorite_added">已將 %1$s 加入收藏。</string>
+    <string name="favorite_toast_favorite_added">已将 %1$s 加入收藏。</string>
     <string name="favorite_toast_favorite_added_failed">收藏 %1$s 失敗。</string>
-    <string name="favorite_toast_favorite_removed">已將 %1$s 移出收藏。</string>
+    <string name="favorite_toast_favorite_removed">已将 %1$s 移出收藏。</string>
     <string name="favorite_toast_favorite_removed_failed">取消收藏 %1$s 失敗。</string>
     <string name="favorite_dialog_button_add">新增</string>
-    <string name="favorite_dialog_button_cancel">取消</string>
-    <string name="favorite_dialog_title">新增收藏</string>
+    <string name="favorite_dialog_button_cancel">Cancel</string>
+    <string name="favorite_dialog_title">"新增收藏"</string>
     <string name="favorite_edit_title">正在編輯 %1$s</string>
     <string name="favorite_edit_display_name">顯示名</string>
     <string name="favorite_edit_visibility">可見性</string>
@@ -305,6 +374,7 @@
     <string name="favorite_toast_refreshed_favorites">已整理了收藏。</string>
     <string name="favorite_remove_dialog_title">你真的要將此收藏內容移出嗎？</string>
     <string name="favorite_remove_dialog_description">該內容現已失效，可能被原作者刪除，或被設為私密。你希望將其移出收藏嗎？</string>
+>>>>>>> 28a8d67f3c74dbcc85521f60991d9f3590bb359e
     <!-- Activities -->
     <!-- Worlds -->
     <string name="worlds_page_title">%1$s 的世界</string>
