@@ -72,6 +72,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -86,6 +88,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -141,7 +144,6 @@ import cc.sovellus.vrcaa.ui.tabs.ProfileTab
 import cc.sovellus.vrcaa.ui.tabs.SettingsTab
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
 import kotlinx.coroutines.launch
 import android.content.SharedPreferences
 import androidx.compose.runtime.DisposableEffect
@@ -203,6 +205,10 @@ class NavigationScreen : Screen {
             var showProfileSheet by remember { mutableStateOf(false) }
 
             val scope = rememberCoroutineScope()
+            
+            // 檢測是否為平板模式（寬度 >= 600dp）
+            val configuration = LocalConfiguration.current
+            val isTablet = configuration.screenWidthDp >= 600
 
             // 監聽 cache 建立狀態，預載入 drawer 中的 banner 和 icon 圖片
             val cacheBuilt = model.cacheBuilt.value
@@ -251,7 +257,7 @@ class NavigationScreen : Screen {
                 }
             }
 
-            BackHandler(enabled = !drawerState.isOpen, onBack = {
+            BackHandler(enabled = !drawerState.isOpen && !isTablet, onBack = {
                 if (tabNavigator.current != HomeTab) {
                     tabNavigator.current = HomeTab
                 } else {
@@ -273,10 +279,317 @@ class NavigationScreen : Screen {
                 }
             })
 
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
+            if (isTablet) {
+                // 平板模式：使用 Row + NavigationRail
+                Row(modifier = Modifier.fillMaxSize()) {
+                    NavigationRail {
+                        // 用戶頭像（簡化版）
+                        CacheManager.getProfile()?.let { profile ->
+                            Column(
+                                modifier = Modifier.padding(vertical = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                GlideImage(
+                                    model = profile.userIcon.ifEmpty { 
+                                        profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl } 
+                                    },
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                IconButton(
+                                    onClick = { showProfileSheet = true },
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // 導航項目
+                        tabs.forEach { tab ->
+                            val isSelected = tabNavigator.current.key == tab.key
+                            NavigationRailItem(
+                                icon = {
+                                    Icon(
+                                        painter = tab.options.icon!!,
+                                        contentDescription = tab.options.title
+                                    )
+                                },
+                                label = { Text(tab.options.title) },
+                                selected = isSelected,
+                                onClick = {
+                                    pressBackCounter = 0
+                                    tabNavigator.current = tab
+                                },
+                                alwaysShowLabel = false
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        // 訂閱與餘額
+                        NavigationRailItem(
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Filled.AccountBalanceWallet,
+                                    contentDescription = "訂閱與餘額"
+                                )
+                            },
+                            label = { Text("訂閱與餘額") },
+                            selected = false,
+                            onClick = {
+                                navigator.push(EconomyScreen())
+                            },
+                            alwaysShowLabel = true
+                        )
+                    }
+
+                    // 主要內容區域
+                    Scaffold(
+                        modifier = Modifier.weight(1f),
+                        topBar = {
+                            when (tabNavigator.current.options.index) {
+                                HomeTab.options.index -> {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        SearchBar(
+                                            modifier = Modifier.widthIn(max = 1080.dp),
+                                            inputField = {
+                                                InputField(
+                                                    query = model.searchText.value,
+                                                    onQueryChange = { model.searchText.value = it; },
+                                                    onSearch = {
+                                                        model.searchModeActivated.value = false
+                                                        navigator.push(SearchResultScreen(model.searchText.value))
+                                                        model.addSearchHistory()
+                                                    },
+                                                    expanded = model.searchModeActivated.value,
+                                                    onExpandedChange = {
+                                                        model.searchModeActivated.value = true
+                                                    },
+                                                    enabled = true,
+                                                    placeholder = {
+                                                        if (!App.isMinimalistModeEnabled()) {
+                                                            Text(
+                                                                text = stringResource(R.string.main_search_placeholder),
+                                                                overflow = TextOverflow.Ellipsis
+                                                            )
+                                                        }
+                                                    },
+                                                    leadingIcon = {
+                                                        if (model.searchModeActivated.value) {
+                                                            IconButton(onClick = {
+                                                                model.searchModeActivated.value = false
+                                                            }) {
+                                                                Icon(
+                                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                                    contentDescription = null
+                                                                )
+                                                            }
+                                                        }
+                                                    },
+                                                    trailingIcon = {
+                                                        if (model.searchModeActivated.value) {
+                                                            IconButton(onClick = { model.clearSearchText() }) {
+                                                                Icon(
+                                                                    imageVector = Icons.Filled.Close,
+                                                                    contentDescription = null
+                                                                )
+                                                            }
+                                                        } else {
+                                                            IconButton(onClick = { showSettingsSheet = true }) {
+                                                                Icon(
+                                                                    imageVector = Icons.Filled.MoreVert,
+                                                                    contentDescription = null
+                                                                )
+                                                            }
+                                                        }
+                                                    })
+                                            },
+                                            expanded = model.searchModeActivated.value,
+                                            onExpandedChange = { },
+                                            shape = SearchBarDefaults.inputFieldShape,
+                                            colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.background),
+                                            tonalElevation = if (model.searchModeActivated.value) {
+                                                0.dp
+                                            } else {
+                                                8.dp
+                                            },
+                                            windowInsets = SearchBarDefaults.windowInsets.exclude(
+                                                WindowInsets(left = 4.dp, right = 4.dp)
+                                            ),
+                                            content = {
+                                                LazyColumn(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                ) {
+                                                    if (model.searchModeActivated.value) {
+                                                        items(model.searchHistory.size) {
+                                                            val item = model.searchHistory.reversed()[it]
+                                                            ListItem(leadingContent = {
+                                                                Icon(
+                                                                    imageVector = Icons.Filled.History,
+                                                                    contentDescription = null
+                                                                )
+                                                            }, headlineContent = {
+                                                                Text(text = item)
+                                                            }, modifier = Modifier.clickable(onClick = {
+                                                                model.searchModeActivated.value = false
+                                                                navigator.push(
+                                                                    SearchResultScreen(
+                                                                        item
+                                                                    )
+                                                                )
+                                                            }))
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                        )
+                                    }
+                                }
+                                FriendsTab.options.index -> {
+                                    TopAppBar(
+                                        title = {
+                                            Text(
+                                                text = stringResource(id = R.string.tabs_label_friends),
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    )
+                                }
+                                ProfileTab.options.index -> {
+                                    TopAppBar(
+                                        title = {
+                                            Text(
+                                                text = stringResource(id = R.string.tabs_label_profile),
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    )
+                                }
+                                FavoritesTab.options.index -> {
+                                    TopAppBar(
+                                        title = { Text(stringResource(R.string.tabs_label_favorites)) },
+                                        actions = {
+                                            IconButton(onClick = { isMenuExpanded = true }) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.MoreVert,
+                                                    contentDescription = null
+                                                )
+                                                Box(
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    DropdownMenu(
+                                                        expanded = isMenuExpanded,
+                                                        onDismissRequest = { isMenuExpanded = false },
+                                                        offset = DpOffset(0.dp, 0.dp)
+                                                    ) {
+                                                        DropdownMenuItem(
+                                                            onClick = {
+                                                                scope.launch {
+                                                                    FavoriteManager.refresh()
+                                                                }
+
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    context.getString(R.string.favorite_toast_refreshed_favorites),
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+
+                                                                isMenuExpanded = false
+                                                            },
+                                                            text = { Text(stringResource(R.string.favorite_tab_refresh_favorites)) })
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    )
+                                }
+                                FeedTab.options.index -> {
+                                    TopAppBar(
+                                        actions = {
+                                            IconButton(
+                                                modifier = Modifier.size(64.dp, 64.dp),
+                                                onClick = {
+                                                    if (CacheManager.isBuilt()) {
+                                                        navigator.push(FeedSearchScreen())
+                                                    }
+                                                }) {
+                                                Icon(Icons.Filled.Search, contentDescription = null)
+                                            }
+                                            IconButton(
+                                                modifier = Modifier.size(64.dp, 64.dp),
+                                                onClick = {
+                                                    if (CacheManager.isBuilt()) {
+                                                        navigator.push(NotificationsScreen())
+                                                    }
+                                                }) {
+                                                BadgedBox(
+                                                    badge = {
+                                                        if (model.notificationsCount.intValue > 0) {
+                                                            Badge {
+                                                                Text("${model.notificationsCount.intValue}")
+                                                            }
+                                                        }
+                                                    }
+                                                ) {
+                                                    Icon(Icons.Filled.Notifications, contentDescription = null)
+                                                }
+                                            }
+                                        },
+                                        title = {
+                                            Text(
+                                                text = stringResource(id = R.string.tabs_label_feed),
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    )
+                                }
+                                SettingsTab.options.index -> {
+                                    TopAppBar(
+                                        title = {
+                                            Text(
+                                                text = stringResource(id = R.string.tabs_label_settings),
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }, content = { padding ->
+                            Column(
+                                modifier = Modifier
+                                    .padding(padding)
+                                    .background(MaterialTheme.colorScheme.background)
+                            ) {
+                                CurrentTab()
+                            }
+                        }
+                    )
+                }
+            } else {
+                // 手機模式：使用 ModalNavigationDrawer
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize(),
@@ -722,466 +1035,468 @@ class NavigationScreen : Screen {
                     ) {
                         CurrentTab()
                     }
-
-                    if (showProfileSheet) {
-                        ModalBottomSheet(
-                            onDismissRequest = {
-                                showProfileSheet = false
-                            }, sheetState = profileSheetState
-                        ) {
-                            LazyColumn {
-                                item {
-                                    ListItem(leadingContent = {
-                                        OutlinedButton(onClick = {
-                                            showProfileSheet = false
-                                        }) {
-                                            Text(stringResource(R.string.profile_edit_dialog_button_cancel))
-                                        }
-                                    }, trailingContent = {
-                                        Button(onClick = {
-                                            Toast.makeText(
-                                                context,
-                                                context.getString(R.string.profile_edit_dialog_toast_updated),
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                            scope.launch {
-                                                CacheManager.getProfile()?.let {
-                                                    api.user.updateProfileByUserId(
-                                                        it.id,
-                                                        model.status.value,
-                                                        model.description.value,
-                                                        model.bio.value,
-                                                        model.bioLinks,
-                                                        model.pronouns.value,
-                                                        if (model.ageVerified.value) {
-                                                            model.verifiedStatus.value
-                                                        } else {
-                                                            null
-                                                        }
-                                                    )?.let { user ->
-                                                        CacheManager.updateProfile(user)
-                                                    }
-                                                }
-                                                profileSheetState.hide()
-                                            }.invokeOnCompletion {
-                                                if (!settingsSheetState.isVisible) {
-                                                    showProfileSheet = false
-                                                }
-                                            }
-                                        }) {
-                                            Text(stringResource(R.string.profile_edit_dialog_button_apply))
-                                        }
-                                    }, headlineContent = { })
-                                }
-                                item {
-                                    ListItem(
-                                        headlineContent = {
-                                            Text(
-                                                text = stringResource(R.string.profile_edit_dialog_title_status),
-                                                color = MaterialTheme.colorScheme.secondary,
-                                                fontWeight = FontWeight.SemiBold,
-                                                modifier = Modifier.padding(bottom = 8.dp)
-                                            )
-                                        },
-                                        supportingContent = {
-                                            ComboInput(
-                                                options = listOf(
-                                                    "join me",
-                                                    "active",
-                                                    "ask me",
-                                                    "busy"
-                                                ),
-                                                readableOptions = mapOf(
-                                                    "join me" to "Join Me",
-                                                    "active" to "Active",
-                                                    "ask me" to "Ask Me",
-                                                    "busy" to "Busy"
-                                                ),
-                                                selection = model.status
-                                            )
-                                        }
-                                    )
-                                }
-
-                                item {
-                                    ListItem(
-                                        headlineContent = {
-                                            Text(
-                                                text = stringResource(R.string.profile_edit_dialog_title_status_description),
-                                                color = MaterialTheme.colorScheme.secondary,
-                                                fontWeight = FontWeight.SemiBold,
-                                                modifier = Modifier.padding(bottom = 8.dp)
-                                            )
-                                        },
-                                        supportingContent = {
-                                            OutlinedTextField(
-                                                modifier = Modifier
-                                                    .fillMaxWidth(),
-                                                value = model.description.value,
-                                                onValueChange = {
-                                                    model.description.value = it
-                                                },
-                                                singleLine = true,
-                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
-                                            )
-                                        }
-                                    )
-                                }
-
-                                item {
-                                    ListItem(
-                                        headlineContent = {
-                                            Text(
-                                                text = stringResource(R.string.profile_edit_dialog_title_pronouns),
-                                                color = MaterialTheme.colorScheme.secondary,
-                                                fontWeight = FontWeight.SemiBold,
-                                                modifier = Modifier.padding(bottom = 8.dp)
-                                            )
-                                        },
-                                        supportingContent = {
-                                            OutlinedTextField(
-                                                modifier = Modifier
-                                                    .fillMaxWidth(),
-                                                value = model.pronouns.value,
-                                                onValueChange = {
-                                                    if (it.length <= 32)
-                                                        model.pronouns.value = it
-                                                },
-                                                singleLine = true,
-                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
-                                            )
-                                        }
-                                    )
-                                }
-
-                                item {
-                                    ListItem(
-                                        headlineContent = {
-                                            Text(
-                                                text = stringResource(R.string.profile_edit_dialog_title_bio),
-                                                color = MaterialTheme.colorScheme.secondary,
-                                                fontWeight = FontWeight.SemiBold,
-                                                modifier = Modifier.padding(bottom = 8.dp)
-                                            )
-                                        },
-                                        supportingContent = {
-                                            OutlinedTextField(
-                                                modifier = Modifier
-                                                    .fillMaxWidth(),
-                                                value = model.bio.value,
-                                                onValueChange = {
-                                                    model.bio.value = it
-                                                },
-                                                minLines = 8,
-                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
-                                            )
-                                        }
-                                    )
-                                }
-
-                                if (model.ageVerified.value) {
-                                    item {
-                                        ListItem(
-                                            headlineContent = {
-                                                Text(
-                                                    text = stringResource(R.string.profile_edit_dialog_title_age_verification_visibility),
-                                                    color = MaterialTheme.colorScheme.secondary,
-                                                    fontWeight = FontWeight.SemiBold,
-                                                    modifier = Modifier.padding(bottom = 8.dp)
-                                                )
-                                            },
-                                            supportingContent = {
-                                                ComboInput(
-                                                    options = listOf("hidden", "18+"),
-                                                    readableOptions = mapOf(
-                                                        "hidden" to "Hidden",
-                                                        "18+" to "18+ Verified"
-                                                    ),
-                                                    selection = model.verifiedStatus
-                                                )
-                                            }
-                                        )
-                                    }
-                                }
-
-                                item {
-                                    ListItem(
-                                        headlineContent = {
-                                            Text(
-                                                text = stringResource(R.string.profile_edit_dialog_title_bio_links),
-                                                color = MaterialTheme.colorScheme.secondary,
-                                                fontWeight = FontWeight.SemiBold,
-                                                modifier = Modifier.padding(bottom = 8.dp)
-                                            )
-                                        },
-                                        supportingContent = {
-                                            OutlinedTextField(
-                                                modifier = Modifier
-                                                    .fillMaxWidth(),
-                                                value = model.bioLinks[0],
-                                                onValueChange = {
-                                                    model.bioLinks[0] = it
-                                                },
-                                                singleLine = true,
-                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
-                                            )
-                                        }
-                                    )
-
-                                    ListItem(
-                                        headlineContent = { },
-                                        supportingContent = {
-                                            OutlinedTextField(
-                                                modifier = Modifier
-                                                    .fillMaxWidth(),
-                                                value = model.bioLinks[1],
-                                                onValueChange = {
-                                                    model.bioLinks[1] = it
-                                                },
-                                                singleLine = true,
-                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
-                                            )
-                                        }
-                                    )
-
-                                    ListItem(
-                                        headlineContent = { },
-                                        supportingContent = {
-                                            OutlinedTextField(
-                                                modifier = Modifier
-                                                    .fillMaxWidth(),
-                                                value = model.bioLinks[2],
-                                                onValueChange = {
-                                                    model.bioLinks[2] = it
-                                                },
-                                                singleLine = true,
-                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
-                                            )
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    if (showSettingsSheet) {
-                        ModalBottomSheet(
-                            onDismissRequest = {
-                                showSettingsSheet = false
-                            }, sheetState = settingsSheetState
-                        ) {
-                            LazyColumn {
-                                item {
-                                    ListItem(leadingContent = {
-                                        OutlinedButton(onClick = {
-                                            model.resetSettings()
-                                        }) {
-                                            Text(stringResource(R.string.search_filter_button_reset))
-                                        }
-                                    }, trailingContent = {
-                                        Button(onClick = {
-                                            scope.launch {
-                                                model.applySettings()
-                                                settingsSheetState.hide()
-                                            }.invokeOnCompletion {
-                                                if (!settingsSheetState.isVisible) {
-                                                    showSettingsSheet = false
-                                                }
-                                            }
-                                        }) {
-                                            Text(stringResource(R.string.search_filter_button_apply))
-                                        }
-                                    }, headlineContent = { })
-                                }
-                                item {
-                                    ListItem(
-                                        headlineContent = { Text(stringResource(R.string.search_filter_category_worlds)) },
-                                        leadingContent = {
-                                            Icon(
-                                                imageVector = Icons.Outlined.Cabin,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    )
-
-                                    Spacer(modifier = Modifier.padding(2.dp))
-                                }
-
-                                item {
-                                    ListItem(
-                                        headlineContent = {
-                                            Text(
-                                                text = stringResource(R.string.search_filter_category_worlds_sort_by),
-                                                color = MaterialTheme.colorScheme.secondary,
-                                                fontWeight = FontWeight.SemiBold,
-                                                modifier = Modifier.padding(bottom = 8.dp)
-                                            )
-                                        },
-                                        supportingContent = {
-                                            val options = listOf(
-                                                "popularity",
-                                                "heat",
-                                                "trust",
-                                                "shuffle",
-                                                "random",
-                                                "favorites",
-                                                "publicationDate",
-                                                "labsPublicationDate",
-                                                "created",
-                                                "updated",
-                                                "order",
-                                                "relevance",
-                                                "name"
-                                            )
-                                            ComboInput(
-                                                options = options, selection = model.sortWorlds
-                                            )
-                                        }
-                                    )
-                                }
-                                item {
-                                    var worldCount by remember { mutableStateOf(model.worldsAmount.intValue.toString()) }
-                                    ListItem(
-                                        headlineContent = { Text(stringResource(R.string.search_filter_category_worlds_count)) },
-                                        trailingContent = {
-                                            OutlinedTextField(
-                                                value = worldCount,
-                                                onValueChange = {
-                                                    worldCount = it
-                                                    if (it.isNotEmpty()) model.worldsAmount.intValue =
-                                                        it.toIntOrNull()
-                                                            ?: model.worldsAmount.intValue
-                                                },
-                                                singleLine = true,
-                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                                            )
-                                        }
-                                    )
-                                }
-                                item {
-                                    ListItem(
-                                        headlineContent = { Text(stringResource(R.string.search_filter_category_users)) },
-                                        leadingContent = {
-                                            Icon(
-                                                imageVector = Icons.Outlined.People,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    )
-
-                                    Spacer(modifier = Modifier.padding(2.dp))
-                                }
-                                item {
-                                    ListItem(
-                                        headlineContent = { Text(stringResource(R.string.search_filter_category_users_count)) },
-                                        trailingContent = {
-                                            OutlinedTextField(
-                                                value = model.usersAmount.intValue.toString(),
-                                                onValueChange = {
-                                                    if (it.isNotEmpty()) model.usersAmount.intValue =
-                                                        it.toIntOrNull()
-                                                            ?: model.usersAmount.intValue
-                                                },
-                                                singleLine = true,
-                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                                            )
-                                        }
-                                    )
-                                }
-                                item {
-                                    ListItem(
-                                        headlineContent = { Text(stringResource(R.string.search_filter_category_avatars)) },
-                                        leadingContent = {
-                                            Icon(
-                                                imageVector = Icons.Outlined.Person,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    )
-
-                                    Spacer(modifier = Modifier.padding(2.dp))
-                                }
-                                item {
-                                    ListItem(
-                                        headlineContent = {
-                                            Text(
-                                                text = stringResource(R.string.search_filter_category_avatars_provider),
-                                                color = MaterialTheme.colorScheme.secondary,
-                                                fontWeight = FontWeight.SemiBold,
-                                                modifier = Modifier.padding(bottom = 8.dp)
-                                            )
-                                        },
-                                        supportingContent = {
-                                            val options = listOf("avtrdb", "justhparty")
-                                            val optionsReadable = mapOf(
-                                                "avtrdb" to "avtrDB",
-                                                "justhparty" to "Just-H Party"
-                                            )
-                                            ComboInput(
-                                                options = options,
-                                                selection = model.avatarProvider,
-                                                readableOptions = optionsReadable
-                                            )
-                                        }
-                                    )
-                                }
-                                item {
-                                    var avatarCount by remember { mutableStateOf(model.avatarsAmount.intValue.toString()) }
-                                    ListItem(
-                                        headlineContent = { Text(stringResource(R.string.search_filter_label_count)) },
-                                        trailingContent = {
-                                            OutlinedTextField(
-                                                value = avatarCount,
-                                                onValueChange = {
-                                                    avatarCount = it
-                                                    if (it.isNotEmpty()) model.avatarsAmount.intValue =
-                                                        it.toIntOrNull()
-                                                            ?: model.avatarsAmount.intValue
-                                                },
-                                                singleLine = true,
-                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                                            )
-                                        })
-                                }
-                                item {
-                                    ListItem(
-                                        headlineContent = { Text(stringResource(R.string.search_filter_category_groups)) },
-                                        leadingContent = {
-                                            Icon(
-                                                imageVector = Icons.Outlined.Groups,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    )
-
-                                    Spacer(modifier = Modifier.padding(2.dp))
-                                }
-                                item {
-                                    var groupCount by remember { mutableStateOf(model.groupsAmount.intValue.toString()) }
-                                    ListItem(
-                                        headlineContent = { Text(stringResource(R.string.search_filter_category_groups_count)) },
-                                        trailingContent = {
-                                            OutlinedTextField(
-                                                value = groupCount,
-                                                onValueChange = {
-                                                    groupCount = it
-                                                    if (it.isNotEmpty()) model.groupsAmount.intValue =
-                                                        it.toIntOrNull()
-                                                            ?: model.groupsAmount.intValue
-                                                },
-                                                singleLine = true,
-                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                                            )
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
                 },
                     bottomBar = {
                     // 側邊選單，無需底部導航列
                 })
+            }
+            }
+
+            // ModalBottomSheet 在兩種模式下都可用
+            if (showProfileSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        showProfileSheet = false
+                    }, sheetState = profileSheetState
+                ) {
+                    LazyColumn {
+                        item {
+                            ListItem(leadingContent = {
+                                OutlinedButton(onClick = {
+                                    showProfileSheet = false
+                                }) {
+                                    Text(stringResource(R.string.profile_edit_dialog_button_cancel))
+                                }
+                            }, trailingContent = {
+                                Button(onClick = {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.profile_edit_dialog_toast_updated),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    scope.launch {
+                                        CacheManager.getProfile()?.let {
+                                            api.user.updateProfileByUserId(
+                                                it.id,
+                                                model.status.value,
+                                                model.description.value,
+                                                model.bio.value,
+                                                model.bioLinks,
+                                                model.pronouns.value,
+                                                if (model.ageVerified.value) {
+                                                    model.verifiedStatus.value
+                                                } else {
+                                                    null
+                                                }
+                                            )?.let { user ->
+                                                CacheManager.updateProfile(user)
+                                            }
+                                        }
+                                        profileSheetState.hide()
+                                    }.invokeOnCompletion {
+                                        if (!settingsSheetState.isVisible) {
+                                            showProfileSheet = false
+                                        }
+                                    }
+                                }) {
+                                    Text(stringResource(R.string.profile_edit_dialog_button_apply))
+                                }
+                            }, headlineContent = { })
+                        }
+                        item {
+                            ListItem(
+                                headlineContent = {
+                                    Text(
+                                        text = stringResource(R.string.profile_edit_dialog_title_status),
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.padding(bottom = 8.dp)
+                                    )
+                                },
+                                supportingContent = {
+                                    ComboInput(
+                                        options = listOf(
+                                            "join me",
+                                            "active",
+                                            "ask me",
+                                            "busy"
+                                        ),
+                                        readableOptions = mapOf(
+                                            "join me" to "Join Me",
+                                            "active" to "Active",
+                                            "ask me" to "Ask Me",
+                                            "busy" to "Busy"
+                                        ),
+                                        selection = model.status
+                                    )
+                                }
+                            )
+                        }
+
+                        item {
+                            ListItem(
+                                headlineContent = {
+                                    Text(
+                                        text = stringResource(R.string.profile_edit_dialog_title_status_description),
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.padding(bottom = 8.dp)
+                                    )
+                                },
+                                supportingContent = {
+                                    OutlinedTextField(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        value = model.description.value,
+                                        onValueChange = {
+                                            model.description.value = it
+                                        },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+                                    )
+                                }
+                            )
+                        }
+
+                        item {
+                            ListItem(
+                                headlineContent = {
+                                    Text(
+                                        text = stringResource(R.string.profile_edit_dialog_title_pronouns),
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.padding(bottom = 8.dp)
+                                    )
+                                },
+                                supportingContent = {
+                                    OutlinedTextField(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        value = model.pronouns.value,
+                                        onValueChange = {
+                                            if (it.length <= 32)
+                                                model.pronouns.value = it
+                                        },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+                                    )
+                                }
+                            )
+                        }
+
+                        item {
+                            ListItem(
+                                headlineContent = {
+                                    Text(
+                                        text = stringResource(R.string.profile_edit_dialog_title_bio),
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.padding(bottom = 8.dp)
+                                    )
+                                },
+                                supportingContent = {
+                                    OutlinedTextField(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        value = model.bio.value,
+                                        onValueChange = {
+                                            model.bio.value = it
+                                        },
+                                        minLines = 8,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
+                                    )
+                                }
+                            )
+                        }
+
+                        if (model.ageVerified.value) {
+                            item {
+                                ListItem(
+                                    headlineContent = {
+                                        Text(
+                                            text = stringResource(R.string.profile_edit_dialog_title_age_verification_visibility),
+                                            color = MaterialTheme.colorScheme.secondary,
+                                            fontWeight = FontWeight.SemiBold,
+                                            modifier = Modifier.padding(bottom = 8.dp)
+                                        )
+                                    },
+                                    supportingContent = {
+                                        ComboInput(
+                                            options = listOf("hidden", "18+"),
+                                            readableOptions = mapOf(
+                                                "hidden" to "Hidden",
+                                                "18+" to "18+ Verified"
+                                            ),
+                                            selection = model.verifiedStatus
+                                        )
+                                    }
+                                )
+                            }
+                        }
+
+                        item {
+                            ListItem(
+                                headlineContent = {
+                                    Text(
+                                        text = stringResource(R.string.profile_edit_dialog_title_bio_links),
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.padding(bottom = 8.dp)
+                                    )
+                                },
+                                supportingContent = {
+                                    OutlinedTextField(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        value = model.bioLinks[0],
+                                        onValueChange = {
+                                            model.bioLinks[0] = it
+                                        },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
+                                    )
+                                }
+                            )
+
+                            ListItem(
+                                headlineContent = { },
+                                supportingContent = {
+                                    OutlinedTextField(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        value = model.bioLinks[1],
+                                        onValueChange = {
+                                            model.bioLinks[1] = it
+                                        },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
+                                    )
+                                }
+                            )
+
+                            ListItem(
+                                headlineContent = { },
+                                supportingContent = {
+                                    OutlinedTextField(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        value = model.bioLinks[2],
+                                        onValueChange = {
+                                            model.bioLinks[2] = it
+                                        },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (showSettingsSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        showSettingsSheet = false
+                    }, sheetState = settingsSheetState
+                ) {
+                    LazyColumn {
+                        item {
+                            ListItem(leadingContent = {
+                                OutlinedButton(onClick = {
+                                    model.resetSettings()
+                                }) {
+                                    Text(stringResource(R.string.search_filter_button_reset))
+                                }
+                            }, trailingContent = {
+                                Button(onClick = {
+                                    scope.launch {
+                                        model.applySettings()
+                                        settingsSheetState.hide()
+                                    }.invokeOnCompletion {
+                                        if (!settingsSheetState.isVisible) {
+                                            showSettingsSheet = false
+                                        }
+                                    }
+                                }) {
+                                    Text(stringResource(R.string.search_filter_button_apply))
+                                }
+                            }, headlineContent = { })
+                        }
+                        item {
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.search_filter_category_worlds)) },
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Cabin,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.padding(2.dp))
+                        }
+
+                        item {
+                            ListItem(
+                                headlineContent = {
+                                    Text(
+                                        text = stringResource(R.string.search_filter_category_worlds_sort_by),
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.padding(bottom = 8.dp)
+                                    )
+                                },
+                                supportingContent = {
+                                    val options = listOf(
+                                        "popularity",
+                                        "heat",
+                                        "trust",
+                                        "shuffle",
+                                        "random",
+                                        "favorites",
+                                        "publicationDate",
+                                        "labsPublicationDate",
+                                        "created",
+                                        "updated",
+                                        "order",
+                                        "relevance",
+                                        "name"
+                                    )
+                                    ComboInput(
+                                        options = options, selection = model.sortWorlds
+                                    )
+                                }
+                            )
+                        }
+                        item {
+                            var worldCount by remember { mutableStateOf(model.worldsAmount.intValue.toString()) }
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.search_filter_category_worlds_count)) },
+                                trailingContent = {
+                                    OutlinedTextField(
+                                        value = worldCount,
+                                        onValueChange = {
+                                            worldCount = it
+                                            if (it.isNotEmpty()) model.worldsAmount.intValue =
+                                                it.toIntOrNull()
+                                                    ?: model.worldsAmount.intValue
+                                        },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                    )
+                                }
+                            )
+                        }
+                        item {
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.search_filter_category_users)) },
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.People,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.padding(2.dp))
+                        }
+                        item {
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.search_filter_category_users_count)) },
+                                trailingContent = {
+                                    OutlinedTextField(
+                                        value = model.usersAmount.intValue.toString(),
+                                        onValueChange = {
+                                            if (it.isNotEmpty()) model.usersAmount.intValue =
+                                                it.toIntOrNull()
+                                                    ?: model.usersAmount.intValue
+                                        },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                    )
+                                }
+                            )
+                        }
+                        item {
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.search_filter_category_avatars)) },
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Person,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.padding(2.dp))
+                        }
+                        item {
+                            ListItem(
+                                headlineContent = {
+                                    Text(
+                                        text = stringResource(R.string.search_filter_category_avatars_provider),
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.padding(bottom = 8.dp)
+                                    )
+                                },
+                                supportingContent = {
+                                    val options = listOf("avtrdb", "justhparty")
+                                    val optionsReadable = mapOf(
+                                        "avtrdb" to "avtrDB",
+                                        "justhparty" to "Just-H Party"
+                                    )
+                                    ComboInput(
+                                        options = options,
+                                        selection = model.avatarProvider,
+                                        readableOptions = optionsReadable
+                                    )
+                                }
+                            )
+                        }
+                        item {
+                            var avatarCount by remember { mutableStateOf(model.avatarsAmount.intValue.toString()) }
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.search_filter_label_count)) },
+                                trailingContent = {
+                                    OutlinedTextField(
+                                        value = avatarCount,
+                                        onValueChange = {
+                                            avatarCount = it
+                                            if (it.isNotEmpty()) model.avatarsAmount.intValue =
+                                                it.toIntOrNull()
+                                                    ?: model.avatarsAmount.intValue
+                                        },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                    )
+                                })
+                        }
+                        item {
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.search_filter_category_groups)) },
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Groups,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.padding(2.dp))
+                        }
+                        item {
+                            var groupCount by remember { mutableStateOf(model.groupsAmount.intValue.toString()) }
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.search_filter_category_groups_count)) },
+                                trailingContent = {
+                                    OutlinedTextField(
+                                        value = groupCount,
+                                        onValueChange = {
+                                            groupCount = it
+                                            if (it.isNotEmpty()) model.groupsAmount.intValue =
+                                                it.toIntOrNull()
+                                                    ?: model.groupsAmount.intValue
+                                        },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
             }
         }
     }

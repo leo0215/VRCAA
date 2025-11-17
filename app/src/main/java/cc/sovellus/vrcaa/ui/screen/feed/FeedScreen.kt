@@ -315,7 +315,6 @@ class FeedScreen : Screen {
 
     @Composable
     fun ShowScreen(model: FeedScreenModel) {
-<<<<<<< HEAD
         var isRefreshing by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         val pullToRefreshState = rememberPullToRefreshState()
@@ -335,9 +334,7 @@ class FeedScreen : Screen {
             val feed = model.feedList.collectAsState()
             FeedList(feed.value)
         }
-=======
         val feed = model.feedList.collectAsStateWithLifecycle()
         FeedList(feed.value)
->>>>>>> 28a8d67f3c74dbcc85521f60991d9f3590bb359e
     }
 }

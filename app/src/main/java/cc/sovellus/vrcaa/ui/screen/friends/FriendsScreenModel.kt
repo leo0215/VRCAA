@@ -35,11 +35,8 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-<<<<<<< HEAD
 import kotlinx.coroutines.launch
-=======
 import kotlinx.coroutines.withContext
->>>>>>> 28a8d67f3c74dbcc85521f60991d9f3590bb359e
 
 class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
 

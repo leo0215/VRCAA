@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <!-- Universal Strings -->
     <string name="result_not_found">這裡甚麼都沒有喔~</string>
-    <string name="legal_disclaimer">VRCAA 未獲得 VRChat Inc. 或其任何附屬公司的認可。</string>
+    <string name="legal_disclaimer">"VRCAA 未得到 VRChat Inc. 或其任何附屬公司的正式認可或批准。"</string>
     <!-- Friends -->
     <string-array name="friend_selection_options">
         <item>收藏</item>
@@ -20,9 +20,9 @@
     <string name="friend_toast_friend_request_accept_failed">接受來自 %1$s 的好友請求失敗。</string>
     <!-- Home -->
     <string name="home_active_friends">上線的好友</string>
-    <string name="home_recently_visited">最近訪問</string>
+    <string name="home_recently_visited">最近造訪的世界</string>
     <string name="home_offline_friends">離線的好友</string>
-    <string name="home_friend_locations">好友位置</string>
+    <string name="home_friend_locations">好友目前位置</string>
     <!-- Login -->
     <string name="login_text">登入VRC Android Assistant</string>
     <string name="login_label_username">使用者名稱或電子郵件地址</string>
@@ -36,39 +36,36 @@
     <string name="auth_button_text">驗證</string>
     <string name="auth_button_paste">貼上</string>
     <!-- Main -->
-    <string name="main_search_placeholder">搜尋世界、使用者和模型…</string>
+    <string name="main_search_placeholder">搜尋世界、使用者和模型...</string>
     <!-- Profile -->
     <string name="profile_label_current_location">目前位置</string>
     <string name="profile_label_note">備註</string>
-    <string name="profile_label_account_info">帳號資訊</string>
-    <string name="profile_label_age_verification">年齡驗證</string>
     <string name="profile_label_biography">簡介</string>
     <string name="profile_label_last_activity">上次活動</string>
     <string name="profile_label_date_joined">帳號創立日期</string>
     <string name="profile_text_no_biography">沒有填寫自我介紹。</string>
     <string name="profile_user_dropdown_manage_notifications">管理通知</string>
-    <string name="profile_user_not_found_message">該使用者不存在。</string>
+    <string name="profile_user_not_found_message">用户不存在。</string>
     <string name="profile_user_avatar_private">該模型被設定為私人！</string>
     <string name="profile_user_avatar_unreachable">無法存取該模型！</string>
     <string name="profile_user_note_dialog_title">添加備註</string>
     <!-- Search -->
     <string name="search_text_result">搜尋結果：</string>
     <string name="search_filter_category_worlds">世界</string>
-    <string name="search_filter_category_worlds_sort_by">排序方式</string>
+    <string name="search_filter_category_worlds_sort_by">排序方式:</string>
     <string name="search_filter_category_worlds_count">數量</string>
-    <string name="search_filter_category_users">使用者</string>
+    <string name="search_filter_category_users">用戶</string>
     <string name="search_filter_category_users_count">數量</string>
     <string name="search_filter_category_avatars">模型</string>
-    <string name="search_filter_category_avatars_provider">提供者</string>
+    <string name="search_filter_category_avatars_provider">提供方</string>
     <string name="search_filter_category_groups">群組</string>
     <string name="search_filter_category_groups_count">數量</string>
     <string name="copy_id_label">複製ID</string>
-    <string name="copied_toast">成功複製ID : %1$s</string>
+    <string name="copied_toast">成功複製ID : %1$s。</string>
     <!-- TODO: remove duplicate labels :) -->
     <string name="search_filter_label_count">數量</string>
     <string name="search_filter_button_reset">重設</string>
     <string name="search_filter_button_apply">套用</string>
-
     <string-array name="search_selection_options">
         <item>世界</item>
         <item>用戶</item>
@@ -84,7 +81,7 @@
     <string name="settings_item_rich_presence" tools:keep="@string/settings_item_rich_presence">Discord遊戲狀態（實驗性功能）</string>
     <string name="settings_item_rich_presence_description" tools:keep="@string/settings_item_rich_presence_description">Discord遊戲狀態整合設定</string>
     <string name="settings_item_advanced_settings">進階設定</string>
-    <string name="settings_item_advanced_settings_description">進階日誌及功能</string>
+    <string name="settings_item_advanced_settings_description">詳細紀錄及功能</string>
     <string name="settings_item_database_settings">資料庫及統計資料</string>
     <string name="settings_item_database_settings_description">查看統計資料, 備份或是還原你的數據</string>
     <string name="settings_item_logout">登出</string>
@@ -92,15 +89,15 @@
     <!-- Worlds -->
     <string name="world_label_description">描述</string>
     <string name="world_label_tags">標籤</string>
-    <string name="world_text_no_tags">此作者未新增標籤</string>
+    <string name="world_text_no_tags">此作者未提供標籤</string>
     <string name="world_title_created_at">創立日期</string>
     <string name="world_title_updated_at">最近更新</string>
     <string name="world_title_visits">探訪人數</string>
     <string name="world_title_favorites">收藏人數</string>
     <string name="world_title_capacity">推薦人數</string>
-    <string name="world_title_occupants">地圖內玩家人數</string>
+    <string name="world_title_occupants">地圖內目前遊玩人數</string>
     <string name="world_title_publication_date">公開日期</string>
-    <string name="world_title_heat">熱門</string>
+    <string name="world_title_heat">熱門度</string>
     <string name="world_title_popularity">知名度</string>
     <string name="world_toast_not_found">世界已被設定為私人或已被移除。</string>
     <string-array name="world_selection_options">
@@ -182,7 +179,7 @@
     <string name="feed_location_label">GPS</string>
     <string name="feed_location_text">前往了</string>
     <string name="feed_status_label">狀態</string>
-    <string name="feed_status_text">狀態改成</string>
+    <string name="feed_status_text">將狀態變更為</string>
     <string name="feed_added_label">新增好友</string>
     <string name="feed_added_text">已新增你為好友</string>
     <string name="feed_removed_label">好友已移除</string>
@@ -218,38 +215,6 @@
         <item>資訊</item>
         <item>房間</item>
     </string-array>
-<<<<<<< HEAD
-    <string name="group_toast_not_found_message">找不到群組，您確定它是存在的嗎？</string>
-    <string name="group_page_label_description">描述</string>
-    <string name="group_page_label_rules">群規</string>
-    <string name="group_page_dropdown_view_author">查看作者的個人檔案</string>
-    <string name="group_page_dropdown_request_invite">請求邀請</string>
-    <string name="group_page_dropdown_request_invite_cancel">取消邀請請求</string>
-    <string name="group_page_dropdown_join_group">加入該群組</string>
-    <string name="group_page_dropdown_leave_group">離開該群組</string>
-    <string name="group_page_toast_invite_requested">已送出邀請請求。</string>
-    <string name="group_page_toast_invite_requested_fail">邀請請求失敗。</string>
-    <string name="group_page_toast_invite_requested_cancel">已取消邀請請求。</string>
-    <string name="group_page_toast_invite_requested_cancel_fail">取消邀請請求失敗。</string>
-    <string name="group_page_toast_join_group">已加入該群組。</string>
-    <string name="group_page_toast_join_group_fail">加入該群組失敗。</string>
-    <string name="group_page_toast_leave_group">已離開該群組。</string>
-    <string name="group_page_toast_leave_group_fail">離開群組失敗。</string>
-    <string name="group_user_no_groups_message">此使用者未加入任何群組。</string>
-    <string name="group_user_viewing_groups_username">%1$s 的群組</string>
-    <!-- Misc -->
-    <string name="misc_no_internet_title">無網路連線</string>
-    <string name="misc_no_internet_description">請確認您已連上網路，此應用程式無法在沒有網路連線的情況下執行。</string>
-    <string name="misc_no_internet_label">重新啟動應用程式</string>
-    <string name="misc_exit_toast_label">再按一次即可退出。</string>
-    <string name="misc_no_premium_subscription">此功能需要您擁有有效的 VRC+ 付費訂閱。</string>
-    <string name="global_app_default_loading_text">載入中…</string>
-    <string name="generic_text_public">Public</string>
-    <string name="generic_text_private">Private</string>
-    <string name="generic_text_upload">Upload</string>
-    <string name="generic_text_cancel">Cancel</string>
-    <string name="generic_text_ok">OK</string>
-=======
     <string name="group_toast_not_found_message">無法找到該群組，你輸入的是正確的嗎？</string>
     <string name="group_page_label_description">描述</string>
     <string name="group_page_label_rules">規則</string>
@@ -280,7 +245,6 @@
     <string name="generic_text_upload">上傳</string>
     <string name="generic_text_cancel">取消</string>
     <string name="generic_text_ok">確認</string>
->>>>>>> 28a8d67f3c74dbcc85521f60991d9f3590bb359e
     <!-- User -->
     <string name="user_overlay_friend_add">新增好友</string>
     <string name="user_overlay_friend_remove">刪除好友</string>
@@ -305,18 +269,6 @@
     <string name="profile_edit_dialog_button_apply">套用</string>
     <!-- Logout dialog -->
     <string name="logout_dialog_title">你確定嗎？</string>
-<<<<<<< HEAD
-    <string name="logout_dialog_description">按下下方的「繼續」，你將登出 VRCAA，並必須重新登入才能繼續使用應用程式。</string>
-    <string name="logout_dialog_continue">繼續</string>
-    <string name="logout_dialog_cancel">取消</string>
-    <!-- Widgets -->
-    <string name="widget_name_friend_list" tools:keep="@string/widget_name_friend_list">查看當前好友位置</string>
-    <string name="widget_name_loading_text" tools:keep="@string/widget_name_loading_text">一切都會好起來的，朋友。</string>
-    <string name="favorite_page_title">收藏</string>
-    <string-array name="favorites_selection_options">
-        <item>世界</item>
-        <item>模型</item>
-=======
     <string name="logout_dialog_description">按下下方的「繼續」，你將登出 VRCAA，並必須重新登入才能繼續使用這個應用程式。</string>
     <!-- Widgets -->
     <string name="widget_name_friend_list" tools:keep="@string/widget_name_friend_list">查看當前好友位置</string>
@@ -325,34 +277,10 @@
     <string-array name="favorites_selection_options">
         <item>世界</item>
         <item>角色</item>
->>>>>>> 28a8d67f3c74dbcc85521f60991d9f3590bb359e
         <item>好友</item>
     </string-array>
     <string-array name="user_favorites_selection_options">
         <item>世界</item>
-<<<<<<< HEAD
-        <item>模型</item>
-    </string-array>
-    <string name="favorite_label_add">新增至收藏</string>
-    <string name="favorite_label_remove">從收藏中移除</string>
-    <string name="favorite_toast_favorite_added">已將 %1$s 新增至收藏。</string>
-    <string name="favorite_toast_favorite_added_failed">新增 %1$s 至收藏失敗。</string>
-    <string name="favorite_toast_favorite_removed">已將 %1$s 從收藏中移除。</string>
-    <string name="favorite_toast_favorite_removed_failed">從收藏中移除 %1$s 失敗。</string>
-    <string name="favorite_dialog_button_add">新增</string>
-    <string name="favorite_dialog_button_cancel">取消</string>
-    <string name="favorite_dialog_title">新增收藏</string>
-    <string name="favorite_edit_title">正在編輯 %1$s</string>
-    <string name="favorite_edit_display_name">顯示名稱</string>
-    <string name="favorite_edit_visibility">可見性</string>
-    <string name="favorite_edit_discarded">變更已捨棄。</string>
-    <string name="favorite_edit_applied">變更已套用。</string>
-    <string name="favorite_dialog_button_edit">Edit</string>
-    <string name="favorite_tab_refresh_favorites">Refresh Favorites</string>
-    <string name="favorite_toast_refreshed_favorites">Refreshed favorites.</string>
-    <string name="favorite_remove_dialog_title">Do you want remove this favorite?</string>
-    <string name="favorite_remove_dialog_description">This favorite is no longer available, it might have been deleted or made private by the author do you want to remove it from the list?</string>
-=======
         <item>角色</item>
     </string-array>
     <string name="favorite_label_add">加入收藏</string>
@@ -374,7 +302,6 @@
     <string name="favorite_toast_refreshed_favorites">已整理了收藏。</string>
     <string name="favorite_remove_dialog_title">你真的要將此收藏內容移出嗎？</string>
     <string name="favorite_remove_dialog_description">該內容現已失效，可能被原作者刪除，或被設為私密。你希望將其移出收藏嗎？</string>
->>>>>>> 28a8d67f3c74dbcc85521f60991d9f3590bb359e
     <!-- Activities -->
     <!-- Worlds -->
     <string name="worlds_page_title">%1$s 的世界</string>
@@ -488,4 +415,8 @@
     <string name="image_preview_dialog_title">預覽</string>
     <string name="image_preview_toast_picture_saved">已儲存圖片。</string>
     <string name="image_preview_toast_picture_save_failed">保存圖片失敗。</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_section_advanced">Advanced</string>
+    <string name="settings_section_community">Community</string>
+    <string name="settings_section_account">Account</string>
 </resources>

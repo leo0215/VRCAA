@@ -19,12 +19,14 @@ package cc.sovellus.vrcaa.ui.components.settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
@@ -43,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun rememberThumbContent(
@@ -88,33 +91,62 @@ fun SectionHeader(title: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsGroup(items: List<SettingsItem>) {
-    // 如果只有一個 item，使用更大的圓角使其看起來像圓角方塊
-    val cornerRadius = if (items.size == 1) 96.dp else 20.dp
+    val isSingleItem = items.size == 1
+    val containerCornerRadius = 28.dp // 外層容器圓角
+    val itemCornerRadius = if (isSingleItem) 28.dp else 4.dp // 單個項目 28dp，多個項目 4dp
     
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(cornerRadius),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-        )
-    ) {
-        Column {
-            items.forEachIndexed { index, item ->
-                SettingsCard(
-                    title = item.title,
-                    description = item.description,
-                    icon = item.icon,
-                    onClick = item.onClick,
-                    isDestructive = item.isDestructive,
-                    trailingContent = item.trailingContent
-                )
-                
-                if (index < items.size - 1) {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        thickness = 1.dp
-                    )
+    if (isSingleItem) {
+        // 單個項目使用一個 Card
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(itemCornerRadius),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+            )
+        ) {
+            SettingsCard(
+                title = items[0].title,
+                description = items[0].description,
+                icon = items[0].icon,
+                onClick = items[0].onClick,
+                isDestructive = items[0].isDestructive,
+                trailingContent = items[0].trailingContent,
+                isSingleItem = true
+            )
+        }
+    } else {
+        // 多個項目：外層容器 + 內部項目，gap 2px
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(containerCornerRadius),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.Transparent
+            )
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+                modifier = Modifier.padding(0.dp)
+            ) {
+                items.forEach { item ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(itemCornerRadius),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                        )
+                    ) {
+                        SettingsCard(
+                            title = item.title,
+                            description = item.description,
+                            icon = item.icon,
+                            onClick = item.onClick,
+                            isDestructive = item.isDestructive,
+                            trailingContent = item.trailingContent,
+                            isSingleItem = false
+                        )
+                    }
                 }
             }
         }
@@ -129,10 +161,32 @@ fun SettingsCard(
     icon: ImageVector? = null,
     onClick: () -> Unit,
     isDestructive: Boolean = false,
-    trailingContent: @Composable (() -> Unit)? = null
+    trailingContent: @Composable (() -> Unit)? = null,
+    isSingleItem: Boolean = false
 ) {
-    ListItem(
-        headlineContent = {
+    if (isSingleItem) {
+        // 單個項目使用 Row 佈局，符合 CSS 樣式
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .clickable(onClick = onClick)
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            icon?.let {
+                Icon(
+                    imageVector = it,
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp),
+                    tint = if (isDestructive) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                )
+            }
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelLarge,
@@ -141,24 +195,28 @@ fun SettingsCard(
                     MaterialTheme.colorScheme.error
                 } else {
                     MaterialTheme.colorScheme.onSurface
-                }
+                },
+                modifier = Modifier.weight(1f)
             )
-        },
-        supportingContent = description?.let {
-            {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        },
-        leadingContent = icon?.let {
-            {
-                androidx.compose.material3.Icon(
+            trailingContent?.invoke()
+        }
+    } else {
+        // 多個項目使用 Row 佈局，符合 XML 樣式
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(76.dp)
+                .clickable(onClick = onClick)
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Leading Icon - 32dp according to CSS
+            icon?.let {
+                Icon(
                     imageVector = it,
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(32.dp),
                     tint = if (isDestructive) {
                         MaterialTheme.colorScheme.error
                     } else {
@@ -166,15 +224,46 @@ fun SettingsCard(
                     }
                 )
             }
-        },
-        trailingContent = trailingContent,
-        colors = ListItemDefaults.colors(
-            containerColor = Color.Transparent
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-    )
+            
+            // Content - Column layout
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start
+            ) {
+                // Title - 14px font size, 20px line height
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp
+                    ),
+                    fontWeight = FontWeight.Normal,
+                    color = if (isDestructive) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
+                )
+                
+                // Labels (Metadata + Supporting Text) - 12px font size, 16px line height
+                description?.let {
+                    Spacer(modifier = Modifier.height(0.dp))
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2
+                    )
+                }
+            }
+            
+            // Trailing content
+            trailingContent?.invoke()
+        }
+    }
 }
 

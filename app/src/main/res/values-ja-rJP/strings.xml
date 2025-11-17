@@ -415,4 +415,8 @@
     <string name="image_preview_dialog_title">プレビュー</string>
     <string name="image_preview_toast_picture_saved">画像を保存しました。</string>
     <string name="image_preview_toast_picture_save_failed">画像の保存に失敗しました。</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_section_advanced">Advanced</string>
+    <string name="settings_section_community">Community</string>
+    <string name="settings_section_account">Account</string>
 </resources>

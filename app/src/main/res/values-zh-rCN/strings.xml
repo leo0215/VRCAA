@@ -416,4 +416,8 @@
     <string name="image_preview_dialog_title">预览</string>
     <string name="image_preview_toast_picture_saved">图片已保存。</string>
     <string name="image_preview_toast_picture_save_failed">无法保存图片。</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_section_advanced">Advanced</string>
+    <string name="settings_section_community">Community</string>
+    <string name="settings_section_account">Account</string>
 </resources>

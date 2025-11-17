@@ -46,11 +46,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-<<<<<<< HEAD
 import kotlinx.coroutines.launch
-=======
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
->>>>>>> 28a8d67f3c74dbcc85521f60991d9f3590bb359e
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
@@ -97,22 +94,13 @@ class HomeScreen : Screen {
     fun ShowScreen(model: HomeScreenModel) {
 
         val navigator = LocalNavigator.currentOrThrow
-
-<<<<<<< HEAD
-        val onlineFriends = model.onlineFriends.collectAsState()
-        val friendsByLocation = model.friendsByLocation.collectAsState()
-        val offlineFriends = model.offlineFriends.collectAsState()
-        val recent = model.recentlyVisited.collectAsState()
-        
         var isRefreshing by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         val pullToRefreshState = rememberPullToRefreshState()
-=======
         val onlineFriends = model.onlineFriends.collectAsStateWithLifecycle()
         val friendsByLocation = model.friendsByLocation.collectAsStateWithLifecycle()
         val offlineFriends = model.offlineFriends.collectAsStateWithLifecycle()
         val recent = model.recentlyVisited.collectAsStateWithLifecycle()
->>>>>>> 28a8d67f3c74dbcc85521f60991d9f3590bb359e
 
         PullToRefreshBox(
             isRefreshing = isRefreshing,
