@@ -17,6 +17,7 @@
 package cc.sovellus.vrcaa.ui.screen.friends
 
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.toMutableStateList
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -31,12 +32,14 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.icu.text.Transliterator
 
 class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
 
@@ -117,6 +120,251 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
     val offlineFriends get() = friendsBuckets.map { it.offlineFriends }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
 
     var currentIndex = mutableIntStateOf(0)
+    private var searchQueryFlow = MutableStateFlow("")
+    var searchQuery = searchQueryFlow.asStateFlow()
+    
+    fun updateSearchQuery(query: String) {
+        searchQueryFlow.value = query
+    }
+    
+    data class GroupedFriend(
+        val letter: String,
+        val friend: Friend
+    )
+    
+    companion object {
+        // 嘗試獲取中文拼音轉換器
+        private val pinyinTransliterator = try {
+            Transliterator.getInstance("Han-Latin/Names; Latin-ASCII; Upper")
+        } catch (e: Exception) {
+            null
+        }
+        
+        // 嘗試獲取日文羅馬字轉換器（處理平假名和片假名）
+        private val romajiTransliterator = try {
+            Transliterator.getInstance("Hiragana-Latin; Katakana-Latin; Latin-ASCII; Upper")
+        } catch (e: Exception) {
+            null
+        }
+        
+        // 統一的轉換器（優先使用日文轉換器，因為它也能處理中文）
+        private val unifiedTransliterator = romajiTransliterator ?: pinyinTransliterator
+    }
+    
+    /**
+     * 獲取字符串的首字母分組
+     * 規則：
+     * 1. # - 數字和特殊字符（無法轉換的字符）
+     * 2. A-Z - 英文字母、中文拼音首字母、日文羅馬字首字母
+     */
+    private fun getFirstLetter(name: String): String {
+        if (name.isEmpty()) return "#"
+        
+        val firstChar = name.first()
+        val charCode = firstChar.code
+        
+        // 英文字母 A-Z, a-z
+        if (firstChar.isLetter() && charCode < 128) {
+            return firstChar.uppercaseChar().toString()
+        }
+        
+        // 數字或特殊字符（ASCII 範圍內）
+        if (charCode < 128 && !firstChar.isLetter()) {
+            return "#"
+        }
+        
+        // 檢查是否為日文平假名（ひらがな）
+        if (charCode in 0x3040..0x309F) {
+            return getRomajiFirstLetter(firstChar.toString())
+        }
+        
+        // 檢查是否為日文片假名（カタカナ）
+        if (charCode in 0x30A0..0x30FF) {
+            return getRomajiFirstLetter(firstChar.toString())
+        }
+        
+        // 檢查是否為漢字（CJK統一漢字範圍，包括中文和日文漢字）
+        if (charCode in 0x4E00..0x9FFF) {
+            return getTransliteratedFirstLetter(firstChar.toString())
+        }
+        
+        // 其他非英文字符，嘗試轉換
+        return getTransliteratedFirstLetter(firstChar.toString())
+    }
+    
+    /**
+     * 獲取日文平假名/片假名的羅馬字首字母
+     */
+    private fun getRomajiFirstLetter(char: String): String {
+        return unifiedTransliterator?.let { transliterator ->
+            try {
+                val transliterated = transliterator.transliterate(char)
+                if (transliterated.isNotEmpty() && transliterated.first().isLetter()) {
+                    transliterated.first().uppercaseChar().toString()
+                } else {
+                    "#"
+                }
+            } catch (e: Exception) {
+                "#"
+            }
+        } ?: "#"
+    }
+    
+    /**
+     * 獲取漢字或其他字符的轉換後首字母（拼音或羅馬字）
+     */
+    private fun getTransliteratedFirstLetter(char: String): String {
+        // 對於漢字，優先使用中文拼音轉換器
+        val charCode = char.first().code
+        val isCJK = charCode in 0x4E00..0x9FFF
+        
+        if (isCJK && pinyinTransliterator != null) {
+            return try {
+                val transliterated = pinyinTransliterator.transliterate(char)
+                if (transliterated.isNotEmpty() && transliterated.first().isLetter()) {
+                    transliterated.first().uppercaseChar().toString()
+                } else {
+                    // 如果中文轉換失敗，嘗試統一轉換器
+                    tryUnifiedTransliterator(char)
+                }
+            } catch (e: Exception) {
+                tryUnifiedTransliterator(char)
+            }
+        }
+        
+        // 其他情況使用統一轉換器
+        return tryUnifiedTransliterator(char)
+    }
+    
+    /**
+     * 嘗試使用統一轉換器轉換字符
+     */
+    private fun tryUnifiedTransliterator(char: String): String {
+        return unifiedTransliterator?.let { transliterator ->
+            try {
+                val transliterated = transliterator.transliterate(char)
+                if (transliterated.isNotEmpty() && transliterated.first().isLetter()) {
+                    transliterated.first().uppercaseChar().toString()
+                } else {
+                    "#"
+                }
+            } catch (e: Exception) {
+                "#"
+            }
+        } ?: "#"
+    }
+    
+    /**
+     * 獲取用於排序的字符串（將中文轉換成拼音，日文轉換成羅馬字）
+     */
+    private fun getSortKey(name: String): String {
+        if (name.isEmpty()) return name
+        
+        // 檢查是否包含漢字，優先使用中文拼音轉換器
+        val hasCJK = name.any { it.code in 0x4E00..0x9FFF }
+        
+        if (hasCJK && pinyinTransliterator != null) {
+            return try {
+                pinyinTransliterator.transliterate(name).uppercase()
+            } catch (e: Exception) {
+                // 如果中文轉換失敗，嘗試統一轉換器
+                unifiedTransliterator?.let { transliterator ->
+                    try {
+                        transliterator.transliterate(name).uppercase()
+                    } catch (e: Exception) {
+                        name.uppercase()
+                    }
+                } ?: name.uppercase()
+            }
+        }
+        
+        // 其他情況使用統一轉換器
+        return unifiedTransliterator?.let { transliterator ->
+            try {
+                transliterator.transliterate(name).uppercase()
+            } catch (e: Exception) {
+                name.uppercase()
+            }
+        } ?: name.uppercase()
+    }
+    
+    /**
+     * 使用字母順序進行排序和分組（中文按拼音排序）
+     */
+    private fun filterAndGroupFriends(friends: List<Friend>, query: String): List<GroupedFriend> {
+        val filtered = if (query.isBlank()) {
+            friends
+        } else {
+            friends.filter { 
+                it.displayName.contains(query, ignoreCase = true)
+            }
+        }
+        
+        // 先按首字母類型排序（A-Z 在前，# 在後），然後在每個組內按轉換後的排序鍵排序
+        val sorted = filtered.sortedWith { a, b ->
+            val aLetter = getFirstLetter(a.displayName)
+            val bLetter = getFirstLetter(b.displayName)
+            
+            // 如果首字母類型不同
+            if (aLetter != bLetter) {
+                // # 組排在最後
+                if (aLetter == "#") return@sortedWith 1
+                if (bLetter == "#") return@sortedWith -1
+                // A-Z 之間按字母順序
+                aLetter.compareTo(bLetter)
+            } else {
+                // 同一組內按轉換後的排序鍵排序（中文會轉換成拼音）
+                getSortKey(a.displayName).compareTo(getSortKey(b.displayName))
+            }
+        }
+        
+        return sorted.mapIndexed { index, friend ->
+            val firstLetter = getFirstLetter(friend.displayName)
+            val prevLetter = if (index > 0) {
+                getFirstLetter(sorted[index - 1].displayName)
+            } else {
+                ""
+            }
+            val showLetter = firstLetter != prevLetter
+            GroupedFriend(
+                letter = if (showLetter) firstLetter else "",
+                friend = friend
+            )
+        }
+    }
+    
+    val groupedFavoriteFriends = combine(
+        friendsBuckets.map { it.favoriteFriends },
+        friendsBuckets.map { it.favoriteFriendsInInstances },
+        friendsBuckets.map { it.favoriteFriendsOffline },
+        searchQueryFlow
+    ) { favorites, favoritesInInstances, favoritesOffline, query ->
+        val all = favorites + favoritesInInstances + favoritesOffline
+        filterAndGroupFriends(all, query)
+    }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+    
+    val groupedFriends = combine(
+        friendsBuckets.map { it.friendsOnline },
+        friendsBuckets.map { it.friendsInInstances },
+        searchQueryFlow
+    ) { online, inInstances, query ->
+        val all = inInstances + online
+        filterAndGroupFriends(all, query)
+    }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+    
+    val groupedFriendsOnWebsite = combine(
+        friendsBuckets.map { it.friendsOnWebsite },
+        searchQueryFlow
+    ) { friends, query ->
+        filterAndGroupFriends(friends, query)
+    }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+    
+    val groupedOfflineFriends = combine(
+        friendsBuckets.map { it.offlineFriends },
+        searchQueryFlow
+    ) { friends, query ->
+        filterAndGroupFriends(friends, query)
+    }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
 
     private val listener = object : FriendManager.FriendListener {
         override fun onUpdateFriends(friends: List<Friend>) {

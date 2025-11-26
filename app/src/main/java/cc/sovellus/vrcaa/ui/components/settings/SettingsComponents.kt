@@ -92,11 +92,10 @@ fun SectionHeader(title: String) {
 @Composable
 fun SettingsGroup(items: List<SettingsItem>) {
     val isSingleItem = items.size == 1
-    val containerCornerRadius = 28.dp // 外層容器圓角
-    val itemCornerRadius = if (isSingleItem) 28.dp else 4.dp // 單個項目 28dp，多個項目 4dp
+    val containerCornerRadius = 14.dp
+    val itemCornerRadius = if (isSingleItem) 28.dp else 4.dp
     
     if (isSingleItem) {
-        // 單個項目使用一個 Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -117,7 +116,6 @@ fun SettingsGroup(items: List<SettingsItem>) {
             )
         }
     } else {
-        // 多個項目：外層容器 + 內部項目，gap 2px
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(containerCornerRadius),
@@ -165,7 +163,6 @@ fun SettingsCard(
     isSingleItem: Boolean = false
 ) {
     if (isSingleItem) {
-        // 單個項目使用 Row 佈局，符合 CSS 樣式
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -201,7 +198,6 @@ fun SettingsCard(
             trailingContent?.invoke()
         }
     } else {
-        // 多個項目使用 Row 佈局，符合 XML 樣式
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -211,7 +207,6 @@ fun SettingsCard(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Leading Icon - 32dp according to CSS
             icon?.let {
                 Icon(
                     imageVector = it,
@@ -225,13 +220,11 @@ fun SettingsCard(
                 )
             }
             
-            // Content - Column layout
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start
             ) {
-                // Title - 14px font size, 20px line height
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyMedium.copy(
@@ -246,7 +239,6 @@ fun SettingsCard(
                     }
                 )
                 
-                // Labels (Metadata + Supporting Text) - 12px font size, 16px line height
                 description?.let {
                     Spacer(modifier = Modifier.height(0.dp))
                     Text(

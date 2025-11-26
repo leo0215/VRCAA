@@ -17,37 +17,45 @@
 package cc.sovellus.vrcaa.ui.screen.friends
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonOff
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Web
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.material3.ToggleButton
-import androidx.compose.material3.ToggleButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MultiChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,8 +77,10 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.ui.components.layout.FriendItem
+import cc.sovellus.vrcaa.ui.components.layout.FriendItemMaterial3
 import cc.sovellus.vrcaa.ui.components.controls.SelectionChipsRow
 import cc.sovellus.vrcaa.ui.screen.friends.FriendsScreenModel.FriendsState
+import cc.sovellus.vrcaa.ui.screen.friends.FriendsScreenModel.GroupedFriend
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 
@@ -106,14 +116,16 @@ class FriendsScreen : Screen {
         var isRefreshing by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         val pullToRefreshState = rememberPullToRefreshState()
+        val searchQuery by model.searchQuery.collectAsStateWithLifecycle()
 
         val options = stringArrayResource(R.array.friend_selection_options)
         val icons = listOf(Icons.Filled.Star, Icons.Filled.Person, Icons.Filled.Web, Icons.Filled.PersonOff)
 
         Column(
             modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween,
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             SelectionChipsRow(
@@ -125,6 +137,75 @@ class FriendsScreen : Screen {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             )
+            
+            // Search Bar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                            shape = RoundedCornerShape(32.dp)
+                        )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .fillMaxHeight(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                        
+                        Box(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            if (searchQuery.isEmpty()) {
+                                Text(
+                                    text = "Search",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                    modifier = Modifier.padding(vertical = 12.dp)
+                                )
+                            }
+                            BasicTextField(
+                                value = searchQuery,
+                                onValueChange = { model.updateSearchQuery(it) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 12.dp),
+                                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                                    color = MaterialTheme.colorScheme.onSurface
+                                ),
+                                singleLine = true
+                            )
+                        }
+                        
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { model.updateSearchQuery("") }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
             PullToRefreshBox(
                 isRefreshing = isRefreshing,
@@ -150,12 +231,9 @@ class FriendsScreen : Screen {
 
     @Composable
     fun ShowFriendsFavorite(model: FriendsScreenModel) {
+        val groupedFriends = model.groupedFavoriteFriends.collectAsStateWithLifecycle()
 
-        val favoriteFriends = model.favoriteFriends.collectAsStateWithLifecycle()
-        val favoriteFriendsInInstances = model.favoriteFriendsInInstances.collectAsStateWithLifecycle()
-        val favoriteFriendsOffline = model.favoriteFriendsOffline.collectAsStateWithLifecycle()
-
-        if (favoriteFriends.value.isEmpty() && favoriteFriendsInInstances.value.isEmpty() && favoriteFriendsOffline.value.isEmpty()) {
+        if (groupedFriends.value.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -168,48 +246,15 @@ class FriendsScreen : Screen {
             LazyColumn(
                 Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(1.dp),
+                    .fillMaxHeight(),
                 state = rememberLazyListState()
             ) {
-                items(favoriteFriendsInInstances.value) { friend ->
-                    FriendItem(
-                        friend = friend,
-                        callback = { navigator.parent?.parent?.push(UserProfileScreen(friend.id)) }
-                    )
-                }
-
-                if (favoriteFriendsInInstances.value.isNotEmpty()) {
-                    item {
-                        HorizontalDivider(
-                            color = Color.Gray,
-                            thickness = 0.5.dp
-                        )
-                    }
-
-                }
-
-                items(
-                    favoriteFriends.value) { friend ->
-                    FriendItem(
-                        friend = friend,
-                        callback = { navigator.parent?.parent?.push(UserProfileScreen(friend.id)) }
-                    )
-                }
-
-                if (favoriteFriendsOffline.value.isNotEmpty() && favoriteFriends.value.isNotEmpty()) {
-                    item {
-                        HorizontalDivider(
-                            color = Color.Gray,
-                            thickness = 0.5.dp
-                        )
-                    }
-                }
-
-                items(favoriteFriendsOffline.value) { friend ->
-                    FriendItem(
-                        friend = friend,
-                        callback = { navigator.parent?.parent?.push(UserProfileScreen(friend.id)) }
+                items(groupedFriends.value) { groupedFriend ->
+                    FriendItemMaterial3(
+                        friend = groupedFriend.friend,
+                        showLetter = groupedFriend.letter.isNotEmpty(),
+                        letter = groupedFriend.letter,
+                        callback = { navigator.parent?.parent?.push(UserProfileScreen(groupedFriend.friend.id)) }
                     )
                 }
             }
@@ -218,10 +263,9 @@ class FriendsScreen : Screen {
 
     @Composable
     fun ShowFriendsOnWebsite(model: FriendsScreenModel) {
+        val groupedFriends = model.groupedFriendsOnWebsite.collectAsStateWithLifecycle()
 
-        val friendsOnWebsite = model.friendsOnWebsite.collectAsStateWithLifecycle()
-
-        if (friendsOnWebsite.value.isEmpty()) {
+        if (groupedFriends.value.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -234,14 +278,15 @@ class FriendsScreen : Screen {
             LazyColumn(
                 Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(1.dp),
+                    .fillMaxHeight(),
                 state = rememberLazyListState()
             ) {
-                items(friendsOnWebsite.value) { friend ->
-                    FriendItem(
-                        friend = friend,
-                        callback = { navigator.parent?.parent?.push(UserProfileScreen(friend.id)) }
+                items(groupedFriends.value) { groupedFriend ->
+                    FriendItemMaterial3(
+                        friend = groupedFriend.friend,
+                        showLetter = groupedFriend.letter.isNotEmpty(),
+                        letter = groupedFriend.letter,
+                        callback = { navigator.parent?.parent?.push(UserProfileScreen(groupedFriend.friend.id)) }
                     )
                 }
             }
@@ -250,11 +295,9 @@ class FriendsScreen : Screen {
 
     @Composable
     fun ShowFriends(model: FriendsScreenModel) {
+        val groupedFriends = model.groupedFriends.collectAsStateWithLifecycle()
 
-        val friendsOnline = model.friendsOnline.collectAsStateWithLifecycle()
-        val friendsInInstances = model.friendsInInstances.collectAsStateWithLifecycle()
-
-        if (friendsOnline.value.isEmpty() && friendsInInstances.value.isEmpty()) {
+        if (groupedFriends.value.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -267,37 +310,16 @@ class FriendsScreen : Screen {
             LazyColumn(
                 Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(1.dp),
+                    .fillMaxHeight(),
                 state = rememberLazyListState()
             ) {
-                if (friendsInInstances.value.isNotEmpty())
-                {
-                    items(friendsInInstances.value) { friend ->
-                        FriendItem(
-                            friend = friend,
-                            callback = { navigator.parent?.parent?.push(UserProfileScreen(friend.id)) }
-                        )
-                    }
-                    item {
-                        HorizontalDivider(
-                            color = Color.Gray,
-                            thickness = 0.5.dp
-                        )
-                    }
-                    items(friendsOnline.value) { friend ->
-                        FriendItem(
-                            friend = friend,
-                            callback = { navigator.parent?.parent?.push(UserProfileScreen(friend.id)) }
-                        )
-                    }
-                } else {
-                    items(friendsOnline.value) { friend ->
-                        FriendItem(
-                            friend = friend,
-                            callback = { navigator.parent?.parent?.push(UserProfileScreen(friend.id)) }
-                        )
-                    }
+                items(groupedFriends.value) { groupedFriend ->
+                    FriendItemMaterial3(
+                        friend = groupedFriend.friend,
+                        showLetter = groupedFriend.letter.isNotEmpty(),
+                        letter = groupedFriend.letter,
+                        callback = { navigator.parent?.parent?.push(UserProfileScreen(groupedFriend.friend.id)) }
+                    )
                 }
             }
         }
@@ -305,10 +327,9 @@ class FriendsScreen : Screen {
 
     @Composable
     fun ShowFriendsOffline(model: FriendsScreenModel) {
+        val groupedFriends = model.groupedOfflineFriends.collectAsStateWithLifecycle()
 
-        val offlineFriends = model.offlineFriends.collectAsStateWithLifecycle()
-
-        if (offlineFriends.value.isEmpty()) {
+        if (groupedFriends.value.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -321,14 +342,15 @@ class FriendsScreen : Screen {
             LazyColumn(
                 Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(1.dp),
+                    .fillMaxHeight(),
                 state = rememberLazyListState()
             ) {
-                items(offlineFriends.value) { friend ->
-                    FriendItem(
-                        friend = friend,
-                        callback = { navigator.parent?.parent?.push(UserProfileScreen(friend.id)) }
+                items(groupedFriends.value) { groupedFriend ->
+                    FriendItemMaterial3(
+                        friend = groupedFriend.friend,
+                        showLetter = groupedFriend.letter.isNotEmpty(),
+                        letter = groupedFriend.letter,
+                        callback = { navigator.parent?.parent?.push(UserProfileScreen(groupedFriend.friend.id)) }
                     )
                 }
             }

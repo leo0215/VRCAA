@@ -24,6 +24,7 @@ import cc.sovellus.vrcaa.extension.currentThemeOption
 import cc.sovellus.vrcaa.extension.primaryColorOverride
 import cc.sovellus.vrcaa.extension.secondaryColorOverride
 import cc.sovellus.vrcaa.extension.useSystemColorTheme
+import cc.sovellus.vrcaa.extension.colorSchemeIndex
 import cc.sovellus.vrcaa.manager.ThemeManager
 import cc.sovellus.vrcaa.ui.theme.LocalTheme
 import cc.sovellus.vrcaa.ui.theme.Theme
@@ -61,6 +62,9 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                         preferences.secondaryColorOverride.takeIf { it != -1 }?.let { Color(it) }
                     )
                 }
+                var currentSchemeIndex by remember {
+                    mutableIntStateOf(preferences.colorSchemeIndex)
+                }
                 
                 // Update colors when preferences change
                 DisposableEffect(Unit) {
@@ -75,6 +79,9 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                             "secondaryColorOverride" -> {
                                 currentSecondary = preferences.secondaryColorOverride.takeIf { it != -1 }?.let { Color(it) }
                             }
+                            "colorSchemeIndex" -> {
+                                currentSchemeIndex = preferences.colorSchemeIndex
+                            }
                         }
                     }
                     preferences.registerOnSharedPreferenceChangeListener(listener)
@@ -87,7 +94,7 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                 val effectivePrimary = if (useSystemColor) null else currentPrimary
                 val effectiveSecondary = if (useSystemColor) null else currentSecondary
                 
-                Theme(LocalTheme.current, effectivePrimary, effectiveSecondary) {
+                Theme(LocalTheme.current, effectivePrimary, effectiveSecondary, currentSchemeIndex) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background

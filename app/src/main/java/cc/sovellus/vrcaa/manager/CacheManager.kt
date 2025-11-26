@@ -16,6 +16,7 @@
 
 package cc.sovellus.vrcaa.manager
 
+import android.app.NotificationManager
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
@@ -90,8 +91,6 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
         friendList.addAll((onlineFriends + offlineFriends))
         FriendManager.setFriends(friendList)
 
-        NotificationManager.setNotifications(notifications)
-        NotificationManager.setNotificationsV2(notificationsV2)
 
         synchronized(worldListLock) {
             worldList.addAll(userLocations.filterNotNull().filter { !isWorldCached(it.id) }.map {

@@ -57,36 +57,35 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import hct.Hct
 import scheme.SchemeTonalSpot
+import scheme.SchemeVibrant
+import scheme.SchemeFruitSalad
+import scheme.SchemeExpressive
 
-// Predefined color palette for Material 3
-private val ColorPalette = listOf(
-    Color(0xFF6750A4), // Purple
-    Color(0xFF6200EE), // Deep Purple
-    Color(0xFF3700B3), // Indigo
-    Color(0xFF03DAC6), // Teal
-    Color(0xFF018786), // Cyan
-    Color(0xFF2196F3), // Blue
-    Color(0xFF1976D2), // Dark Blue
-    Color(0xFF00BCD4), // Light Blue
-    Color(0xFF009688), // Green
-    Color(0xFF4CAF50), // Light Green
-    Color(0xFF8BC34A), // Lime
-    Color(0xFFFFC107), // Amber
-    Color(0xFFFF9800), // Orange
-    Color(0xFFFF5722), // Deep Orange
-    Color(0xFFF44336), // Red
-    Color(0xFFE91E63), // Pink
-    Color(0xFF9C27B0), // Purple Pink
-    Color(0xFF795548), // Brown
-    Color(0xFF607D8B), // Blue Grey
-    Color(0xFF212121), // Black/Grey
+// Color list using HCT color space (same as Seal)
+private val ColorPalette = ((4..10) + (1..3)).map { it * 35.0 }.map { Color(Hct.from(it, 40.0, 40.0).toInt()) }
+
+// Color scheme types (4 styles per color, matching Seal)
+// Order: TonalSpot (0), Expressive (1), FruitSalad (2), Vibrant (3)
+private enum class ColorSchemeType {
+    TONAL_SPOT,      // 0
+    EXPRESSIVE,      // 1 (replaces Spritz in Seal)
+    FRUIT_SALAD,     // 2
+    VIBRANT          // 3
+}
+
+// Data class to represent color + scheme combination
+private data class ColorSchemeOption(
+    val seedColor: Color,
+    val schemeType: ColorSchemeType,
+    val schemeIndex: Int // Index for this scheme type (0-3)
 )
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ColorPicker(
     selectedColor: Color?,
-    onColorSelected: (Color) -> Unit,
+    selectedSchemeIndex: Int = 0, // Index of selected scheme (0-3)
+    onColorSelected: (Color, Int) -> Unit, // Color and scheme index
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -98,6 +97,7 @@ fun ColorPicker(
     ) {
         ColorPickerContent(
             selectedColor = selectedColor,
+            selectedSchemeIndex = selectedSchemeIndex,
             onColorSelected = onColorSelected
         )
     }
@@ -107,16 +107,17 @@ fun ColorPicker(
 @Composable
 fun ColorPickerContent(
     selectedColor: Color?,
-    onColorSelected: (Color) -> Unit,
+    selectedSchemeIndex: Int = 0,
+    onColorSelected: (Color, Int) -> Unit, // Color and scheme index
     modifier: Modifier = Modifier
 ) {
-    val pageSize = 4
-    val pageCount = (ColorPalette.size + pageSize - 1) / pageSize
+    val pageCount = ColorPalette.size // One page per color
     
     val initialPage = remember(selectedColor) {
         selectedColor?.let { color ->
-            val index = ColorPalette.indexOfFirst { it.toArgb() == color.toArgb() }
-            if (index >= 0) index / pageSize else 0
+            ColorPalette.indexOfFirst { it.toArgb() == color.toArgb() }.let {
+                if (it >= 0) it else 0
+            }
         } ?: 0
     }
     
@@ -135,22 +136,22 @@ fun ColorPickerContent(
             contentPadding = PaddingValues(horizontal = 12.dp),
             pageSpacing = 8.dp
         ) { page ->
+            val color = ColorPalette[page]
+            // Show 4 style options for this color
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Show 4 colors per page
-                val startIndex = page * pageSize
-                val endIndex = minOf(startIndex + pageSize, ColorPalette.size)
-                
-                for (i in startIndex until endIndex) {
-                    val color = ColorPalette[i]
-                    val isSelected = selectedColor?.toArgb() == color.toArgb()
+                ColorSchemeType.values().forEachIndexed { schemeIndex, schemeType ->
+                    val option = ColorSchemeOption(color, schemeType, schemeIndex)
+                    // Only select if both color AND scheme index match
+                    val isSelected = selectedColor?.toArgb() == color.toArgb() && 
+                                    selectedSchemeIndex == schemeIndex
                     
                     ColorButton(
-                        color = color,
+                        colorOption = option,
                         isSelected = isSelected,
-                        onClick = { onColorSelected(color) },
+                        onClick = { onColorSelected(color, schemeIndex) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -161,8 +162,8 @@ fun ColorPickerContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RowScope.ColorButton(
-    color: Color,
+private fun RowScope.ColorButton(
+    colorOption: ColorSchemeOption,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -177,8 +178,15 @@ fun RowScope.ColorButton(
     )
     
     // Generate 3 colors from seed color using Material Color Utilities
-    val sourceColorHct = Hct.fromInt(color.toArgb())
-    val scheme = SchemeTonalSpot(sourceColorHct, false, 0.0)
+    val sourceColorHct = Hct.fromInt(colorOption.seedColor.toArgb())
+    
+    // Create scheme based on scheme type
+    val scheme = when (colorOption.schemeType) {
+        ColorSchemeType.TONAL_SPOT -> SchemeTonalSpot(sourceColorHct, false, 0.0)
+        ColorSchemeType.VIBRANT -> SchemeVibrant(sourceColorHct, false, 0.0)
+        ColorSchemeType.FRUIT_SALAD -> SchemeFruitSalad(sourceColorHct, false, 0.0)
+        ColorSchemeType.EXPRESSIVE -> SchemeExpressive(sourceColorHct, false, 0.0)
+    }
     
     // Get colors from tonal palettes at specific tones (similar to Seal's 80.a1, 90.a2, 60.a3)
     val color1 = Color(scheme.primaryPalette.tone(80))  // Primary color at 80 tone
@@ -199,7 +207,6 @@ fun RowScope.ColorButton(
         onClick = onClick
     ) {
         Box(Modifier.fillMaxSize()) {
-            // Main color circle divided into 4 quadrants
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -227,7 +234,6 @@ fun RowScope.ColorButton(
                         }
                         drawPath(path1, color1)
                         
-                        // Draw quadrant 2: 90-180 degrees (top-left) - Primary
                         val path2 = Path().apply {
                             moveTo(center.x, center.y)
                             lineTo(center.x - radius, center.y)
@@ -246,7 +252,6 @@ fun RowScope.ColorButton(
                         }
                         drawPath(path2, color1)
                         
-                        // Draw quadrant 3: 180-270 degrees (bottom-left) - Secondary
                         val path3 = Path().apply {
                             moveTo(center.x, center.y)
                             lineTo(center.x, center.y + radius)

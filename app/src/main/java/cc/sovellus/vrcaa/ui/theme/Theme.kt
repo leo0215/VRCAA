@@ -34,11 +34,14 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import hct.Hct
 import scheme.SchemeTonalSpot
+import scheme.SchemeExpressive
+import scheme.SchemeFruitSalad
+import scheme.SchemeVibrant
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun Theme(theme: Int, content: @Composable () -> Unit) {
-    Theme(theme, null, null, content)
+    Theme(theme, null, null, 0, content)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -46,7 +49,8 @@ fun Theme(theme: Int, content: @Composable () -> Unit) {
 fun Theme(
     theme: Int, 
     primaryColor: Color? = null, 
-    secondaryColor: Color? = null, 
+    secondaryColor: Color? = null,
+    schemeIndex: Int = 0,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -60,7 +64,7 @@ fun Theme(
                     2 -> isSystemInDarkTheme()
                     else -> false
                 }
-                colorSchemeFromSeed(primaryColor, isDark)
+                colorSchemeFromSeed(primaryColor, isDark, schemeIndex)
             }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                 when (theme) {
@@ -96,10 +100,17 @@ val LocalTheme = compositionLocalOf { 2 }
 
 /**
  * Generate a ColorScheme from a seed color using Material Color Utilities
+ * @param schemeIndex 0=TonalSpot, 1=Expressive, 2=FruitSalad, 3=Vibrant
  */
-private fun colorSchemeFromSeed(seedColor: Color, isDark: Boolean): ColorScheme {
+private fun colorSchemeFromSeed(seedColor: Color, isDark: Boolean, schemeIndex: Int = 0): ColorScheme {
     val sourceColorHct = Hct.fromInt(seedColor.toArgb())
-    val scheme = SchemeTonalSpot(sourceColorHct, isDark, 0.0)
+    val scheme = when (schemeIndex) {
+        0 -> SchemeTonalSpot(sourceColorHct, isDark, 0.0)
+        1 -> SchemeExpressive(sourceColorHct, isDark, 0.0)
+        2 -> SchemeFruitSalad(sourceColorHct, isDark, 0.0)
+        3 -> SchemeVibrant(sourceColorHct, isDark, 0.0)
+        else -> SchemeTonalSpot(sourceColorHct, isDark, 0.0) // Default fallback
+    }
     
     return if (isDark) {
         darkColorScheme(

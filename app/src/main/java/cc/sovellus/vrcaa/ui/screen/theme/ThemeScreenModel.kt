@@ -29,6 +29,7 @@ import cc.sovellus.vrcaa.extension.columnCountOption
 import cc.sovellus.vrcaa.extension.currentThemeOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
 import cc.sovellus.vrcaa.extension.minimalistMode
+import cc.sovellus.vrcaa.extension.colorSchemeIndex
 import cc.sovellus.vrcaa.extension.primaryColorOverride
 import cc.sovellus.vrcaa.extension.secondaryColorOverride
 import cc.sovellus.vrcaa.extension.useSystemColorTheme
@@ -44,8 +45,12 @@ class ThemeScreenModel : ScreenModel {
     val primaryColor: Color?
         get() = preferences.primaryColorOverride.takeIf { it != -1 }?.let { Color(it) }
     
-    fun setPrimaryColor(color: Color) {
+    val colorSchemeIndex: Int
+        get() = preferences.colorSchemeIndex
+    
+    fun setPrimaryColor(color: Color, schemeIndex: Int = 0) {
         preferences.primaryColorOverride = color.toArgb()
+        preferences.colorSchemeIndex = schemeIndex
         // Notify theme change - you may need to add a listener here
     }
     

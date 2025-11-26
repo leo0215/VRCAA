@@ -17,10 +17,17 @@
 package cc.sovellus.vrcaa.ui.components.layout
 
 import android.graphics.Bitmap
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
@@ -30,12 +37,14 @@ import androidx.compose.material.icons.filled.Web
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cc.sovellus.vrcaa.R
@@ -99,10 +108,10 @@ fun FriendItem(
                             requestBuilder
                                 .apply(
                                     RequestOptions()
-                                        .override(64, 64)
+                                        .override(256, 256) // 4x for high DPI screens
                                         .dontAnimate()
-                                        .encodeFormat(Bitmap.CompressFormat.JPEG)
-                                        .encodeQuality(70)
+                                        .encodeFormat(Bitmap.CompressFormat.PNG)
+                                        .encodeQuality(100)
                                 )
                         }
                     )
@@ -137,4 +146,123 @@ fun FriendItem(
             }
         )
     )
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun FriendItemMaterial3(
+    friend: Friend,
+    showLetter: Boolean = false,
+    letter: String = "",
+    callback: () -> Unit
+) {
+    val isOnline = friend.platform.isNotEmpty()
+    val isPrivate = friend.location == "private" || friend.location == "traveling" || friend.location == "offline" ||
+            (friend.location.isNotEmpty() && friend.location.contains("wrld_")).let { hasWorld ->
+                if (hasWorld) {
+                    val locationInfo = LocationHelper.parseLocationInfo(friend.location)
+                    locationInfo.privateId.isNotEmpty() || locationInfo.hiddenId.isNotEmpty()
+                } else {
+                    false
+                }
+            }
+    val showLocation = isOnline && !isPrivate && friend.platform != "web"
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(if (showLocation || friend.platform == "web") 80.dp else 72.dp)
+            .clickable(onClick = callback)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        // Letter indicator (only shown when showLetter is true)
+        if (showLetter && letter.isNotEmpty()) {
+            Text(
+                text = letter,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(width = 16.dp, height = 32.dp)
+            )
+        } else {
+            // Spacer to maintain alignment when letter is hidden
+            Box(modifier = Modifier.size(width = 16.dp, height = 32.dp))
+        }
+        
+        // Avatar with status indicator
+        Box {
+            GlideImage(
+                model = friend.userIcon.ifEmpty { friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl } },
+                contentDescription = null,
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.Center,
+                loading = placeholder(R.drawable.image_placeholder),
+                failure = placeholder(R.drawable.image_placeholder),
+                requestBuilderTransform = { requestBuilder ->
+                    requestBuilder
+                        .apply(
+                            RequestOptions()
+                                .override(224, 224) // 4x for high DPI screens
+                                .dontAnimate()
+                                .encodeFormat(Bitmap.CompressFormat.PNG)
+                                .encodeQuality(100)
+                        )
+                }
+            )
+            // Status indicator at bottom right
+            if (isOnline) {
+                val statusColor = StatusHelper.getStatusFromString(friend.status).toColor()
+                Box(
+                    modifier = Modifier
+                        .size(16.dp)
+                        .align(Alignment.BottomEnd)
+                        .background(
+                            color = MaterialTheme.colorScheme.surface,
+                            shape = CircleShape
+                        )
+                        .padding(3.dp)
+                        .background(
+                            color = statusColor,
+                            shape = CircleShape
+                        )
+                )
+            }
+        }
+        
+        // Name and status/location
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = friend.displayName,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (showLocation) {
+                // Location
+                Text(
+                    text = LocationHelper.getReadableLocation(friend.location),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            } else if (friend.platform == "web") {
+                Text(
+                    text = "Active on website",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
 }

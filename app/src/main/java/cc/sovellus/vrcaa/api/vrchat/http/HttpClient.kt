@@ -420,7 +420,7 @@ class HttpClient : BaseClient(), CoroutineScope {
                 method = "DELETE",
                 url = buildString {
                     append(Config.API_BASE_URL)
-                    append("/user/friends/")
+                    append("/auth/user/friends/")
                     append(userId)
                 },
                 headers = GENERIC_HEADER,

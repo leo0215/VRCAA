@@ -130,3 +130,7 @@ internal var SharedPreferences.secondaryColorOverride: Int
 internal var SharedPreferences.useSystemColorTheme: Boolean
     get() = getBoolean("useSystemColorTheme", true)
     set(value) = edit { putBoolean("useSystemColorTheme", value) }
+
+internal var SharedPreferences.colorSchemeIndex: Int
+    get() = getInt("colorSchemeIndex", 0)
+    set(value) = edit { putInt("colorSchemeIndex", value) }

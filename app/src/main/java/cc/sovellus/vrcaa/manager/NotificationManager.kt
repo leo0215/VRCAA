@@ -1,88 +1,134 @@
+﻿/*
+ * Copyright (C) 2025. Nyabsi <nyabsi@sovellus.cc>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cc.sovellus.vrcaa.manager
 
+import android.content.Intent
+import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.api.vrchat.http.models.Notification
 import cc.sovellus.vrcaa.api.vrchat.http.models.NotificationV2
 import cc.sovellus.vrcaa.base.BaseManager
 
-object NotificationManager: BaseManager<NotificationManager.NotificationListener>() {
+object NotificationManager : BaseManager<NotificationManager.NotificationListener>() {
+
+    private const val ACTION_REFRESH_WIDGET = "cc.sovellus.vrcaa.REFRESH_NOTIFICATION_WIDGET"
 
     interface NotificationListener {
-        fun onUpdateNotifications(notifications: List<Notification>)
-        fun onUpdateNotificationsV2(notifications: List<NotificationV2>)
-        fun onUpdateNotificationCount(count: Int)
+        fun onUpdateNotifications(notifications: List<Notification>) {}
+        fun onUpdateNotificationsV2(notifications: List<NotificationV2>) {}
+        fun onUpdateNotificationCount(count: Int) {}
     }
 
-    private val notificationLock = Any()
-    private val notificationLockV2 = Any()
+    private val notificationList = mutableListOf<Notification>()
+    private val notificationV2List = mutableListOf<NotificationV2>()
 
-    private val notifications: MutableList<Notification> = mutableListOf()
-    private val notificationsV2: MutableList<NotificationV2> = mutableListOf()
-
-    fun setNotifications(newNotifications: List<Notification>) {
-        synchronized(notificationLock) {
-            notifications.clear()
-            notifications.addAll(newNotifications)
+    fun setNotifications(notifications: List<Notification>) {
+        synchronized(notificationList) {
+            notificationList.clear()
+            notificationList.addAll(notifications)
         }
         notifyListeners()
+        refreshWidget()
     }
 
-    fun setNotificationsV2(newNotifications: List<NotificationV2>) {
-        synchronized(notificationLockV2) {
-            notificationsV2.clear()
-            notificationsV2.addAll(newNotifications)
+    fun setNotificationsV2(notifications: List<NotificationV2>) {
+        synchronized(notificationV2List) {
+            notificationV2List.clear()
+            notificationV2List.addAll(notifications)
         }
-        notifyListeners()
+        notifyV2Listeners()
+        refreshWidget()
     }
 
     fun addNotification(notification: Notification) {
-        synchronized(notificationLock) {
-            if (notifications.none { it.id == notification.id }) {
-                notifications.add(notification)
-            }
+        synchronized(notificationList) {
+            notificationList.add(0, notification)
         }
         notifyListeners()
+        refreshWidget()
     }
 
     fun addNotificationV2(notification: NotificationV2) {
-        synchronized(notificationLockV2) {
-            if (notificationsV2.none { it.id == notification.id }) {
-                notificationsV2.add(notification)
-            }
+        synchronized(notificationV2List) {
+            notificationV2List.add(0, notification)
         }
-        notifyListeners()
+        notifyV2Listeners()
+        refreshWidget()
     }
 
     fun removeNotification(notificationId: String) {
-        synchronized(notificationLock) {
-            notifications.removeIf { it.id == notificationId }
+        synchronized(notificationList) {
+            notificationList.removeIf { it.id == notificationId }
         }
         notifyListeners()
+        refreshWidget()
     }
 
     fun removeNotificationV2(notificationId: String) {
-        synchronized(notificationLockV2) {
-            notificationsV2.removeIf { it.id == notificationId }
+        synchronized(notificationV2List) {
+            notificationV2List.removeIf { it.id == notificationId }
         }
-        notifyListeners()
+        notifyV2Listeners()
+        refreshWidget()
     }
 
     fun getNotifications(): List<Notification> {
-        synchronized(notificationLock) {
-            return notifications.toList()
+        synchronized(notificationList) {
+            return notificationList.toList()
         }
     }
 
     fun getNotificationsV2(): List<NotificationV2> {
-        synchronized(notificationLockV2) {
-            return notificationsV2.toList()
+        synchronized(notificationV2List) {
+            return notificationV2List.toList()
         }
     }
 
+    fun getTotalCount(): Int {
+        return synchronized(notificationList) { notificationList.size } +
+               synchronized(notificationV2List) { notificationV2List.size }
+    }
+
     private fun notifyListeners() {
-        getListeners().forEach {
-            it.onUpdateNotifications(notifications.toList())
-            it.onUpdateNotificationsV2(notificationsV2.toList())
-            it.onUpdateNotificationCount(notifications.size + notificationsV2.size)
+        val notifications = getNotifications()
+        val count = getTotalCount()
+        getListeners().forEach { listener ->
+            listener.onUpdateNotifications(notifications)
+            listener.onUpdateNotificationCount(count)
+        }
+    }
+
+    private fun notifyV2Listeners() {
+        val notifications = getNotificationsV2()
+        val count = getTotalCount()
+        getListeners().forEach { listener ->
+            listener.onUpdateNotificationsV2(notifications)
+            listener.onUpdateNotificationCount(count)
+        }
+    }
+
+    private fun refreshWidget() {
+        try {
+            val context = App.getContext()
+            val intent = Intent(ACTION_REFRESH_WIDGET).apply {
+                setPackage(context.packageName)
+            }
+            context.sendBroadcast(intent)
+        } catch (e: Exception) {
+            // Widget refresh failed, ignore
         }
     }
 }
