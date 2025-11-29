@@ -41,6 +41,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -283,75 +285,85 @@ class NavigationScreen : Screen {
                 // 平板模式：使用 Row + NavigationRail
                 Row(modifier = Modifier.fillMaxSize()) {
                     NavigationRail {
-                        // 用戶頭像（簡化版）
-                        CacheManager.getProfile()?.let { profile ->
-                            Column(
-                                modifier = Modifier.padding(vertical = 16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                GlideImage(
-                                    model = profile.userIcon.ifEmpty { 
-                                        profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl } 
-                                    },
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(48.dp)
-                                        .clip(CircleShape)
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                IconButton(
-                                    onClick = { showProfileSheet = true },
-                                    modifier = Modifier
-                                        .size(40.dp)
+                        val scrollState = rememberScrollState()
+                        
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .verticalScroll(scrollState)
+                        ) {
+                            // 用戶頭像（簡化版）
+                            CacheManager.getProfile()?.let { profile ->
+                                Column(
+                                    modifier = Modifier.padding(vertical = 16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Edit,
+                                    GlideImage(
+                                        model = profile.userIcon.ifEmpty { 
+                                            profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl } 
+                                        },
                                         contentDescription = null,
-                                        modifier = Modifier.size(20.dp)
+                                        modifier = Modifier
+                                            .size(48.dp)
+                                            .clip(CircleShape)
                                     )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    IconButton(
+                                        onClick = { showProfileSheet = true },
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
                                 }
                             }
-                        }
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
 
-                        // 導航項目
-                        tabs.forEach { tab ->
-                            val isSelected = tabNavigator.current.key == tab.key
+                            // 導航項目
+                            tabs.forEach { tab ->
+                                val isSelected = tabNavigator.current.key == tab.key
+                                NavigationRailItem(
+                                    icon = {
+                                        Icon(
+                                            painter = tab.options.icon!!,
+                                            contentDescription = tab.options.title
+                                        )
+                                    },
+                                    label = { Text(tab.options.title) },
+                                    selected = isSelected,
+                                    onClick = {
+                                        pressBackCounter = 0
+                                        tabNavigator.current = tab
+                                    },
+                                    alwaysShowLabel = false
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // 訂閱與餘額
                             NavigationRailItem(
                                 icon = {
                                     Icon(
-                                        painter = tab.options.icon!!,
-                                        contentDescription = tab.options.title
+                                        imageVector = Icons.Filled.AccountBalanceWallet,
+                                        contentDescription = "訂閱與餘額"
                                     )
                                 },
-                                label = { Text(tab.options.title) },
-                                selected = isSelected,
+                                label = { Text("訂閱與餘額") },
+                                selected = false,
                                 onClick = {
-                                    pressBackCounter = 0
-                                    tabNavigator.current = tab
+                                    navigator.push(EconomyScreen())
                                 },
-                                alwaysShowLabel = false
+                                alwaysShowLabel = true
                             )
+                            
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        // 訂閱與餘額
-                        NavigationRailItem(
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Filled.AccountBalanceWallet,
-                                    contentDescription = "訂閱與餘額"
-                                )
-                            },
-                            label = { Text("訂閱與餘額") },
-                            selected = false,
-                            onClick = {
-                                navigator.push(EconomyScreen())
-                            },
-                            alwaysShowLabel = true
-                        )
                     }
 
                     // 主要內容區域

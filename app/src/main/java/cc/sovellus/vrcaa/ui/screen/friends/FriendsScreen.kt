@@ -249,7 +249,10 @@ class FriendsScreen : Screen {
                     .fillMaxHeight(),
                 state = rememberLazyListState()
             ) {
-                items(groupedFriends.value) { groupedFriend ->
+                items(
+                    items = groupedFriends.value,
+                    key = { it.friend.id }
+                ) { groupedFriend ->
                     FriendItemMaterial3(
                         friend = groupedFriend.friend,
                         showLetter = groupedFriend.letter.isNotEmpty(),
@@ -281,7 +284,10 @@ class FriendsScreen : Screen {
                     .fillMaxHeight(),
                 state = rememberLazyListState()
             ) {
-                items(groupedFriends.value) { groupedFriend ->
+                items(
+                    items = groupedFriends.value,
+                    key = { it.friend.id }
+                ) { groupedFriend ->
                     FriendItemMaterial3(
                         friend = groupedFriend.friend,
                         showLetter = groupedFriend.letter.isNotEmpty(),
@@ -313,7 +319,10 @@ class FriendsScreen : Screen {
                     .fillMaxHeight(),
                 state = rememberLazyListState()
             ) {
-                items(groupedFriends.value) { groupedFriend ->
+                items(
+                    items = groupedFriends.value,
+                    key = { it.friend.id }
+                ) { groupedFriend ->
                     FriendItemMaterial3(
                         friend = groupedFriend.friend,
                         showLetter = groupedFriend.letter.isNotEmpty(),
@@ -345,7 +354,10 @@ class FriendsScreen : Screen {
                     .fillMaxHeight(),
                 state = rememberLazyListState()
             ) {
-                items(groupedFriends.value) { groupedFriend ->
+                items(
+                    items = groupedFriends.value,
+                    key = { it.friend.id }
+                ) { groupedFriend ->
                     FriendItemMaterial3(
                         friend = groupedFriend.friend,
                         showLetter = groupedFriend.letter.isNotEmpty(),

@@ -99,7 +99,7 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
 
     @OptIn(FlowPreview::class)
     private val friendsBuckets = friends
-        .debounce(100)
+        .debounce(150)
         .map { all ->
             withContext(Dispatchers.Default) {
                 computeBuckets(all)
@@ -107,7 +107,7 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
         }
         .stateIn(
             screenModelScope,
-            SharingStarted.WhileSubscribed(),
+            SharingStarted.WhileSubscribed(5000),
             FriendsBuckets()
         )
 
@@ -292,18 +292,29 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
      * 使用字母順序進行排序和分組（中文按拼音排序）
      */
     private fun filterAndGroupFriends(friends: List<Friend>, query: String): List<GroupedFriend> {
+        if (friends.isEmpty()) return emptyList()
+        
         val filtered = if (query.isBlank()) {
             friends
         } else {
+            val lowerQuery = query.lowercase()
             friends.filter { 
-                it.displayName.contains(query, ignoreCase = true)
+                it.displayName.lowercase().contains(lowerQuery)
             }
         }
         
+        if (filtered.isEmpty()) return emptyList()
+        
+        // 預計算首字母和排序鍵，避免重複計算
+        val friendData = filtered.map { friend ->
+            val name = friend.displayName
+            Triple(friend, getFirstLetter(name), getSortKey(name))
+        }
+        
         // 先按首字母類型排序（A-Z 在前，# 在後），然後在每個組內按轉換後的排序鍵排序
-        val sorted = filtered.sortedWith { a, b ->
-            val aLetter = getFirstLetter(a.displayName)
-            val bLetter = getFirstLetter(b.displayName)
+        val sorted = friendData.sortedWith { a, b ->
+            val (_, aLetter, aSortKey) = a
+            val (_, bLetter, bSortKey) = b
             
             // 如果首字母類型不同
             if (aLetter != bLetter) {
@@ -314,14 +325,13 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
                 aLetter.compareTo(bLetter)
             } else {
                 // 同一組內按轉換後的排序鍵排序（中文會轉換成拼音）
-                getSortKey(a.displayName).compareTo(getSortKey(b.displayName))
+                aSortKey.compareTo(bSortKey)
             }
         }
         
-        return sorted.mapIndexed { index, friend ->
-            val firstLetter = getFirstLetter(friend.displayName)
+        return sorted.mapIndexed { index, (friend, firstLetter, _) ->
             val prevLetter = if (index > 0) {
-                getFirstLetter(sorted[index - 1].displayName)
+                sorted[index - 1].second
             } else {
                 ""
             }
@@ -333,38 +343,50 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
         }
     }
     
+    @OptIn(FlowPreview::class)
     val groupedFavoriteFriends = combine(
         friendsBuckets.map { it.favoriteFriends },
         friendsBuckets.map { it.favoriteFriendsInInstances },
         friendsBuckets.map { it.favoriteFriendsOffline },
-        searchQueryFlow
+        searchQueryFlow.debounce(200)
     ) { favorites, favoritesInInstances, favoritesOffline, query ->
-        val all = favorites + favoritesInInstances + favoritesOffline
-        filterAndGroupFriends(all, query)
-    }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+        withContext(Dispatchers.Default) {
+            val all = favorites + favoritesInInstances + favoritesOffline
+            filterAndGroupFriends(all, query)
+        }
+    }.stateIn(screenModelScope, SharingStarted.WhileSubscribed(5000), listOf())
     
+    @OptIn(FlowPreview::class)
     val groupedFriends = combine(
         friendsBuckets.map { it.friendsOnline },
         friendsBuckets.map { it.friendsInInstances },
-        searchQueryFlow
+        searchQueryFlow.debounce(200)
     ) { online, inInstances, query ->
-        val all = inInstances + online
-        filterAndGroupFriends(all, query)
-    }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+        withContext(Dispatchers.Default) {
+            val all = inInstances + online
+            filterAndGroupFriends(all, query)
+        }
+    }.stateIn(screenModelScope, SharingStarted.WhileSubscribed(5000), listOf())
     
+    @OptIn(FlowPreview::class)
     val groupedFriendsOnWebsite = combine(
         friendsBuckets.map { it.friendsOnWebsite },
-        searchQueryFlow
+        searchQueryFlow.debounce(200)
     ) { friends, query ->
-        filterAndGroupFriends(friends, query)
-    }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+        withContext(Dispatchers.Default) {
+            filterAndGroupFriends(friends, query)
+        }
+    }.stateIn(screenModelScope, SharingStarted.WhileSubscribed(5000), listOf())
     
+    @OptIn(FlowPreview::class)
     val groupedOfflineFriends = combine(
         friendsBuckets.map { it.offlineFriends },
-        searchQueryFlow
+        searchQueryFlow.debounce(200)
     ) { friends, query ->
-        filterAndGroupFriends(friends, query)
-    }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+        withContext(Dispatchers.Default) {
+            filterAndGroupFriends(friends, query)
+        }
+    }.stateIn(screenModelScope, SharingStarted.WhileSubscribed(5000), listOf())
 
     private val listener = object : FriendManager.FriendListener {
         override fun onUpdateFriends(friends: List<Friend>) {
