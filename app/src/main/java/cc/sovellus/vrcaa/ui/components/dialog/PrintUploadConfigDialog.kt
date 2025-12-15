@@ -50,7 +50,7 @@ fun PrintUploadConfigDialog(
         modifier = Modifier.padding(16.dp).fillMaxWidth(),
 
         title = {
-            Text(text = "Print Upload Config")
+            Text(text = stringResource(R.string.print_upload_config_title))
         },
         text = {
             Column(
@@ -63,7 +63,7 @@ fun PrintUploadConfigDialog(
                         .fillMaxWidth(),
                     value = note.value,
                     onValueChange = { note.value = it },
-                    label = { Text(text = "Note") },
+                    label = { Text(text = stringResource(R.string.print_upload_config_note)) },
                     singleLine = true,
                 )
 
@@ -80,7 +80,7 @@ fun PrintUploadConfigDialog(
                         }
                     )
                 ) {
-                    Text("Enable Border")
+                    Text(stringResource(R.string.print_upload_config_enable_border))
 
                     Switch(
                         checked = enableBorder.value,

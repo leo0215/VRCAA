@@ -44,6 +44,7 @@ import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material.icons.outlined.ViewColumn
 import androidx.compose.material.icons.outlined.Work
 import androidx.compose.material3.ButtonGroupDefaults
@@ -69,6 +70,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -90,12 +92,14 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.columnCountOption
 import cc.sovellus.vrcaa.extension.currentThemeOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
+import cc.sovellus.vrcaa.extension.fontFamily
 import cc.sovellus.vrcaa.extension.minimalistMode
 import cc.sovellus.vrcaa.manager.ThemeManager
 import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
+import cc.sovellus.vrcaa.ui.components.dialog.FontSelectionDialog
 import cc.sovellus.vrcaa.ui.components.settings.ColorPicker
 import cc.sovellus.vrcaa.ui.components.settings.ColorPickerContent
 import cc.sovellus.vrcaa.ui.components.settings.SettingsCard
@@ -113,6 +117,8 @@ class ThemeScreen : Screen {
         val context = LocalContext.current
 
         val model = navigator.rememberNavigatorScreenModel { ThemeScreenModel() }
+        
+        val fontSelectionState = remember { mutableStateOf(false) }
 
 
         Scaffold(
@@ -293,6 +299,26 @@ class ThemeScreen : Screen {
 
                     item {
                         Spacer(modifier = Modifier.height(8.dp))
+                        SectionHeader(stringResource(R.string.theme_page_section_font_title))
+                    }
+
+                    item {
+                        SettingsGroup(
+                            items = listOf(
+                                SettingsItem(
+                                    title = stringResource(R.string.settings_item_font),
+                                    description = stringResource(R.string.settings_item_font_description),
+                                    icon = Icons.Outlined.TextFields,
+                                    onClick = {
+                                        fontSelectionState.value = true
+                                    }
+                                )
+                            )
+                        )
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
                         SectionHeader(stringResource(R.string.theme_page_section_color_title))
                     }
 
@@ -391,5 +417,16 @@ class ThemeScreen : Screen {
                 }
             },
         )
+
+        if (fontSelectionState.value) {
+            FontSelectionDialog(
+                onDismiss = { fontSelectionState.value = false },
+                onFontSelected = { fontIndex ->
+                    model.currentFontFamily.intValue = fontIndex
+                    model.preferences.fontFamily = fontIndex
+                },
+                currentFontIndex = model.currentFontFamily.intValue
+            )
+        }
     }
 }

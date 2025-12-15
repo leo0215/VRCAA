@@ -171,7 +171,7 @@ class NetworkLogScreen : Screen {
                     supportingContent = {
                         Column {
                             Text(text = it.url, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text(text = "Click to view the payload")
+                            Text(text = stringResource(R.string.network_log_click_to_view_payload))
                         }
                     },
                     leadingContent = {
@@ -190,7 +190,7 @@ class NetworkLogScreen : Screen {
                         }
                     },
                     trailingContent = {
-                        Text(text = "${it.payload.length} bytes")
+                        Text(text = stringResource(R.string.network_log_bytes, it.payload.length))
                     },
                     modifier = Modifier.clickable {
                         navigator.push(PacketViewScreen(it.payload, it.url))
@@ -228,7 +228,7 @@ class NetworkLogScreen : Screen {
                         }
                     },
                     supportingContent = {
-                        Text(text = "Click to view the payload")
+                        Text(text = stringResource(R.string.network_log_click_to_view_payload))
                     },
                     leadingContent = {
                         if (!it.unknown) {
@@ -246,7 +246,7 @@ class NetworkLogScreen : Screen {
                         }
                     },
                     trailingContent = {
-                        Text(text = "${it.payload.length} bytes")
+                        Text(text = stringResource(R.string.network_log_bytes, it.payload.length))
                     },
                     modifier = Modifier.clickable {
                         navigator.push(PacketViewScreen(it.payload))
@@ -285,7 +285,7 @@ class NetworkLogScreen : Screen {
                         }
                     },
                     supportingContent = {
-                        Text(text = "Click to view the payload")
+                        Text(text = stringResource(R.string.network_log_click_to_view_payload))
                     },
                     leadingContent = {
                         if (!it.unknown) {
@@ -303,7 +303,7 @@ class NetworkLogScreen : Screen {
                         }
                     },
                     trailingContent = {
-                        Text(text = "${it.payload.length} bytes")
+                        Text(text = stringResource(R.string.network_log_bytes, it.payload.length))
                     },
                     modifier = Modifier.clickable {
                         navigator.push(PacketViewScreen(it.payload))

@@ -415,8 +415,54 @@
     <string name="image_preview_dialog_title">プレビュー</string>
     <string name="image_preview_toast_picture_saved">画像を保存しました。</string>
     <string name="image_preview_toast_picture_save_failed">画像の保存に失敗しました。</string>
-    <string name="settings_section_general">General</string>
-    <string name="settings_section_advanced">Advanced</string>
-    <string name="settings_section_community">Community</string>
-    <string name="settings_section_account">Account</string>
+    <string name="settings_section_general">一般</string>
+    <string name="settings_section_advanced">詳細</string>
+    <string name="settings_section_community">コミュニティ</string>
+    <string name="settings_section_account">アカウント</string>
+    <!-- Profile -->
+    <string name="profile_badge_title">バッジ</string>
+    <string name="profile_not_available">利用不可</string>
+    <string name="profile_failed_to_open_link">リンクを開けませんでした</string>
+    <!-- Language Names -->
+    <string name="language_english">英語</string>
+    <string name="language_korean">韓国語</string>
+    <string name="language_russian">ロシア語</string>
+    <string name="language_spanish">スペイン語</string>
+    <string name="language_portuguese">ポルトガル語</string>
+    <string name="language_chinese">中国語</string>
+    <string name="language_german">ドイツ語</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_french">フランス語</string>
+    <string name="language_swedish">スウェーデン語</string>
+    <string name="language_dutch">オランダ語</string>
+    <string name="language_polish">ポーランド語</string>
+    <string name="language_danish">デンマーク語</string>
+    <string name="language_norwegian">ノルウェー語</string>
+    <string name="language_italian">イタリア語</string>
+    <string name="language_thai">タイ語</string>
+    <string name="language_finnish">フィンランド語</string>
+    <string name="language_hungarian">ハンガリー語</string>
+    <string name="language_czech">チェコ語</string>
+    <string name="language_turkish">トルコ語</string>
+    <string name="language_arabic">アラビア語</string>
+    <string name="language_romanian">ルーマニア語</string>
+    <string name="language_vietnamese">ベトナム語</string>
+    <string name="language_ukrainian">ウクライナ語</string>
+    <string name="language_american_sign_language">アメリカ手話</string>
+    <string name="language_british_sign_language">イギリス手話</string>
+    <string name="language_german_sign_language">ドイツ手話</string>
+    <string name="language_french_sign_language">フランス手話</string>
+    <string name="language_japanese_sign_language">日本手話</string>
+    <string name="language_korean_sign_language">韓国手話</string>
+    <!-- Upload Dialogs -->
+    <string name="print_upload_config_title">プリントアップロード設定</string>
+    <string name="print_upload_config_note">ノート</string>
+    <string name="print_upload_config_enable_border">ボーダーを有効にする</string>
+    <string name="emoji_upload_config_title">絵文字アップロード設定</string>
+    <string name="emoji_upload_config_animation_type">絵文字アニメーションタイプ</string>
+    <!-- Network Log -->
+    <string name="network_log_click_to_view_payload">ペイロードを表示するにはクリック</string>
+    <string name="network_log_bytes">%1$d バイト</string>
+    <string name="packet_view_debug_info">デバッグ情報</string>
+    <string name="rich_presence_login_title">Rich Presence ログイン</string>
 </resources>

@@ -16,6 +16,8 @@
 
 package cc.sovellus.vrcaa.ui.theme
 
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
@@ -32,6 +34,13 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import cc.sovellus.vrcaa.App
+import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.extension.fontFamily
 import hct.Hct
 import scheme.SchemeTonalSpot
 import scheme.SchemeExpressive
@@ -41,7 +50,9 @@ import scheme.SchemeVibrant
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun Theme(theme: Int, content: @Composable () -> Unit) {
-    Theme(theme, null, null, 0, content)
+    val context = LocalContext.current
+    val preferences = context.getSharedPreferences(App.PREFERENCES_NAME, MODE_PRIVATE)
+    Theme(theme, null, null, 0, preferences.fontFamily, content)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -51,9 +62,102 @@ fun Theme(
     primaryColor: Color? = null, 
     secondaryColor: Color? = null,
     schemeIndex: Int = 0,
+    fontFamilyIndex: Int = 0,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
+
+    // #region agent log
+    try {
+        val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
+        val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"A","location":"Theme.kt:67","message":"Theme composable executed","data":{"fontFamilyIndex":$fontFamilyIndex},"timestamp":${System.currentTimeMillis()}}""" + "\n"
+        logFile.appendText(logEntry)
+    } catch (e: Exception) {}
+    // #endregion
+
+    val customFontFamily = try {
+        when (fontFamilyIndex) {
+            1 -> {
+                // #region agent log
+                try {
+                    val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
+                    val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"Theme.kt:78","message":"Loading Google Sans font","data":{"fontFamilyIndex":$fontFamilyIndex},"timestamp":${System.currentTimeMillis()}}""" + "\n"
+                    logFile.appendText(logEntry)
+                } catch (e: Exception) {}
+                // #endregion
+                FontFamily(
+                    Font(R.font.googlesans, FontWeight.Normal),
+                    Font(R.font.googlesans, FontWeight.Medium),
+                    Font(R.font.googlesans, FontWeight.SemiBold),
+                    Font(R.font.googlesans, FontWeight.Bold)
+                )
+            }
+            2 -> {
+                // #region agent log
+                try {
+                    val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
+                    val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"Theme.kt:90","message":"Loading Google Sans Flex font","data":{"fontFamilyIndex":$fontFamilyIndex},"timestamp":${System.currentTimeMillis()}}""" + "\n"
+                    logFile.appendText(logEntry)
+                } catch (e: Exception) {}
+                // #endregion
+                FontFamily(
+                    Font(R.font.googlesansflex, FontWeight.Normal),
+                    Font(R.font.googlesansflex, FontWeight.Medium),
+                    Font(R.font.googlesansflex, FontWeight.SemiBold),
+                    Font(R.font.googlesansflex, FontWeight.Bold)
+                )
+            }
+            else -> {
+                // #region agent log
+                try {
+                    val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
+                    val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"Theme.kt:102","message":"Using system default font","data":{"fontFamilyIndex":$fontFamilyIndex},"timestamp":${System.currentTimeMillis()}}""" + "\n"
+                    logFile.appendText(logEntry)
+                } catch (e: Exception) {}
+                // #endregion
+                FontFamily.Default // System Default
+            }
+        }
+    } catch (e: Exception) {
+        // #region agent log
+        try {
+            val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
+            val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"Theme.kt:107","message":"Font loading failed","data":{"fontFamilyIndex":$fontFamilyIndex,"error":"${e.message}"},"timestamp":${System.currentTimeMillis()}}""" + "\n"
+            logFile.appendText(logEntry)
+        } catch (ex: Exception) {}
+        // #endregion
+        FontFamily.Default
+    }
+
+    // #region agent log
+    try {
+        val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
+        val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"Theme.kt:85","message":"Creating typography","data":{"fontFamilyIndex":$fontFamilyIndex,"willUseCustomFont":${fontFamilyIndex != 0}},"timestamp":${System.currentTimeMillis()}}""" + "\n"
+        logFile.appendText(logEntry)
+    } catch (e: Exception) {}
+    // #endregion
+
+    val typography = if (fontFamilyIndex != 0) {
+        Typography().copy(
+            displayLarge = Typography().displayLarge.copy(fontFamily = customFontFamily),
+            displayMedium = Typography().displayMedium.copy(fontFamily = customFontFamily),
+            displaySmall = Typography().displaySmall.copy(fontFamily = customFontFamily),
+            headlineLarge = Typography().headlineLarge.copy(fontFamily = customFontFamily),
+            headlineMedium = Typography().headlineMedium.copy(fontFamily = customFontFamily),
+            headlineSmall = Typography().headlineSmall.copy(fontFamily = customFontFamily),
+            titleLarge = Typography().titleLarge.copy(fontFamily = customFontFamily),
+            titleMedium = Typography().titleMedium.copy(fontFamily = customFontFamily),
+            titleSmall = Typography().titleSmall.copy(fontFamily = customFontFamily),
+            bodyLarge = Typography().bodyLarge.copy(fontFamily = customFontFamily),
+            bodyMedium = Typography().bodyMedium.copy(fontFamily = customFontFamily),
+            bodySmall = Typography().bodySmall.copy(fontFamily = customFontFamily),
+            labelLarge = Typography().labelLarge.copy(fontFamily = customFontFamily),
+            labelMedium = Typography().labelMedium.copy(fontFamily = customFontFamily),
+            labelSmall = Typography().labelSmall.copy(fontFamily = customFontFamily)
+        )
+    } else {
+        Typography()
+    }
 
     MaterialExpressiveTheme(
         colorScheme = when {
@@ -91,7 +195,7 @@ fun Theme(
                 }
             }
         },
-        typography = Typography(),
+        typography = typography,
         content = content,
     )
 }

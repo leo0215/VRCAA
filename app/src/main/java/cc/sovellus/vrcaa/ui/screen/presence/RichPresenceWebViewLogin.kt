@@ -33,11 +33,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import cc.sovellus.vrcaa.R
 
 class RichPresenceWebViewLogin : Screen {
 
@@ -61,7 +63,7 @@ class RichPresenceWebViewLogin : Screen {
                         }
                     },
 
-                    title = { Text(text = "Rich Presence Login") }
+                    title = { Text(text = stringResource(R.string.rich_presence_login_title)) }
                 )
             },
             content = { padding ->

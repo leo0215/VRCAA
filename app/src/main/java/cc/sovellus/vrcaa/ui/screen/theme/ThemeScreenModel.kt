@@ -33,6 +33,7 @@ import cc.sovellus.vrcaa.extension.colorSchemeIndex
 import cc.sovellus.vrcaa.extension.primaryColorOverride
 import cc.sovellus.vrcaa.extension.secondaryColorOverride
 import cc.sovellus.vrcaa.extension.useSystemColorTheme
+import cc.sovellus.vrcaa.extension.fontFamily
 
 class ThemeScreenModel : ScreenModel {
     val preferences: SharedPreferences = App.getContext().getSharedPreferences(App.PREFERENCES_NAME, MODE_PRIVATE)
@@ -41,6 +42,7 @@ class ThemeScreenModel : ScreenModel {
     var currentIndex = mutableIntStateOf(preferences.currentThemeOption)
     var currentColumnIndex = mutableIntStateOf(preferences.columnCountOption)
     var currentColumnAmount = mutableFloatStateOf(preferences.fixedColumnSize.toFloat())
+    var currentFontFamily = mutableIntStateOf(preferences.fontFamily)
     
     val primaryColor: Color?
         get() = preferences.primaryColorOverride.takeIf { it != -1 }?.let { Color(it) }

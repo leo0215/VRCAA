@@ -415,8 +415,54 @@
     <string name="image_preview_dialog_title">預覽</string>
     <string name="image_preview_toast_picture_saved">已儲存圖片。</string>
     <string name="image_preview_toast_picture_save_failed">保存圖片失敗。</string>
-    <string name="settings_section_general">General</string>
-    <string name="settings_section_advanced">Advanced</string>
-    <string name="settings_section_community">Community</string>
-    <string name="settings_section_account">Account</string>
+    <string name="settings_section_general">一般</string>
+    <string name="settings_section_advanced">進階</string>
+    <string name="settings_section_community">社群</string>
+    <string name="settings_section_account">帳號</string>
+    <!-- Profile -->
+    <string name="profile_badge_title">徽章</string>
+    <string name="profile_not_available">不可用</string>
+    <string name="profile_failed_to_open_link">無法開啟連結</string>
+    <!-- Language Names -->
+    <string name="language_english">英語</string>
+    <string name="language_korean">韓語</string>
+    <string name="language_russian">俄語</string>
+    <string name="language_spanish">西班牙語</string>
+    <string name="language_portuguese">葡萄牙語</string>
+    <string name="language_chinese">中文</string>
+    <string name="language_german">德語</string>
+    <string name="language_japanese">日語</string>
+    <string name="language_french">法語</string>
+    <string name="language_swedish">瑞典語</string>
+    <string name="language_dutch">荷蘭語</string>
+    <string name="language_polish">波蘭語</string>
+    <string name="language_danish">丹麥語</string>
+    <string name="language_norwegian">挪威語</string>
+    <string name="language_italian">義大利語</string>
+    <string name="language_thai">泰語</string>
+    <string name="language_finnish">芬蘭語</string>
+    <string name="language_hungarian">匈牙利語</string>
+    <string name="language_czech">捷克語</string>
+    <string name="language_turkish">土耳其語</string>
+    <string name="language_arabic">阿拉伯語</string>
+    <string name="language_romanian">羅馬尼亞語</string>
+    <string name="language_vietnamese">越南語</string>
+    <string name="language_ukrainian">烏克蘭語</string>
+    <string name="language_american_sign_language">美國手語</string>
+    <string name="language_british_sign_language">英國手語</string>
+    <string name="language_german_sign_language">德國手語</string>
+    <string name="language_french_sign_language">法國手語</string>
+    <string name="language_japanese_sign_language">日本手語</string>
+    <string name="language_korean_sign_language">韓國手語</string>
+    <!-- Upload Dialogs -->
+    <string name="print_upload_config_title">列印上傳設定</string>
+    <string name="print_upload_config_note">備註</string>
+    <string name="print_upload_config_enable_border">啟用邊框</string>
+    <string name="emoji_upload_config_title">表情符號上傳設定</string>
+    <string name="emoji_upload_config_animation_type">表情符號動畫類型</string>
+    <!-- Network Log -->
+    <string name="network_log_click_to_view_payload">點擊查看負載</string>
+    <string name="network_log_bytes">%1$d 位元組</string>
+    <string name="packet_view_debug_info">除錯資訊</string>
+    <string name="rich_presence_login_title">Rich Presence 登入</string>
 </resources>

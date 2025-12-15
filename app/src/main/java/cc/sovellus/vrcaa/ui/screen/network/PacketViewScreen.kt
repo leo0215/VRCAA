@@ -45,12 +45,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.ui.components.misc.SubHeader
 
 class PacketViewScreen(
@@ -80,7 +82,7 @@ class PacketViewScreen(
                         }
                     },
                     title = {
-                        Text(text = "Debug Info")
+                        Text(text = stringResource(R.string.packet_view_debug_info))
                     },
                     actions = {
                         IconButton(onClick = { isMenuExpanded = true }) {

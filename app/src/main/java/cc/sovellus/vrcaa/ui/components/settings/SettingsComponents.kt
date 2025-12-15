@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -73,7 +74,8 @@ data class SettingsItem(
     val icon: ImageVector? = null,
     val onClick: () -> Unit,
     val isDestructive: Boolean = false,
-    val trailingContent: @Composable (() -> Unit)? = null
+    val trailingContent: @Composable (() -> Unit)? = null,
+    val isHeader: Boolean = false
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,29 +92,65 @@ fun SectionHeader(title: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun SectionHeaderCard(title: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxSize()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun SettingsGroup(items: List<SettingsItem>) {
     val isSingleItem = items.size == 1
     val containerCornerRadius = 14.dp
     val itemCornerRadius = if (isSingleItem) 28.dp else 4.dp
     
     if (isSingleItem) {
+        val item = items[0]
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(itemCornerRadius),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                containerColor = if (item.isHeader) {
+                    MaterialTheme.colorScheme.surfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainerHighest
+                }
             )
         ) {
             SettingsCard(
-                title = items[0].title,
-                description = items[0].description,
-                icon = items[0].icon,
-                onClick = items[0].onClick,
-                isDestructive = items[0].isDestructive,
-                trailingContent = items[0].trailingContent,
-                isSingleItem = true
+                title = item.title,
+                description = item.description,
+                icon = item.icon,
+                onClick = item.onClick,
+                isDestructive = item.isDestructive,
+                trailingContent = item.trailingContent,
+                isSingleItem = true,
+                isHeader = item.isHeader
             )
         }
     } else {
@@ -127,12 +165,17 @@ fun SettingsGroup(items: List<SettingsItem>) {
                 verticalArrangement = Arrangement.spacedBy(2.dp),
                 modifier = Modifier.padding(0.dp)
             ) {
-                items.forEach { item ->
+                items.forEachIndexed { index, item ->
+                    val isFirstItem = index == 0
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(itemCornerRadius),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                            containerColor = if (item.isHeader) {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.surfaceContainerHighest
+                            }
                         )
                     ) {
                         SettingsCard(
@@ -142,7 +185,8 @@ fun SettingsGroup(items: List<SettingsItem>) {
                             onClick = item.onClick,
                             isDestructive = item.isDestructive,
                             trailingContent = item.trailingContent,
-                            isSingleItem = false
+                            isSingleItem = false,
+                            isHeader = item.isHeader
                         )
                     }
                 }
@@ -160,7 +204,8 @@ fun SettingsCard(
     onClick: () -> Unit,
     isDestructive: Boolean = false,
     trailingContent: @Composable (() -> Unit)? = null,
-    isSingleItem: Boolean = false
+    isSingleItem: Boolean = false,
+    isHeader: Boolean = false
 ) {
     if (isSingleItem) {
         Row(
@@ -169,49 +214,57 @@ fun SettingsCard(
                 .height(56.dp)
                 .clickable(onClick = onClick)
                 .padding(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = if (isHeader) Arrangement.Center else Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (!isHeader) {
             icon?.let {
                 Icon(
                     imageVector = it,
                     contentDescription = null,
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(20.dp),
                     tint = if (isDestructive) {
                         MaterialTheme.colorScheme.error
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     }
                 )
+                }
             }
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Normal,
+                fontWeight = if (isHeader) FontWeight.Medium else FontWeight.Normal,
                 color = if (isDestructive) {
                     MaterialTheme.colorScheme.error
+                } else if (isHeader) {
+                    MaterialTheme.colorScheme.onSurfaceVariant
                 } else {
                     MaterialTheme.colorScheme.onSurface
                 },
-                modifier = Modifier.weight(1f)
+                modifier = if (isHeader) Modifier else Modifier.weight(1f)
             )
+            if (!isHeader) {
             trailingContent?.invoke()
+            }
         }
     } else {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(76.dp)
+                .then(if (description == null) Modifier else Modifier.height(76.dp))
                 .clickable(onClick = onClick)
                 .padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = if (description == null) Alignment.Top else Alignment.CenterVertically
         ) {
             icon?.let {
                 Icon(
                     imageVector = it,
                     contentDescription = null,
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier
+                        .size(20.dp)
+                        .align(Alignment.CenterVertically),
                     tint = if (isDestructive) {
                         MaterialTheme.colorScheme.error
                     } else {
@@ -220,6 +273,20 @@ fun SettingsCard(
                 )
             }
             
+            if (description == null) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Normal,
+                    color = if (isDestructive) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
+                    modifier = Modifier.weight(1f),
+                    maxLines = Int.MAX_VALUE
+                )
+            } else {
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center,
@@ -239,10 +306,9 @@ fun SettingsCard(
                     }
                 )
                 
-                description?.let {
                     Spacer(modifier = Modifier.height(0.dp))
                     Text(
-                        text = it,
+                        text = description,
                         style = MaterialTheme.typography.bodySmall.copy(
                             fontSize = 12.sp,
                             lineHeight = 16.sp

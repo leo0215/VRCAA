@@ -25,6 +25,7 @@ import cc.sovellus.vrcaa.extension.primaryColorOverride
 import cc.sovellus.vrcaa.extension.secondaryColorOverride
 import cc.sovellus.vrcaa.extension.useSystemColorTheme
 import cc.sovellus.vrcaa.extension.colorSchemeIndex
+import cc.sovellus.vrcaa.extension.fontFamily
 import cc.sovellus.vrcaa.manager.ThemeManager
 import cc.sovellus.vrcaa.ui.theme.LocalTheme
 import cc.sovellus.vrcaa.ui.theme.Theme
@@ -65,8 +66,11 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                 var currentSchemeIndex by remember {
                     mutableIntStateOf(preferences.colorSchemeIndex)
                 }
+                var currentFontFamily by remember {
+                    mutableIntStateOf(preferences.fontFamily)
+                }
                 
-                // Update colors when preferences change
+                // Update colors and font when preferences change
                 DisposableEffect(Unit) {
                     val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
                         when (key) {
@@ -82,6 +86,16 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                             "colorSchemeIndex" -> {
                                 currentSchemeIndex = preferences.colorSchemeIndex
                             }
+                            "fontFamily" -> {
+                                currentFontFamily = preferences.fontFamily
+                                // #region agent log
+                                try {
+                                    val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
+                                    val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"A","location":"BaseActivity.kt:87","message":"Font preference changed detected","data":{"newFontFamily":${preferences.fontFamily}},"timestamp":${System.currentTimeMillis()}}""" + "\n"
+                                    logFile.appendText(logEntry)
+                                } catch (e: Exception) {}
+                                // #endregion
+                            }
                         }
                     }
                     preferences.registerOnSharedPreferenceChangeListener(listener)
@@ -94,7 +108,7 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                 val effectivePrimary = if (useSystemColor) null else currentPrimary
                 val effectiveSecondary = if (useSystemColor) null else currentSecondary
                 
-                Theme(LocalTheme.current, effectivePrimary, effectiveSecondary, currentSchemeIndex) {
+                Theme(LocalTheme.current, effectivePrimary, effectiveSecondary, currentSchemeIndex, currentFontFamily) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background

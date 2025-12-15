@@ -68,7 +68,7 @@ fun EmojiUploadConfigDialog(
         modifier = Modifier.padding(16.dp).fillMaxWidth(),
 
         title = {
-            Text(text = "Emoji Upload Config")
+            Text(text = stringResource(R.string.emoji_upload_config_title))
         },
         text = {
             LazyColumn(
@@ -78,7 +78,7 @@ fun EmojiUploadConfigDialog(
             ) {
                 item {
                     Text(
-                        text = "Emoji Animation Type",
+                        text = stringResource(R.string.emoji_upload_config_animation_type),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Left,

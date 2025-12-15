@@ -111,6 +111,7 @@ class FriendsScreen : Screen {
     }
 
     @Composable
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     fun ShowScreen(model: FriendsScreenModel)
     {
         var isRefreshing by remember { mutableStateOf(false) }
