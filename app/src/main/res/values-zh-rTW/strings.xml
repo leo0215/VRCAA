@@ -5,6 +5,7 @@
     <string name="legal_disclaimer">"VRCAA 未得到 VRChat Inc. 或其任何附屬公司的正式認可或批准。"</string>
     <!-- Friends -->
     <string-array name="friend_selection_options">
+        <item>全部</item>
         <item>收藏</item>
         <item>上線</item>
         <item>網頁</item>

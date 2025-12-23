@@ -85,7 +85,7 @@ fun SectionHeader(title: String) {
         text = title,
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.Medium,
-        color = MaterialTheme.colorScheme.onSurface,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
     )
 }
@@ -277,9 +277,11 @@ fun SettingsCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Normal,
+                    fontWeight = if (isHeader) FontWeight.Medium else FontWeight.Normal,
                     color = if (isDestructive) {
                         MaterialTheme.colorScheme.error
+                    } else if (isHeader) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
                     } else {
                         MaterialTheme.colorScheme.onSurface
                     },
@@ -298,9 +300,11 @@ fun SettingsCard(
                         fontSize = 14.sp,
                         lineHeight = 20.sp
                     ),
-                    fontWeight = FontWeight.Normal,
+                    fontWeight = if (isHeader) FontWeight.Medium else FontWeight.Normal,
                     color = if (isDestructive) {
                         MaterialTheme.colorScheme.error
+                    } else if (isHeader) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
                     } else {
                         MaterialTheme.colorScheme.onSurface
                     }

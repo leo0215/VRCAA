@@ -8,6 +8,7 @@
     <!-- Friends -->
 
     <string-array name="friend_selection_options">
+        <item>All</item>
         <item>Favorite</item>
         <item>Online</item>
         <item>Website</item>

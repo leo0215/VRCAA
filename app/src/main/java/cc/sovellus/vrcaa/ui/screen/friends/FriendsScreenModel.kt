@@ -132,6 +132,11 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
         val friend: Friend
     )
     
+    data class FriendsGroup(
+        val letter: String,
+        val friends: List<Friend>
+    )
+    
     companion object {
         // 嘗試獲取中文拼音轉換器
         private val pinyinTransliterator = try {
@@ -343,6 +348,39 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
         }
     }
     
+    /**
+     * 將 GroupedFriend 列表轉換成 FriendsGroup 列表
+     */
+    private fun groupFriendsByLetter(groupedFriends: List<GroupedFriend>): List<FriendsGroup> {
+        if (groupedFriends.isEmpty()) return emptyList()
+        
+        val groups = mutableListOf<FriendsGroup>()
+        var currentLetter = ""
+        var currentFriends = mutableListOf<Friend>()
+        
+        groupedFriends.forEach { groupedFriend ->
+            if (groupedFriend.letter.isNotEmpty() && groupedFriend.letter != currentLetter) {
+                // 保存前一個組
+                if (currentFriends.isNotEmpty()) {
+                    groups.add(FriendsGroup(currentLetter, currentFriends))
+                }
+                // 開始新組
+                currentLetter = groupedFriend.letter
+                currentFriends = mutableListOf(groupedFriend.friend)
+            } else {
+                // 添加到當前組
+                currentFriends.add(groupedFriend.friend)
+            }
+        }
+        
+        // 保存最後一個組
+        if (currentFriends.isNotEmpty()) {
+            groups.add(FriendsGroup(currentLetter, currentFriends))
+        }
+        
+        return groups
+    }
+    
     @OptIn(FlowPreview::class)
     val groupedFavoriteFriends = combine(
         friendsBuckets.map { it.favoriteFriends },
@@ -352,7 +390,8 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
     ) { favorites, favoritesInInstances, favoritesOffline, query ->
         withContext(Dispatchers.Default) {
             val all = favorites + favoritesInInstances + favoritesOffline
-            filterAndGroupFriends(all, query)
+            val grouped = filterAndGroupFriends(all, query)
+            groupFriendsByLetter(grouped)
         }
     }.stateIn(screenModelScope, SharingStarted.WhileSubscribed(5000), listOf())
     
@@ -364,7 +403,8 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
     ) { online, inInstances, query ->
         withContext(Dispatchers.Default) {
             val all = inInstances + online
-            filterAndGroupFriends(all, query)
+            val grouped = filterAndGroupFriends(all, query)
+            groupFriendsByLetter(grouped)
         }
     }.stateIn(screenModelScope, SharingStarted.WhileSubscribed(5000), listOf())
     
@@ -374,7 +414,8 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
         searchQueryFlow.debounce(200)
     ) { friends, query ->
         withContext(Dispatchers.Default) {
-            filterAndGroupFriends(friends, query)
+            val grouped = filterAndGroupFriends(friends, query)
+            groupFriendsByLetter(grouped)
         }
     }.stateIn(screenModelScope, SharingStarted.WhileSubscribed(5000), listOf())
     
@@ -384,7 +425,36 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
         searchQueryFlow.debounce(200)
     ) { friends, query ->
         withContext(Dispatchers.Default) {
-            filterAndGroupFriends(friends, query)
+            val grouped = filterAndGroupFriends(friends, query)
+            groupFriendsByLetter(grouped)
+        }
+    }.stateIn(screenModelScope, SharingStarted.WhileSubscribed(5000), listOf())
+    
+    /**
+     * 合併所有朋友，收藏的在最上面
+     */
+    @OptIn(FlowPreview::class)
+    val groupedAllFriends = combine(
+        groupedFavoriteFriends,
+        groupedFriends,
+        groupedFriendsOnWebsite,
+        groupedOfflineFriends,
+        searchQueryFlow.debounce(200)
+    ) { favorites, online, website, offline, _ ->
+        withContext(Dispatchers.Default) {
+            // 合併所有分組，收藏的在最前面
+            val allGroups = favorites + online + website + offline
+            
+            // 合併相同字母的分組
+            val mergedGroups = mutableMapOf<String, MutableList<Friend>>()
+            allGroups.forEach { group ->
+                mergedGroups.getOrPut(group.letter) { mutableListOf() }.addAll(group.friends)
+            }
+            
+            // 轉換回 FriendsGroup 列表，保持字母順序
+            mergedGroups.map { (letter, friends) ->
+                FriendsGroup(letter, friends)
+            }.sortedBy { it.letter }
         }
     }.stateIn(screenModelScope, SharingStarted.WhileSubscribed(5000), listOf())
 
