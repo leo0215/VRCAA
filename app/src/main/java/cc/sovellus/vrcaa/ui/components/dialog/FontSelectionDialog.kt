@@ -45,7 +45,8 @@ fun FontSelectionDialog(
     val fontOptions = listOf(
         stringResource(R.string.font_option_system_default),
         stringResource(R.string.font_option_google_sans),
-        stringResource(R.string.font_option_google_sans_flex)
+        stringResource(R.string.font_option_google_sans_flex),
+        stringResource(R.string.font_option_google_sans_rounded)
     )
 
     AlertDialog(

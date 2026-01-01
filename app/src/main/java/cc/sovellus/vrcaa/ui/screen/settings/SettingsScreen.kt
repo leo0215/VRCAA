@@ -145,7 +145,7 @@ class SettingsScreen : Screen {
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
                 // Logo Header
@@ -195,7 +195,7 @@ class SettingsScreen : Screen {
 
             // Advanced Settings Section
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(2.dp))
                 SectionHeader(stringResource(R.string.settings_section_advanced))
             }
 
@@ -235,7 +235,7 @@ class SettingsScreen : Screen {
 
             // Community Section
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(2.dp))
                 SectionHeader(stringResource(R.string.settings_section_community))
             }
 
@@ -272,7 +272,7 @@ class SettingsScreen : Screen {
 
             // Account Section
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(2.dp))
                 SectionHeader(stringResource(R.string.settings_section_account))
             }
 
@@ -293,7 +293,7 @@ class SettingsScreen : Screen {
             }
 
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(2.dp))
             }
         }
     }

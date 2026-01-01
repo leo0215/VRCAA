@@ -82,7 +82,7 @@ class AboutScreen : Screen {
                             top = it.calculateTopPadding()
                         )
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     item {
                         Column(

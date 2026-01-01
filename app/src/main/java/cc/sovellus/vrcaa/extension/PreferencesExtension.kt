@@ -136,5 +136,5 @@ internal var SharedPreferences.colorSchemeIndex: Int
     set(value) = edit { putInt("colorSchemeIndex", value) }
 
 internal var SharedPreferences.fontFamily: Int
-    get() = getInt("fontFamily", 0) // 0 = System Default, 1 = Google Sans, 2 = Google Sans Flex
+    get() = getInt("fontFamily", 0) // 0 = System Default, 1 = Google Sans, 2 = Google Sans Flex, 3 = Google Sans Rounded
     set(value) = edit { putInt("fontFamily", value) }

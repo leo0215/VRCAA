@@ -335,6 +335,7 @@
     <string name="font_option_system_default">System Default</string>
     <string name="font_option_google_sans">Google Sans</string>
     <string name="font_option_google_sans_flex">Google Sans Flex</string>
+    <string name="font_option_google_sans_rounded">Google Sans Rounded</string>
 
     <!-- User -->
 

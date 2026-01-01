@@ -30,10 +30,12 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.expressiveLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -107,6 +109,21 @@ fun Theme(
                     Font(R.font.googlesansflex, FontWeight.Bold)
                 )
             }
+            3 -> {
+                // #region agent log
+                try {
+                    val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
+                    val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"Theme.kt:109","message":"Loading Google Sans Rounded font","data":{"fontFamilyIndex":$fontFamilyIndex},"timestamp":${System.currentTimeMillis()}}""" + "\n"
+                    logFile.appendText(logEntry)
+                } catch (e: Exception) {}
+                // #endregion
+                FontFamily(
+                    Font(R.font.google_sans_rounded_regular, FontWeight.Normal),
+                    Font(R.font.google_sans_rounded_regular, FontWeight.Medium),
+                    Font(R.font.google_sans_rounded_regular, FontWeight.SemiBold),
+                    Font(R.font.google_sans_rounded_regular, FontWeight.Bold)
+                )
+            }
             else -> {
                 // #region agent log
                 try {
@@ -159,15 +176,15 @@ fun Theme(
         Typography()
     }
 
-    MaterialExpressiveTheme(
-        colorScheme = when {
+    val isDark = when (theme) {
+        1 -> true
+        2 -> isSystemInDarkTheme()
+        else -> false
+    }
+
+    val colorScheme = when {
             primaryColor != null -> {
                 // Generate complete ColorScheme from seed color
-                val isDark = when (theme) {
-                    1 -> true
-                    2 -> isSystemInDarkTheme()
-                    else -> false
-                }
                 colorSchemeFromSeed(primaryColor, isDark, schemeIndex)
             }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -194,7 +211,23 @@ fun Theme(
                     }
                 }
             }
-        },
+        }
+
+    val systemUiController = rememberSystemUiController()
+
+    LaunchedEffect(colorScheme, isDark) {
+        systemUiController.setSystemBarsColor(
+            color = colorScheme.surface,
+            darkIcons = !isDark
+        )
+        systemUiController.setNavigationBarColor(
+            color = colorScheme.surface,
+            darkIcons = !isDark
+        )
+    }
+
+    MaterialExpressiveTheme(
+        colorScheme = colorScheme,
         typography = typography,
         content = content,
     )

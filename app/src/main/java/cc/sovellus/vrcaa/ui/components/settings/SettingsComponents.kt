@@ -86,7 +86,7 @@ fun SectionHeader(title: String) {
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.Medium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
     )
 }
 

@@ -145,7 +145,7 @@ class ThemeScreen : Screen {
                             top = it.calculateTopPadding()
                         )
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     item {
                         SectionHeader(stringResource(R.string.theme_page_section_theme_title))
