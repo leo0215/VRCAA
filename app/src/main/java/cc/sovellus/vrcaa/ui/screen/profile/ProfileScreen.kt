@@ -453,20 +453,23 @@ class ProfileScreen : Screen {
                                     pageSpacing = 16.dp,
                                     contentPadding = PaddingValues(horizontal = 16.dp)
                                 ) { page ->
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentAlignment = Alignment.Center
                                     ) {
-                                        repeat(buttonsPerPage) { index ->
-                                            val itemIndex = page * buttonsPerPage + index
-                                            if (itemIndex < quickActionItems.size) {
-                                                QuickActionButton(
-                                                    icon = quickActionItems[itemIndex].first,
-                                                    label = quickActionItems[itemIndex].second,
-                                                    onClick = quickActionItems[itemIndex].third
-                                                )
-                                            } else {
-                                                Spacer(modifier = Modifier.width(64.dp))
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            repeat(buttonsPerPage) { index ->
+                                                val itemIndex = page * buttonsPerPage + index
+                                                if (itemIndex < quickActionItems.size) {
+                                                    QuickActionButton(
+                                                        icon = quickActionItems[itemIndex].first,
+                                                        label = quickActionItems[itemIndex].second,
+                                                        onClick = quickActionItems[itemIndex].third
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -509,38 +512,46 @@ class ProfileScreen : Screen {
                                         .fillMaxWidth()
                                         .padding(horizontal = 16.dp)
                                 ) {
-                                    LazyRow(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        contentPadding = PaddingValues(vertical = 8.dp)
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentAlignment = Alignment.Center
                                     ) {
-                                        items(visibleBadges) { badge ->
-                                            Card(
-                                                modifier = Modifier
-                                                    .size(48.dp)
-                                                    .clickableIf(
-                                                        enabled = true,
-                                                        onClick = {
-                                                            badgeDialogTitle = badge.badgeName
-                                                            badgeDialogText = badge.badgeDescription
-                                                        }
-                                                    ),
-                                                shape = RoundedCornerShape(12.dp),
-                                                colors = CardDefaults.cardColors(
-                                                    containerColor = if (badge.showcased) 
-                                                        MaterialTheme.colorScheme.surface
-                                                    else 
-                                                        MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
-                                                )
-                                            ) {
-                                                GlideImage(
-                                                    model = badge.badgeImageUrl, 
-                                                    contentDescription = badge.badgeName, 
-                                                    modifier = Modifier.fillMaxSize(),
-                                                    contentScale = ContentScale.Crop,
-                                                    loading = placeholder(R.drawable.image_placeholder),
-                                                    failure = placeholder(R.drawable.image_placeholder),
-                                                    alpha = if (badge.showcased) { 1.0f } else { 0.85f }
-                                                )
+                                        LazyRow(
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+                                        ) {
+                                            items(
+                                                items = visibleBadges,
+                                                key = { badge -> badge.badgeId }
+                                            ) { badge ->
+                                                Card(
+                                                    modifier = Modifier
+                                                        .size(48.dp)
+                                                        .clickableIf(
+                                                            enabled = true,
+                                                            onClick = {
+                                                                badgeDialogTitle = badge.badgeName
+                                                                badgeDialogText = badge.badgeDescription
+                                                            }
+                                                        ),
+                                                    shape = RoundedCornerShape(12.dp),
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = if (badge.showcased) 
+                                                            MaterialTheme.colorScheme.surface
+                                                        else 
+                                                            MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                                                    )
+                                                ) {
+                                                    GlideImage(
+                                                        model = badge.badgeImageUrl, 
+                                                        contentDescription = badge.badgeName, 
+                                                        modifier = Modifier.fillMaxSize(),
+                                                        contentScale = ContentScale.Crop,
+                                                        loading = placeholder(R.drawable.image_placeholder),
+                                                        failure = placeholder(R.drawable.image_placeholder),
+                                                        alpha = if (badge.showcased) { 1.0f } else { 0.85f }
+                                                    )
+                                                }
                                             }
                                         }
                                     }

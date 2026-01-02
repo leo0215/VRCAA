@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.sp
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
 import cc.sovellus.vrcaa.helper.StatusHelper
-import cc.sovellus.vrcaa.helper.StrokeHelper
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
@@ -66,8 +65,7 @@ fun ContactCard(
 ) {
     val displayName = friend.displayName
     val firstChar = if (displayName.isNotEmpty()) displayName.first() else '?'
-    val isChinese = StrokeHelper.isChinese(firstChar)
-    val avatarText = if (isChinese) firstChar.toString() else firstChar.uppercaseChar().toString()
+    val avatarText = firstChar.uppercaseChar().toString()
     
     Row(
         modifier = modifier

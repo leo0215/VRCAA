@@ -32,6 +32,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.fontFamily
+import cc.sovellus.vrcaa.extension.android16ColorSchema
 import hct.Hct
 import scheme.SchemeTonalSpot
 import scheme.SchemeExpressive
@@ -54,7 +56,7 @@ import scheme.SchemeVibrant
 fun Theme(theme: Int, content: @Composable () -> Unit) {
     val context = LocalContext.current
     val preferences = context.getSharedPreferences(App.PREFERENCES_NAME, MODE_PRIVATE)
-    Theme(theme, null, null, 0, preferences.fontFamily, content)
+    Theme(theme, null, null, 0, preferences.fontFamily, preferences.android16ColorSchema, content)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -65,28 +67,17 @@ fun Theme(
     secondaryColor: Color? = null,
     schemeIndex: Int = 0,
     fontFamilyIndex: Int = 0,
+    useAndroid16ColorSchema: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
 
-    // #region agent log
-    try {
-        val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
-        val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"A","location":"Theme.kt:67","message":"Theme composable executed","data":{"fontFamilyIndex":$fontFamilyIndex},"timestamp":${System.currentTimeMillis()}}""" + "\n"
-        logFile.appendText(logEntry)
-    } catch (e: Exception) {}
-    // #endregion
+   
 
     val customFontFamily = try {
         when (fontFamilyIndex) {
             1 -> {
-                // #region agent log
-                try {
-                    val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
-                    val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"Theme.kt:78","message":"Loading Google Sans font","data":{"fontFamilyIndex":$fontFamilyIndex},"timestamp":${System.currentTimeMillis()}}""" + "\n"
-                    logFile.appendText(logEntry)
-                } catch (e: Exception) {}
-                // #endregion
+               
                 FontFamily(
                     Font(R.font.googlesans, FontWeight.Normal),
                     Font(R.font.googlesans, FontWeight.Medium),
@@ -95,13 +86,7 @@ fun Theme(
                 )
             }
             2 -> {
-                // #region agent log
-                try {
-                    val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
-                    val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"Theme.kt:90","message":"Loading Google Sans Flex font","data":{"fontFamilyIndex":$fontFamilyIndex},"timestamp":${System.currentTimeMillis()}}""" + "\n"
-                    logFile.appendText(logEntry)
-                } catch (e: Exception) {}
-                // #endregion
+                
                 FontFamily(
                     Font(R.font.googlesansflex, FontWeight.Normal),
                     Font(R.font.googlesansflex, FontWeight.Medium),
@@ -110,13 +95,7 @@ fun Theme(
                 )
             }
             3 -> {
-                // #region agent log
-                try {
-                    val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
-                    val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"Theme.kt:109","message":"Loading Google Sans Rounded font","data":{"fontFamilyIndex":$fontFamilyIndex},"timestamp":${System.currentTimeMillis()}}""" + "\n"
-                    logFile.appendText(logEntry)
-                } catch (e: Exception) {}
-                // #endregion
+               
                 FontFamily(
                     Font(R.font.google_sans_rounded_regular, FontWeight.Normal),
                     Font(R.font.google_sans_rounded_regular, FontWeight.Medium),
@@ -125,34 +104,16 @@ fun Theme(
                 )
             }
             else -> {
-                // #region agent log
-                try {
-                    val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
-                    val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"Theme.kt:102","message":"Using system default font","data":{"fontFamilyIndex":$fontFamilyIndex},"timestamp":${System.currentTimeMillis()}}""" + "\n"
-                    logFile.appendText(logEntry)
-                } catch (e: Exception) {}
-                // #endregion
+               
                 FontFamily.Default // System Default
             }
         }
     } catch (e: Exception) {
-        // #region agent log
-        try {
-            val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
-            val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"B","location":"Theme.kt:107","message":"Font loading failed","data":{"fontFamilyIndex":$fontFamilyIndex,"error":"${e.message}"},"timestamp":${System.currentTimeMillis()}}""" + "\n"
-            logFile.appendText(logEntry)
-        } catch (ex: Exception) {}
-        // #endregion
+      
         FontFamily.Default
     }
 
-    // #region agent log
-    try {
-        val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
-        val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"D","location":"Theme.kt:85","message":"Creating typography","data":{"fontFamilyIndex":$fontFamilyIndex,"willUseCustomFont":${fontFamilyIndex != 0}},"timestamp":${System.currentTimeMillis()}}""" + "\n"
-        logFile.appendText(logEntry)
-    } catch (e: Exception) {}
-    // #endregion
+   
 
     val typography = if (fontFamilyIndex != 0) {
         Typography().copy(
@@ -182,13 +143,14 @@ fun Theme(
         else -> false
     }
 
-    val colorScheme = when {
+    val (baseColorScheme, surfaceBrightColor) = when {
             primaryColor != null -> {
                 // Generate complete ColorScheme from seed color
-                colorSchemeFromSeed(primaryColor, isDark, schemeIndex)
+                val result = colorSchemeFromSeed(primaryColor, isDark, schemeIndex)
+                Pair(result.colorScheme, result.surfaceBright)
             }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                when (theme) {
+                val scheme = when (theme) {
                     0 -> dynamicLightColorScheme(context)
                     1 -> dynamicDarkColorScheme(context)
                     else -> {
@@ -198,9 +160,11 @@ fun Theme(
                             dynamicLightColorScheme(context)
                     }
                 }
+                // For system dynamic colors, use surface as approximation for surfaceBright
+                Pair(scheme, scheme.surface)
             }
             else -> {
-                when (theme) {
+                val scheme = when (theme) {
                     0 -> expressiveLightColorScheme()
                     1 -> darkColorScheme()
                     else -> {
@@ -210,8 +174,20 @@ fun Theme(
                             expressiveLightColorScheme()
                     }
                 }
+                // For default colors, use surface as approximation for surfaceBright
+                Pair(scheme, scheme.surface)
             }
         }
+    
+    // Android 16 Color Schema: background -> surfaceContainer, card -> surfaceBright
+    val colorScheme = if (useAndroid16ColorSchema) {
+        baseColorScheme.copy(
+            background = baseColorScheme.surfaceContainer,
+            surfaceContainerHighest = surfaceBrightColor
+        )
+    } else {
+        baseColorScheme
+    }
 
     val systemUiController = rememberSystemUiController()
 
@@ -236,10 +212,18 @@ fun Theme(
 val LocalTheme = compositionLocalOf { 2 }
 
 /**
+ * Data class to hold ColorScheme and surfaceBright color
+ */
+private data class ColorSchemeWithSurfaceBright(
+    val colorScheme: ColorScheme,
+    val surfaceBright: Color
+)
+
+/**
  * Generate a ColorScheme from a seed color using Material Color Utilities
  * @param schemeIndex 0=TonalSpot, 1=Expressive, 2=FruitSalad, 3=Vibrant
  */
-private fun colorSchemeFromSeed(seedColor: Color, isDark: Boolean, schemeIndex: Int = 0): ColorScheme {
+private fun colorSchemeFromSeed(seedColor: Color, isDark: Boolean, schemeIndex: Int = 0): ColorSchemeWithSurfaceBright {
     val sourceColorHct = Hct.fromInt(seedColor.toArgb())
     val scheme = when (schemeIndex) {
         0 -> SchemeTonalSpot(sourceColorHct, isDark, 0.0)
@@ -249,7 +233,9 @@ private fun colorSchemeFromSeed(seedColor: Color, isDark: Boolean, schemeIndex: 
         else -> SchemeTonalSpot(sourceColorHct, isDark, 0.0) // Default fallback
     }
     
-    return if (isDark) {
+    val surfaceBrightColor = Color(scheme.surfaceBright)
+    
+    val colorScheme = if (isDark) {
         darkColorScheme(
             primary = Color(scheme.primary),
             onPrimary = Color(scheme.onPrimary),
@@ -320,4 +306,6 @@ private fun colorSchemeFromSeed(seedColor: Color, isDark: Boolean, schemeIndex: 
             surfaceContainerHighest = Color(scheme.surfaceContainerHighest),
         )
     }
+    
+    return ColorSchemeWithSurfaceBright(colorScheme, surfaceBrightColor)
 }

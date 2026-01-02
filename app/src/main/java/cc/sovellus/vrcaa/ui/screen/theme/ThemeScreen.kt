@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.ViewColumn
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material.icons.outlined.Coffee
 import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Palette
@@ -103,6 +104,7 @@ import cc.sovellus.vrcaa.ui.components.dialog.FontSelectionDialog
 import cc.sovellus.vrcaa.ui.components.settings.ColorPicker
 import cc.sovellus.vrcaa.ui.components.settings.ColorPickerContent
 import cc.sovellus.vrcaa.ui.components.settings.SettingsCard
+import cc.sovellus.vrcaa.ui.screen.debug.ColorDebugScreen
 import kotlin.math.roundToInt
 
 class ThemeScreen : Screen {
@@ -369,6 +371,52 @@ class ThemeScreen : Screen {
                                 )
                             }
                         }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    item {
+                        SettingsGroup(
+                            items = listOf(
+                                SettingsItem(
+                                    title = stringResource(R.string.theme_page_android_16_color_schema),
+                                    icon = Icons.Outlined.Palette,
+                                    onClick = {
+                                        model.setAndroid16ColorSchema(!model.android16ColorSchema.value)
+                                    },
+                                    trailingContent = {
+                                        Switch(
+                                            checked = model.android16ColorSchema.value,
+                                            onCheckedChange = {
+                                                model.setAndroid16ColorSchema(it)
+                                            },
+                                            thumbContent = rememberThumbContent(isChecked = model.android16ColorSchema.value)
+                                        )
+                                    }
+                                )
+                            )
+                        )
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    item {
+                        SettingsGroup(
+                            items = listOf(
+                                SettingsItem(
+                                    title = "Material Colors Debug",
+                                    description = "View all Material color values",
+                                    icon = Icons.Outlined.BugReport,
+                                    onClick = {
+                                        navigator.push(ColorDebugScreen())
+                                    }
+                                )
+                            )
+                        )
                     }
 
                     item {

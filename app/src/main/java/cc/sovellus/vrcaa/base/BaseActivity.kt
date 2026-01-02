@@ -26,6 +26,7 @@ import cc.sovellus.vrcaa.extension.secondaryColorOverride
 import cc.sovellus.vrcaa.extension.useSystemColorTheme
 import cc.sovellus.vrcaa.extension.colorSchemeIndex
 import cc.sovellus.vrcaa.extension.fontFamily
+import cc.sovellus.vrcaa.extension.android16ColorSchema
 import cc.sovellus.vrcaa.manager.ThemeManager
 import cc.sovellus.vrcaa.ui.theme.LocalTheme
 import cc.sovellus.vrcaa.ui.theme.Theme
@@ -70,6 +71,11 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                     mutableIntStateOf(preferences.fontFamily)
                 }
                 
+                // Track Android 16 Color Schema state to trigger recomposition
+                var android16ColorSchema by remember {
+                    mutableStateOf(preferences.android16ColorSchema)
+                }
+                
                 // Update colors and font when preferences change
                 DisposableEffect(Unit) {
                     val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
@@ -96,6 +102,9 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                                 } catch (e: Exception) {}
                                 // #endregion
                             }
+                            "android16ColorSchema" -> {
+                                android16ColorSchema = preferences.android16ColorSchema
+                            }
                         }
                     }
                     preferences.registerOnSharedPreferenceChangeListener(listener)
@@ -108,7 +117,7 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                 val effectivePrimary = if (useSystemColor) null else currentPrimary
                 val effectiveSecondary = if (useSystemColor) null else currentSecondary
                 
-                Theme(LocalTheme.current, effectivePrimary, effectiveSecondary, currentSchemeIndex, currentFontFamily) {
+                Theme(LocalTheme.current, effectivePrimary, effectiveSecondary, currentSchemeIndex, currentFontFamily, android16ColorSchema) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background

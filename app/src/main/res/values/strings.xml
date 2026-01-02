@@ -476,6 +476,7 @@
     <string name="theme_page_section_color_title">顏色</string>
     <string name="theme_page_follow_system_color_theme">跟隨系統顏色主題</string>
     <string name="theme_page_follow_system_color_theme_description">使用系統的動態顏色主題</string>
+    <string name="theme_page_android_16_color_schema">Android 16 Color schema</string>
     <string name="theme_page_fixed_column_size">Fixed Column Size: %1$d</string>
 
     <!-- Advanced Settings -->
