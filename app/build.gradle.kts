@@ -6,6 +6,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.devtools.ksp")
+    id("dev.drewhamilton.poko")
     id("com.mikepenz.aboutlibraries.plugin") version "13.1.0"
 }
 
@@ -71,14 +73,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlinOptions {
-        jvmTarget = "21"
-        languageVersion = "2.1"
-    }
-
     kotlin {
         jvmToolchain(21)
         compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+            languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1)
             // Opt-in 全域啟用 Material3 Expressive API，讓所有頁面可直接使用
             optIn.add("androidx.compose.material3.ExperimentalMaterial3ExpressiveApi")
         }
@@ -149,6 +148,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose-android:2.9.4")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("com.google.android.material:material:1.13.0")
+    implementation(libs.roomRuntimeAndroid)
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
@@ -176,5 +176,6 @@ dependencies {
     implementation ("androidx.glance:glance-material3:1.1.1@aar")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("net.thauvin.erik.urlencoder:urlencoder-lib:1.6.0")
+    implementation(libs.materialKolor)
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
 }

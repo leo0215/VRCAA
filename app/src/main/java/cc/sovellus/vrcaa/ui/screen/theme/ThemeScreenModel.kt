@@ -34,13 +34,13 @@ import cc.sovellus.vrcaa.extension.primaryColorOverride
 import cc.sovellus.vrcaa.extension.secondaryColorOverride
 import cc.sovellus.vrcaa.extension.useSystemColorTheme
 import cc.sovellus.vrcaa.extension.fontFamily
-import cc.sovellus.vrcaa.extension.android16ColorSchema
+import cc.sovellus.vrcaa.extension.useLegacyMaterialTheme
 
 class ThemeScreenModel : ScreenModel {
     val preferences: SharedPreferences = App.getContext().getSharedPreferences(App.PREFERENCES_NAME, MODE_PRIVATE)
     val minimalistMode = mutableStateOf(preferences.minimalistMode)
     val useSystemColorTheme = mutableStateOf(preferences.useSystemColorTheme)
-    val android16ColorSchema = mutableStateOf(preferences.android16ColorSchema)
+    val useLegacyMaterialTheme = mutableStateOf(preferences.useLegacyMaterialTheme)
     var currentIndex = mutableIntStateOf(preferences.currentThemeOption)
     var currentColumnIndex = mutableIntStateOf(preferences.columnCountOption)
     var currentColumnAmount = mutableFloatStateOf(preferences.fixedColumnSize.toFloat())
@@ -63,8 +63,8 @@ class ThemeScreenModel : ScreenModel {
         useSystemColorTheme.value = enabled
     }
     
-    fun setAndroid16ColorSchema(enabled: Boolean) {
-        preferences.android16ColorSchema = enabled
-        android16ColorSchema.value = enabled
+    fun setUseLegacyMaterialTheme(enabled: Boolean) {
+        preferences.useLegacyMaterialTheme = enabled
+        useLegacyMaterialTheme.value = enabled
     }
 }

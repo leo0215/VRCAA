@@ -346,6 +346,7 @@
     <string name="theme_page_section_theme_title">主題</string>
     <string name="theme_page_section_display_title">顯示</string>
     <string name="theme_page_section_column_title">欄數</string>
+    <string name="theme_page_use_legacy_material_theme">使用 Material Expressive 主題</string>
     <!-- Advanced Settings -->
     <string name="advanced_page_title">進階設定</string>
     <string name="advanced_page_section_networking">網路連線</string>

@@ -1,0 +1,10 @@
+[versions]
+materialKolor = "5.0.0-alpha04"
+roomRuntimeAndroid = "2.8.4"
+
+[libraries]
+materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
+roomRuntimeAndroid = { group = "androidx.room", name = "room-runtime-android", version.ref = "roomRuntimeAndroid" }
+
+[plugins]
+

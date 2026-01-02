@@ -16,11 +16,9 @@
 
 package cc.sovellus.vrcaa.ui.theme
 
-import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.Typography
@@ -28,35 +26,29 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.expressiveLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.fontFamily
-import cc.sovellus.vrcaa.extension.android16ColorSchema
-import hct.Hct
-import scheme.SchemeTonalSpot
-import scheme.SchemeExpressive
-import scheme.SchemeFruitSalad
-import scheme.SchemeVibrant
+import cc.sovellus.vrcaa.extension.useLegacyMaterialTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.materialkolor.PaletteStyle
+import com.materialkolor.dynamiccolor.ColorSpec
+import com.materialkolor.rememberDynamicMaterialThemeState
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun Theme(theme: Int, content: @Composable () -> Unit) {
     val context = LocalContext.current
     val preferences = context.getSharedPreferences(App.PREFERENCES_NAME, MODE_PRIVATE)
-    Theme(theme, null, null, 0, preferences.fontFamily, preferences.android16ColorSchema, content)
+    Theme(theme, null, null, 0, preferences.fontFamily, preferences.useLegacyMaterialTheme, content)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -67,7 +59,7 @@ fun Theme(
     secondaryColor: Color? = null,
     schemeIndex: Int = 0,
     fontFamilyIndex: Int = 0,
-    useAndroid16ColorSchema: Boolean = false,
+    useLegacyMaterialTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -143,14 +135,38 @@ fun Theme(
         else -> false
     }
 
-    val (baseColorScheme, surfaceBrightColor) = when {
-            primaryColor != null -> {
-                // Generate complete ColorScheme from seed color
-                val result = colorSchemeFromSeed(primaryColor, isDark, schemeIndex)
-                Pair(result.colorScheme, result.surfaceBright)
-            }
+    // Map schemeIndex to MaterialKolor PaletteStyle
+    val paletteStyle = when (schemeIndex) {
+        0 -> PaletteStyle.TonalSpot
+        1 -> PaletteStyle.Expressive
+        2 -> PaletteStyle.FruitSalad
+        3 -> PaletteStyle.Vibrant
+        else -> PaletteStyle.TonalSpot
+    }
+
+    // Use MaterialKolor when primaryColor is provided, otherwise use system/default colors
+    val specVersion = if (useLegacyMaterialTheme) {
+        ColorSpec.SpecVersion.SPEC_2025
+    } else {
+        ColorSpec.SpecVersion.SPEC_2021
+    }
+    
+    val dynamicThemeState = if (primaryColor != null) {
+        rememberDynamicMaterialThemeState(
+            isDark = isDark,
+            style = paletteStyle,
+            specVersion = specVersion,
+            seedColor = primaryColor
+        )
+    } else {
+        null
+    }
+    
+    val systemUiController = rememberSystemUiController()
+    val colorScheme = dynamicThemeState?.colorScheme ?: run {
+        when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                val scheme = when (theme) {
+                when (theme) {
                     0 -> dynamicLightColorScheme(context)
                     1 -> dynamicDarkColorScheme(context)
                     else -> {
@@ -160,11 +176,9 @@ fun Theme(
                             dynamicLightColorScheme(context)
                     }
                 }
-                // For system dynamic colors, use surface as approximation for surfaceBright
-                Pair(scheme, scheme.surface)
             }
             else -> {
-                val scheme = when (theme) {
+                when (theme) {
                     0 -> expressiveLightColorScheme()
                     1 -> darkColorScheme()
                     else -> {
@@ -174,23 +188,10 @@ fun Theme(
                             expressiveLightColorScheme()
                     }
                 }
-                // For default colors, use surface as approximation for surfaceBright
-                Pair(scheme, scheme.surface)
             }
         }
-    
-    // Android 16 Color Schema: background -> surfaceContainer, card -> surfaceBright
-    val colorScheme = if (useAndroid16ColorSchema) {
-        baseColorScheme.copy(
-            background = baseColorScheme.surfaceContainer,
-            surfaceContainerHighest = surfaceBrightColor
-        )
-    } else {
-        baseColorScheme
     }
-
-    val systemUiController = rememberSystemUiController()
-
+    
     LaunchedEffect(colorScheme, isDark) {
         systemUiController.setSystemBarsColor(
             color = colorScheme.surface,
@@ -201,7 +202,8 @@ fun Theme(
             darkIcons = !isDark
         )
     }
-
+    
+    // Always use MaterialExpressiveTheme to avoid tree recreation when switching themes
     MaterialExpressiveTheme(
         colorScheme = colorScheme,
         typography = typography,
@@ -210,102 +212,3 @@ fun Theme(
 }
 
 val LocalTheme = compositionLocalOf { 2 }
-
-/**
- * Data class to hold ColorScheme and surfaceBright color
- */
-private data class ColorSchemeWithSurfaceBright(
-    val colorScheme: ColorScheme,
-    val surfaceBright: Color
-)
-
-/**
- * Generate a ColorScheme from a seed color using Material Color Utilities
- * @param schemeIndex 0=TonalSpot, 1=Expressive, 2=FruitSalad, 3=Vibrant
- */
-private fun colorSchemeFromSeed(seedColor: Color, isDark: Boolean, schemeIndex: Int = 0): ColorSchemeWithSurfaceBright {
-    val sourceColorHct = Hct.fromInt(seedColor.toArgb())
-    val scheme = when (schemeIndex) {
-        0 -> SchemeTonalSpot(sourceColorHct, isDark, 0.0)
-        1 -> SchemeExpressive(sourceColorHct, isDark, 0.0)
-        2 -> SchemeFruitSalad(sourceColorHct, isDark, 0.0)
-        3 -> SchemeVibrant(sourceColorHct, isDark, 0.0)
-        else -> SchemeTonalSpot(sourceColorHct, isDark, 0.0) // Default fallback
-    }
-    
-    val surfaceBrightColor = Color(scheme.surfaceBright)
-    
-    val colorScheme = if (isDark) {
-        darkColorScheme(
-            primary = Color(scheme.primary),
-            onPrimary = Color(scheme.onPrimary),
-            primaryContainer = Color(scheme.primaryContainer),
-            onPrimaryContainer = Color(scheme.onPrimaryContainer),
-            secondary = Color(scheme.secondary),
-            onSecondary = Color(scheme.onSecondary),
-            secondaryContainer = Color(scheme.secondaryContainer),
-            onSecondaryContainer = Color(scheme.onSecondaryContainer),
-            tertiary = Color(scheme.tertiary),
-            onTertiary = Color(scheme.onTertiary),
-            tertiaryContainer = Color(scheme.tertiaryContainer),
-            onTertiaryContainer = Color(scheme.onTertiaryContainer),
-            error = Color(scheme.error),
-            onError = Color(scheme.onError),
-            errorContainer = Color(scheme.errorContainer),
-            onErrorContainer = Color(scheme.onErrorContainer),
-            background = Color(scheme.background),
-            onBackground = Color(scheme.onBackground),
-            surface = Color(scheme.surface),
-            onSurface = Color(scheme.onSurface),
-            surfaceVariant = Color(scheme.surfaceVariant),
-            onSurfaceVariant = Color(scheme.onSurfaceVariant),
-            outline = Color(scheme.outline),
-            outlineVariant = Color(scheme.outlineVariant),
-            inverseSurface = Color(scheme.inverseSurface),
-            inverseOnSurface = Color(scheme.inverseOnSurface),
-            inversePrimary = Color(scheme.inversePrimary),
-            surfaceContainerLowest = Color(scheme.surfaceContainerLowest),
-            surfaceContainerLow = Color(scheme.surfaceContainerLow),
-            surfaceContainer = Color(scheme.surfaceContainer),
-            surfaceContainerHigh = Color(scheme.surfaceContainerHigh),
-            surfaceContainerHighest = Color(scheme.surfaceContainerHighest),
-        )
-    } else {
-        lightColorScheme(
-            primary = Color(scheme.primary),
-            onPrimary = Color(scheme.onPrimary),
-            primaryContainer = Color(scheme.primaryContainer),
-            onPrimaryContainer = Color(scheme.onPrimaryContainer),
-            secondary = Color(scheme.secondary),
-            onSecondary = Color(scheme.onSecondary),
-            secondaryContainer = Color(scheme.secondaryContainer),
-            onSecondaryContainer = Color(scheme.onSecondaryContainer),
-            tertiary = Color(scheme.tertiary),
-            onTertiary = Color(scheme.onTertiary),
-            tertiaryContainer = Color(scheme.tertiaryContainer),
-            onTertiaryContainer = Color(scheme.onTertiaryContainer),
-            error = Color(scheme.error),
-            onError = Color(scheme.onError),
-            errorContainer = Color(scheme.errorContainer),
-            onErrorContainer = Color(scheme.onErrorContainer),
-            background = Color(scheme.background),
-            onBackground = Color(scheme.onBackground),
-            surface = Color(scheme.surface),
-            onSurface = Color(scheme.onSurface),
-            surfaceVariant = Color(scheme.surfaceVariant),
-            onSurfaceVariant = Color(scheme.onSurfaceVariant),
-            outline = Color(scheme.outline),
-            outlineVariant = Color(scheme.outlineVariant),
-            inverseSurface = Color(scheme.inverseSurface),
-            inverseOnSurface = Color(scheme.inverseOnSurface),
-            inversePrimary = Color(scheme.inversePrimary),
-            surfaceContainerLowest = Color(scheme.surfaceContainerLowest),
-            surfaceContainerLow = Color(scheme.surfaceContainerLow),
-            surfaceContainer = Color(scheme.surfaceContainer),
-            surfaceContainerHigh = Color(scheme.surfaceContainerHigh),
-            surfaceContainerHighest = Color(scheme.surfaceContainerHighest),
-        )
-    }
-    
-    return ColorSchemeWithSurfaceBright(colorScheme, surfaceBrightColor)
-}

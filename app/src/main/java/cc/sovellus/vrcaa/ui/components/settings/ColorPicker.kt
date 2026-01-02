@@ -55,11 +55,11 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
-import hct.Hct
-import scheme.SchemeTonalSpot
-import scheme.SchemeVibrant
-import scheme.SchemeFruitSalad
-import scheme.SchemeExpressive
+import com.materialkolor.hct.Hct
+import com.materialkolor.scheme.SchemeTonalSpot
+import com.materialkolor.scheme.SchemeVibrant
+import com.materialkolor.scheme.SchemeFruitSalad
+import com.materialkolor.scheme.SchemeExpressive
 
 // Color list using HCT color space (same as Seal)
 private val ColorPalette = ((4..10) + (1..3)).map { it * 35.0 }.map { Color(Hct.from(it, 40.0, 40.0).toInt()) }

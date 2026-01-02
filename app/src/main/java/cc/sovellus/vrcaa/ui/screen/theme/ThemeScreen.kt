@@ -357,6 +357,29 @@ class ThemeScreen : Screen {
                                     thickness = 1.dp
                                 )
                                 
+                                SettingsCard(
+                                    title = stringResource(R.string.theme_page_use_legacy_material_theme),
+                                    icon = Icons.Outlined.Settings,
+                                    onClick = {
+                                        model.setUseLegacyMaterialTheme(!model.useLegacyMaterialTheme.value)
+                                    },
+                                    trailingContent = {
+                                        Switch(
+                                            checked = model.useLegacyMaterialTheme.value,
+                                            onCheckedChange = {
+                                                model.setUseLegacyMaterialTheme(it)
+                                            },
+                                            thumbContent = rememberThumbContent(isChecked = model.useLegacyMaterialTheme.value)
+                                        )
+                                    }
+                                )
+                                
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    color = MaterialTheme.colorScheme.outlineVariant,
+                                    thickness = 1.dp
+                                )
+                                
                                 ColorPickerContent(
                                     selectedColor = if (model.useSystemColorTheme.value) null else model.primaryColor,
                                     selectedSchemeIndex = model.colorSchemeIndex,
@@ -375,29 +398,6 @@ class ThemeScreen : Screen {
 
                     item {
                         Spacer(modifier = Modifier.height(8.dp))
-                    }
-
-                    item {
-                        SettingsGroup(
-                            items = listOf(
-                                SettingsItem(
-                                    title = stringResource(R.string.theme_page_android_16_color_schema),
-                                    icon = Icons.Outlined.Palette,
-                                    onClick = {
-                                        model.setAndroid16ColorSchema(!model.android16ColorSchema.value)
-                                    },
-                                    trailingContent = {
-                                        Switch(
-                                            checked = model.android16ColorSchema.value,
-                                            onCheckedChange = {
-                                                model.setAndroid16ColorSchema(it)
-                                            },
-                                            thumbContent = rememberThumbContent(isChecked = model.android16ColorSchema.value)
-                                        )
-                                    }
-                                )
-                            )
-                        )
                     }
 
                     item {

@@ -26,7 +26,7 @@ import cc.sovellus.vrcaa.extension.secondaryColorOverride
 import cc.sovellus.vrcaa.extension.useSystemColorTheme
 import cc.sovellus.vrcaa.extension.colorSchemeIndex
 import cc.sovellus.vrcaa.extension.fontFamily
-import cc.sovellus.vrcaa.extension.android16ColorSchema
+import cc.sovellus.vrcaa.extension.useLegacyMaterialTheme
 import cc.sovellus.vrcaa.manager.ThemeManager
 import cc.sovellus.vrcaa.ui.theme.LocalTheme
 import cc.sovellus.vrcaa.ui.theme.Theme
@@ -70,10 +70,8 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                 var currentFontFamily by remember {
                     mutableIntStateOf(preferences.fontFamily)
                 }
-                
-                // Track Android 16 Color Schema state to trigger recomposition
-                var android16ColorSchema by remember {
-                    mutableStateOf(preferences.android16ColorSchema)
+                var useLegacyMaterialTheme by remember {
+                    mutableStateOf(preferences.useLegacyMaterialTheme)
                 }
                 
                 // Update colors and font when preferences change
@@ -94,16 +92,9 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                             }
                             "fontFamily" -> {
                                 currentFontFamily = preferences.fontFamily
-                                // #region agent log
-                                try {
-                                    val logFile = java.io.File("d:\\Doc\\workspace\\VRCAA\\.cursor\\debug.log")
-                                    val logEntry = """{"sessionId":"debug-session","runId":"run1","hypothesisId":"A","location":"BaseActivity.kt:87","message":"Font preference changed detected","data":{"newFontFamily":${preferences.fontFamily}},"timestamp":${System.currentTimeMillis()}}""" + "\n"
-                                    logFile.appendText(logEntry)
-                                } catch (e: Exception) {}
-                                // #endregion
                             }
-                            "android16ColorSchema" -> {
-                                android16ColorSchema = preferences.android16ColorSchema
+                            "useLegacyMaterialTheme" -> {
+                                useLegacyMaterialTheme = preferences.useLegacyMaterialTheme
                             }
                         }
                     }
@@ -117,7 +108,7 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                 val effectivePrimary = if (useSystemColor) null else currentPrimary
                 val effectiveSecondary = if (useSystemColor) null else currentSecondary
                 
-                Theme(LocalTheme.current, effectivePrimary, effectiveSecondary, currentSchemeIndex, currentFontFamily, android16ColorSchema) {
+                Theme(LocalTheme.current, effectivePrimary, effectiveSecondary, currentSchemeIndex, currentFontFamily, useLegacyMaterialTheme) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background

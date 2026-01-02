@@ -256,7 +256,7 @@ fun SettingsCard(
                 .clickable(onClick = onClick)
                 .padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = if (description == null) Alignment.Top else Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
             icon?.let {
                 Icon(

@@ -345,6 +345,7 @@
     <string name="theme_page_section_theme_title">テーマ</string>
     <string name="theme_page_section_display_title">画面</string>
     <string name="theme_page_section_column_title">列数</string>
+    <string name="theme_page_use_legacy_material_theme">Material Expressive テーマを使用</string>
     <!-- Advanced Settings -->
     <string name="advanced_page_title">詳細設定</string>
     <string name="advanced_page_section_networking">ネットワーキング</string>

@@ -139,6 +139,6 @@ internal var SharedPreferences.fontFamily: Int
     get() = getInt("fontFamily", 0) // 0 = System Default, 1 = Google Sans, 2 = Google Sans Flex, 3 = Google Sans Rounded
     set(value) = edit { putInt("fontFamily", value) }
 
-internal var SharedPreferences.android16ColorSchema: Boolean
-    get() = getBoolean("android16ColorSchema", false)
-    set(value) = edit(commit = true) { putBoolean("android16ColorSchema", value) }
+internal var SharedPreferences.useLegacyMaterialTheme: Boolean
+    get() = getBoolean("useLegacyMaterialTheme", false) // false = SPEC_2021 (default), true = SPEC_2025
+    set(value) = edit(commit = true) { putBoolean("useLegacyMaterialTheme", value) }
