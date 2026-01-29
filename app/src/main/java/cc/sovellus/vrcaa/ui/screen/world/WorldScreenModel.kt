@@ -25,11 +25,14 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites
+import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
 import cc.sovellus.vrcaa.api.vrchat.http.models.Instance
+import cc.sovellus.vrcaa.api.vrchat.http.models.LimitedUser
 import cc.sovellus.vrcaa.api.vrchat.http.models.World
+import cc.sovellus.vrcaa.helper.LocationHelper
 import cc.sovellus.vrcaa.manager.ApiManager.api
 import cc.sovellus.vrcaa.manager.FavoriteManager
-import cc.sovellus.vrcaa.manager.NotificationManager
+import cc.sovellus.vrcaa.manager.FriendManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
@@ -40,13 +43,19 @@ class WorldScreenModel(
 
     private val context: Context = App.getContext()
 
+    data class InstanceWithFriends(
+        val instance: Instance?,
+        var friends: MutableList<Friend>,
+        val creator: String?
+    )
+
     sealed class WorldInfoState {
         data object Init : WorldInfoState()
         data object Loading : WorldInfoState()
         data object Failure : WorldInfoState()
         data class Result(
             val world: World,
-            val instances: List<Pair<String, Instance?>>
+            val instances: List<Pair<String, InstanceWithFriends>>
         ) : WorldInfoState()
     }
 
@@ -71,11 +80,54 @@ class WorldScreenModel(
                     instance[0] as String
                 }.distinct().map { id ->
                     async {
-                        Pair(id, api.instances.fetchInstance("${world.id}:${id}"))
+                        val instance = api.instances.fetchInstance("${world.id}:${id}")
+                        instance?.let {
+                            instance.ownerId?.let {
+                                if (instance.ownerId.contains("usr_")) {
+                                    Pair(id, InstanceWithFriends(instance, mutableListOf(), api.users.fetchUserByUserId(instance.ownerId)?.displayName))
+                                } else {
+                                    Pair(id, InstanceWithFriends(instance, mutableListOf(), api.groups.fetchGroupByGroupId(instance.ownerId)?.name))
+                                }
+                            } ?: run {
+                                Pair(id, InstanceWithFriends(instance, mutableListOf(), null))
+                            }
+                        } ?: run {
+                            Pair(id, InstanceWithFriends(null, mutableListOf(), null))
+                        }
                     }
                 }.awaitAll()
 
-                mutableState.value = WorldInfoState.Result(world, instances)
+
+                val injectedUserLocations: MutableList<Pair<String, InstanceWithFriends>> = mutableListOf()
+                injectedUserLocations.addAll(instances)
+
+                for (friend in FriendManager.getFriends()) {
+                    val location = LocationHelper.parseLocationInfo(friend.location)
+                    if (location.worldId == id) {
+                        val existingLocation = injectedUserLocations.find { it.first == location.instanceId }
+                        existingLocation?.let {
+                            existingLocation.second.friends.add(friend)
+                        } ?: run {
+                            val instance = api.instances.fetchInstance(friend.location)
+                            instance?.let {
+                                instance.ownerId?.let {
+                                    if (instance.ownerId.contains("usr_")) {
+                                        injectedUserLocations.add(Pair(location.instanceId, InstanceWithFriends(instance, mutableListOf(friend), api.users.fetchUserByUserId(instance.ownerId)?.displayName)))
+                                    } else {
+                                        injectedUserLocations.add(Pair(location.instanceId, InstanceWithFriends(instance, mutableListOf(friend), api.groups.fetchGroupByGroupId(instance.ownerId)?.name)))
+                                    }
+                                } ?: run {
+                                    injectedUserLocations.add(Pair(location.instanceId, InstanceWithFriends(instance, mutableListOf(friend), null)))
+                                }
+                            } ?: run {
+                                injectedUserLocations.add(Pair(location.instanceId, InstanceWithFriends(null, mutableListOf(friend), null)))
+                            }
+                        }
+                    }
+                }
+
+                injectedUserLocations.sortBy { it.second.friends.isEmpty() }
+                mutableState.value = WorldInfoState.Result(world, injectedUserLocations.toList())
             } ?: run {
                 mutableState.value = WorldInfoState.Failure
             }

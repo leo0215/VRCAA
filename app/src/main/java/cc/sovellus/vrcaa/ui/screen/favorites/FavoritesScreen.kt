@@ -41,13 +41,14 @@ import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -80,7 +81,7 @@ class FavoritesScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val model = navigator.rememberNavigatorScreenModel { FavoritesScreenModel() }
 
-        val state by model.state.collectAsStateWithLifecycle()
+        val state by model.state.collectAsState()
 
         when (state) {
             is FavoritesScreenModel.FavoriteState.Loading -> LoadingIndicatorScreen().Content()
@@ -185,10 +186,10 @@ class FavoritesScreen : Screen {
     fun ShowWorlds(
         model: FavoritesScreenModel,
     ) {
-        val worldList = model.worldList.collectAsStateWithLifecycle()
+        val worldList = model.worldList.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
 
-        val sortedWorldList = worldList.value
+        val sortedWorldList = worldList.value.toSortedMap(compareBy { it.substring(6).toInt() })
         sortedWorldList.forEach { item ->
             if (item.value.isNotEmpty()) {
                 FavoriteHorizontalRow(
@@ -225,10 +226,10 @@ class FavoritesScreen : Screen {
     fun ShowAvatars(
         model: FavoritesScreenModel,
     ) {
-        val avatarList = model.avatarList.collectAsStateWithLifecycle()
+        val avatarList = model.avatarList.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
 
-        val sortedAvatarList = avatarList.value
+        val sortedAvatarList = avatarList.value.toSortedMap(compareBy { it.substring(7).toInt() })
         sortedAvatarList.forEach { item ->
             if (item.value.isNotEmpty()) {
                 FavoriteHorizontalRow(
@@ -265,10 +266,10 @@ class FavoritesScreen : Screen {
     fun ShowFriends(
         model: FavoritesScreenModel,
     ) {
-        val friendList = model.friendList.collectAsStateWithLifecycle()
+        val friendList = model.friendList.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
 
-        val sortedFriendList = friendList.value
+        val sortedFriendList = friendList.value.toSortedMap(compareBy { it.substring(6).toInt() })
         sortedFriendList.forEach { item ->
             if (item.value.isNotEmpty()) {
                 FavoriteHorizontalRow(

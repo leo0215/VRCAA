@@ -36,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -43,7 +44,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
@@ -72,7 +72,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
             .padding(1.dp),
         state = rememberLazyListState()
     ) {
-        items(feed)
+        items(feed.reversed())
         { item ->
             when (item.type) {
                 FeedManager.FeedType.FRIEND_FEED_ONLINE -> {
@@ -331,10 +331,8 @@ class FeedScreen : Screen {
             state = pullToRefreshState,
             modifier = Modifier.fillMaxSize()
         ) {
-            val feed = model.feedList.collectAsState()
+            val feed = model.feedList.collectAsStateWithLifecycle()
             FeedList(feed.value)
         }
-        val feed = model.feedList.collectAsStateWithLifecycle()
-        FeedList(feed.value)
     }
 }

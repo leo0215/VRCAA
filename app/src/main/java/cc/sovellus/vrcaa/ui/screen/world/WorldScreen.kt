@@ -100,6 +100,7 @@ import java.util.TimeZone
 class WorldScreen(
     private val worldId: String,
     private val peek: Boolean = false,
+    @Transient
     private val onInvalidWorld: (() -> Unit)? = null
 ) : Screen {
 
@@ -155,7 +156,7 @@ class WorldScreen(
     fun MultiChoiceHandler(
         model: WorldScreenModel,
         world: World?,
-        instances: List<Pair<String, Instance?>>,
+        instances: List<Pair<String, WorldScreenModel.InstanceWithFriends>>,
     ) {
         val navigator = LocalNavigator.currentOrThrow
         val context = LocalContext.current
@@ -426,7 +427,7 @@ class WorldScreen(
 
     @Composable
     fun ShowInstances(
-        instances: List<Pair<String, Instance?>>,
+        instances: List<Pair<String, WorldScreenModel.InstanceWithFriends>>,
         model: WorldScreenModel
     ) {
         val dialogState = remember { mutableStateOf(false) }
@@ -458,15 +459,18 @@ class WorldScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(instances) { instance ->
-                    instance.second?.let { instanceObj ->
-                        InstanceItem(
-                            intent = instance.first,
-                            instance = instanceObj,
-                            onClick = {
-                                dialogState.value = true
-                                model.selectedInstanceId.value = instanceObj.id
-                            }
-                        )
+                    instance.second.let { instance ->
+                        instance.instance?.let {
+                            InstanceItem(
+                                instance = instance.instance,
+                                creator = instance.creator,
+                                friends = instance.friends.toList(),
+                                onClick = {
+                                    dialogState.value = true
+                                    model.selectedInstanceId.value = instance.instance.id
+                                }
+                            )
+                        }
                     }
                 }
             }

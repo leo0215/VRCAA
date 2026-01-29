@@ -82,7 +82,6 @@ class PipelineService : Service(), CoroutineScope {
 
     private var refreshTask: Runnable = Runnable {
         launch {
-            Runtime.getRuntime().gc()
             CacheManager.buildCache()
             pipeline?.reconnect()
         }
@@ -503,9 +502,8 @@ class PipelineService : Service(), CoroutineScope {
                         pipeline.connect()
                     }
                 }
+                scheduler.scheduleWithFixedDelay(refreshTask, INITIAL_INTERVAL, RESTART_INTERVAL, TimeUnit.MILLISECONDS)
             }
-
-            scheduler.scheduleWithFixedDelay(refreshTask, INITIAL_INTERVAL, RESTART_INTERVAL, TimeUnit.MILLISECONDS)
         } catch (_:  Throwable) {
             NotificationHelper.pushNotification(
                 application.getString(R.string.app_name),

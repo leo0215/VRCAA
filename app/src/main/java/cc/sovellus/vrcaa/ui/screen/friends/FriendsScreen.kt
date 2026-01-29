@@ -45,6 +45,8 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +57,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
@@ -63,6 +64,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.ui.components.layout.FriendsGroup as FriendsGroupComponent
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cc.sovellus.vrcaa.ui.screen.friends.FriendsScreenModel.FriendsState
 import cc.sovellus.vrcaa.ui.screen.friends.FriendsScreenModel.FriendsGroup
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
@@ -79,7 +81,7 @@ class FriendsScreen : Screen {
         val model = navigator.rememberNavigatorScreenModel { FriendsScreenModel() }
 
 
-        val state by model.state.collectAsStateWithLifecycle()
+        val state by model.state.collectAsState()
 
         when (state) {
             is FriendsState.Loading -> LoadingIndicatorScreen().Content()
