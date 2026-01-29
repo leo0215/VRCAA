@@ -137,7 +137,7 @@ class GroupScreen(
                 navigator.pop()
             }
         } else {
-            Scaffold(topBar = {
+            Scaffold(containerColor = MaterialTheme.colorScheme.surfaceContainer, topBar = {
                 TopAppBar(navigationIcon = {
                     IconButton(onClick = {
                         if (peek) {

@@ -121,6 +121,7 @@ class SearchResultScreen(
         })
 
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
                     navigationIcon = {

@@ -92,7 +92,7 @@ fun ColorPicker(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = MaterialTheme.colorScheme.surfaceBright
         )
     ) {
         ColorPickerContent(
@@ -195,7 +195,7 @@ private fun RowScope.ColorButton(
     
     val primaryContainerColor = MaterialTheme.colorScheme.primaryContainer
     val onPrimaryContainerColor = MaterialTheme.colorScheme.onPrimaryContainer
-    val surfaceContainerHighestColor = MaterialTheme.colorScheme.surfaceContainerHighest
+    val surfaceBrightColor = MaterialTheme.colorScheme.surfaceBright
 
     Surface(
         modifier = modifier
@@ -203,7 +203,7 @@ private fun RowScope.ColorButton(
             .sizeIn(maxHeight = 80.dp, maxWidth = 80.dp, minHeight = 64.dp, minWidth = 64.dp)
             .aspectRatio(1f),
         shape = RoundedCornerShape(16.dp),
-        color = surfaceContainerHighestColor,
+        color = surfaceBrightColor,
         onClick = onClick
     ) {
         Box(Modifier.fillMaxSize()) {

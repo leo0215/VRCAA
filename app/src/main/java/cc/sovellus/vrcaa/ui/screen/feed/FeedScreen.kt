@@ -331,7 +331,7 @@ class FeedScreen : Screen {
             state = pullToRefreshState,
             modifier = Modifier.fillMaxSize()
         ) {
-            val feed = model.feedList.collectAsStateWithLifecycle()
+            val feed = model.feed.collectAsStateWithLifecycle()
             FeedList(feed.value)
         }
     }

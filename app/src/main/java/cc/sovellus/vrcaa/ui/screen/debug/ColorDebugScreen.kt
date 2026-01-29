@@ -67,6 +67,7 @@ class ColorDebugScreen : Screen {
         val colorScheme = MaterialTheme.colorScheme
 
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -152,7 +153,7 @@ class ColorDebugScreen : Screen {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                                containerColor = MaterialTheme.colorScheme.surfaceBright
                             ),
                             shape = RoundedCornerShape(16.dp)
                         ) {

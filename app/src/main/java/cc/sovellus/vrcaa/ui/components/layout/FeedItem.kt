@@ -58,7 +58,7 @@ fun FeedItem(
         leadingContent = {
             Column {
                 Badge(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    containerColor = MaterialTheme.colorScheme.surfaceBright,
                     modifier = Modifier
                         .size(64.dp)
                         .align(Alignment.CenterHorizontally)

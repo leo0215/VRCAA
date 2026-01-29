@@ -99,7 +99,7 @@ fun NotificationItem(title: String, message: AnnotatedString, url: String, date:
             if (url.isNotEmpty()) {
                 Column {
                     Badge(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        containerColor = MaterialTheme.colorScheme.surfaceBright,
                         modifier = Modifier
                             .size(64.dp)
                             .align(Alignment.CenterHorizontally)
@@ -187,6 +187,7 @@ class NotificationsScreen : Screen {
         }
 
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
                     navigationIcon = {

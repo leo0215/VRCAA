@@ -222,7 +222,7 @@ fun FriendItemMaterial3(
                         .size(16.dp)
                         .align(Alignment.BottomEnd)
                         .background(
-                            color = MaterialTheme.colorScheme.surface,
+                            color = MaterialTheme.colorScheme.surfaceContainer,
                             shape = CircleShape
                         )
                         .padding(3.dp)

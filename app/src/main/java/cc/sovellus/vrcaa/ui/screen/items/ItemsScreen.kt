@@ -101,6 +101,7 @@ class ItemsScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -143,6 +144,7 @@ class ItemsScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
                     navigationIcon = {

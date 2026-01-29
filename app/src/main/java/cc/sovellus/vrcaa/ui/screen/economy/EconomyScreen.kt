@@ -56,6 +56,7 @@ class EconomyScreen : Screen {
         val state by model.state.collectAsState()
 
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
                     title = { Text("VRChat 點數與訂閱") },

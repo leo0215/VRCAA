@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,7 +66,7 @@ class LoginScreen : Screen {
 
         var passwordVisibility by remember { mutableStateOf(false) }
 
-        Scaffold { padding ->
+        Scaffold(containerColor = MaterialTheme.colorScheme.surfaceContainer) { padding ->
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

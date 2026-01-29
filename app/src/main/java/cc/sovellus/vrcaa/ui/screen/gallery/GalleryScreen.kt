@@ -43,6 +43,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -104,6 +105,7 @@ class GalleryScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -151,6 +153,7 @@ class GalleryScreen : Screen {
 
         Scaffold(
             modifier = Modifier.blur(if (previewFile != null) { 100.dp } else { 0.dp }),
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
                     navigationIcon = {

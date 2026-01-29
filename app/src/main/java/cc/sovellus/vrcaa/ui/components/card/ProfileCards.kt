@@ -116,7 +116,7 @@ fun ProfileCard(
         modifier = modifier.standardCardModifier(),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = MaterialTheme.colorScheme.surfaceBright
         )
     ) {
         Column(
@@ -189,9 +189,9 @@ fun ProfileCard(
                                 shape = RoundedCornerShape(16.dp),
                                 colors = CardDefaults.cardColors(
                                     containerColor = if (badge.showcased) 
-                                        MaterialTheme.colorScheme.surface
+                                        MaterialTheme.colorScheme.surfaceContainer
                                     else 
-                                        MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                                        MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.9f)
                                 )
                             ) {
                                 GlideImage(
@@ -267,7 +267,7 @@ fun ProfileCard(
                             }),
                     shape = RoundedCornerShape(50.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
                     )
                 ) {
                     GlideImage(
@@ -379,7 +379,7 @@ fun BiographyCard(
             modifier = modifier.standardCardModifier(),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                containerColor = MaterialTheme.colorScheme.surfaceBright
             )
         ) {
             Column(
@@ -463,7 +463,7 @@ fun AccountStatusCard(
         modifier = modifier.standardCardModifier(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = MaterialTheme.colorScheme.surfaceBright
         )
     ) {
         Column(
@@ -588,7 +588,7 @@ fun InstanceCard(
                     callback()
                 }),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = MaterialTheme.colorScheme.surfaceBright
         )
     ) {
         val result = LocationHelper.parseLocationInfo(profile.location)
@@ -656,7 +656,7 @@ fun LastActivityCard(
         modifier = modifier.standardCardModifier(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = MaterialTheme.colorScheme.surfaceBright
         )
     ) {
         SubHeader(

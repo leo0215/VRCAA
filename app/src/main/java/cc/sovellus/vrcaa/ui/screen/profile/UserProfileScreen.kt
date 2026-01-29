@@ -229,6 +229,7 @@ class UserProfileScreen(
                     )
                 }
                 Scaffold(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     modifier = Modifier
                         .clickable(
                             onClick = {

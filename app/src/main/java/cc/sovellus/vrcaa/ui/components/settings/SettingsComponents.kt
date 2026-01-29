@@ -99,7 +99,7 @@ fun SectionHeaderCard(title: String) {
             .height(56.dp),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surfaceBright
         )
     ) {
         Row(
@@ -136,9 +136,9 @@ fun SettingsGroup(items: List<SettingsItem>) {
             shape = RoundedCornerShape(itemCornerRadius),
             colors = CardDefaults.cardColors(
                 containerColor = if (item.isHeader) {
-                    MaterialTheme.colorScheme.surfaceVariant
+                    MaterialTheme.colorScheme.surfaceDim
                 } else {
-                    MaterialTheme.colorScheme.surfaceContainerHighest
+                    MaterialTheme.colorScheme.surfaceBright
                 }
             )
         ) {
@@ -172,9 +172,9 @@ fun SettingsGroup(items: List<SettingsItem>) {
                         shape = RoundedCornerShape(itemCornerRadius),
                         colors = CardDefaults.cardColors(
                             containerColor = if (item.isHeader) {
-                                MaterialTheme.colorScheme.surfaceVariant
+                                MaterialTheme.colorScheme.surfaceDim
                             } else {
-                                MaterialTheme.colorScheme.surfaceContainerHighest
+                                MaterialTheme.colorScheme.surfaceBright
                             }
                         )
                     ) {

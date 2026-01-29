@@ -64,7 +64,7 @@ class NotificationScreen(
 
         val model = rememberScreenModel { NotificationScreenModel(friendId) }
 
-        Scaffold(topBar = {
+        Scaffold(containerColor = MaterialTheme.colorScheme.surfaceContainer, topBar = {
             TopAppBar(navigationIcon = {
                 IconButton(onClick = { navigator.pop() }) {
                     Icon(

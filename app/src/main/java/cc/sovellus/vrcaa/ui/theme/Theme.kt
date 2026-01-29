@@ -38,10 +38,10 @@ import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.fontFamily
 import cc.sovellus.vrcaa.extension.useLegacyMaterialTheme
+import cc.sovellus.vrcaa.ui.mcu.rememberCustomDynamicMaterialThemeState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
-import com.materialkolor.rememberDynamicMaterialThemeState
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -152,7 +152,7 @@ fun Theme(
     }
     
     val dynamicThemeState = if (primaryColor != null) {
-        rememberDynamicMaterialThemeState(
+        rememberCustomDynamicMaterialThemeState(
             isDark = isDark,
             style = paletteStyle,
             specVersion = specVersion,
@@ -194,11 +194,11 @@ fun Theme(
     
     LaunchedEffect(colorScheme, isDark) {
         systemUiController.setSystemBarsColor(
-            color = colorScheme.surface,
+            color = colorScheme.surfaceContainer,
             darkIcons = !isDark
         )
         systemUiController.setNavigationBarColor(
-            color = colorScheme.surface,
+            color = colorScheme.surfaceContainer,
             darkIcons = !isDark
         )
     }

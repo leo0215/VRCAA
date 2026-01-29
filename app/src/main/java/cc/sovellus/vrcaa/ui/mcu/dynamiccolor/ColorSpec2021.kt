@@ -148,6 +148,9 @@ public open class ColorSpec2021 : ColorSpec {
                     98.0
                 }
             }.setIsBackground(true)
+            .setChromaMultiplier { s ->
+                if (s.isDark) 1.0 else 0.0  // Light theme: no chroma, pure neutral N-98
+            }
             .build()
 
     override fun surfaceContainerLowest(): DynamicColor =

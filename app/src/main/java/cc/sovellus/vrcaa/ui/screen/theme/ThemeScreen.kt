@@ -124,6 +124,7 @@ class ThemeScreen : Screen {
 
 
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -165,7 +166,7 @@ class ThemeScreen : Screen {
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(24.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                                containerColor = MaterialTheme.colorScheme.surfaceBright
                             )
                         ) {
                             Row(
@@ -225,7 +226,7 @@ class ThemeScreen : Screen {
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(24.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                                containerColor = MaterialTheme.colorScheme.surfaceBright
                             )
                         ) {
                             Column(
@@ -329,7 +330,7 @@ class ThemeScreen : Screen {
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(24.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                                containerColor = MaterialTheme.colorScheme.surfaceBright
                             )
                         ) {
                             Column {

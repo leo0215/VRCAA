@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.toMutableStateList
 import cafe.adriel.voyager.core.model.StateScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
 import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
 import cc.sovellus.vrcaa.api.vrchat.http.models.User
 import cc.sovellus.vrcaa.manager.CacheManager
@@ -111,13 +112,13 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
             FriendsBuckets()
         )
 
-    val favoriteFriends get() = friendsBuckets.map { it.favoriteFriends }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
-    val favoriteFriendsInInstances get() = friendsBuckets.map { it.favoriteFriendsInInstances }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
-    val favoriteFriendsOffline get() = friendsBuckets.map { it.favoriteFriendsOffline }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
-    val friendsOnWebsite get() = friendsBuckets.map { it.friendsOnWebsite }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
-    val friendsOnline get() = friendsBuckets.map { it.friendsOnline }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
-    val friendsInInstances get() = friendsBuckets.map { it.friendsInInstances }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
-    val offlineFriends get() = friendsBuckets.map { it.offlineFriends }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+    val favoriteFriends = friendsBuckets.map { it.favoriteFriends }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+    val favoriteFriendsInInstances = friendsBuckets.map { it.favoriteFriendsInInstances }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+    val favoriteFriendsOffline = friendsBuckets.map { it.favoriteFriendsOffline }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+    val friendsOnWebsite = friendsBuckets.map { it.friendsOnWebsite }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+    val friendsOnline = friendsBuckets.map { it.friendsOnline }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+    val friendsInInstances = friendsBuckets.map { it.friendsInInstances }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
+    val offlineFriends = friendsBuckets.map { it.offlineFriends }.stateIn(screenModelScope, SharingStarted.Eagerly, listOf())
 
     var currentIndex = mutableIntStateOf(0)
     private var searchQueryFlow = MutableStateFlow("")

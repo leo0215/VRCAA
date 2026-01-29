@@ -100,7 +100,7 @@ fun GroupCard(
                 modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
             ) {
                 Badge(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest, modifier = Modifier
+                    containerColor = MaterialTheme.colorScheme.surfaceBright, modifier = Modifier
                         .size(80.dp)
                         .align(Alignment.CenterHorizontally)
                 ) {

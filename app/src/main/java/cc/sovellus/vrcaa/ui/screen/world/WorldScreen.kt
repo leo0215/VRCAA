@@ -173,6 +173,7 @@ class WorldScreen(
             navigator.pop()
         } else {
             Scaffold(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
                 topBar = {
                     TopAppBar(
                         navigationIcon = {

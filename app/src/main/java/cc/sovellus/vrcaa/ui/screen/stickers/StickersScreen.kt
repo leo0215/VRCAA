@@ -113,6 +113,7 @@ class StickersScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -171,6 +172,7 @@ class StickersScreen : Screen {
 
         Scaffold(
             modifier = Modifier.blur(if (model.previewItem.value != null) { 100.dp } else { 0.dp }),
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
                     navigationIcon = {

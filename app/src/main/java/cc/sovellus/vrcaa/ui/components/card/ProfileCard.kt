@@ -80,7 +80,7 @@ fun ProfileCard(
 ) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceBright,
         ),
         modifier = Modifier
             .height(270.dp)
@@ -113,7 +113,7 @@ fun ProfileCard(
                     modifier = Modifier.padding(start = 16.dp)
                 ) {
                     Badge(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        containerColor = MaterialTheme.colorScheme.surfaceBright,
                         modifier = Modifier
                             .size(80.dp)
                             .align(Alignment.CenterHorizontally)

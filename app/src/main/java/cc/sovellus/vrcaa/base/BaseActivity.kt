@@ -111,7 +111,7 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                 Theme(LocalTheme.current, effectivePrimary, effectiveSecondary, currentSchemeIndex, currentFontFamily, useLegacyMaterialTheme) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
+                        color = MaterialTheme.colorScheme.surfaceContainer
                     ) {
                         Content(savedInstanceState)
                     }

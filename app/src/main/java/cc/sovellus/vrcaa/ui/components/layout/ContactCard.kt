@@ -135,7 +135,7 @@ fun ContactCard(
                     .size(12.dp)
                     .align(Alignment.BottomEnd)
                     .background(
-                        color = MaterialTheme.colorScheme.surface,
+                        color = MaterialTheme.colorScheme.surfaceContainer,
                         shape = CircleShape
                     )
                     .padding(2.dp)
@@ -199,7 +199,7 @@ fun FriendsGroup(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(itemCornerRadius),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                    containerColor = MaterialTheme.colorScheme.surfaceBright
                 )
             ) {
                 ContactCard(
@@ -226,7 +226,7 @@ fun FriendsGroup(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(itemCornerRadius),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                                containerColor = MaterialTheme.colorScheme.surfaceBright
                             )
                         ) {
                             ContactCard(

@@ -85,7 +85,7 @@ fun QuickMenuCard(
                 modifier = Modifier.padding(start = 16.dp)
             ) {
                 Badge(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    containerColor = MaterialTheme.colorScheme.surfaceBright,
                     modifier = Modifier
                         .size(80.dp)
                         .align(Alignment.CenterHorizontally)

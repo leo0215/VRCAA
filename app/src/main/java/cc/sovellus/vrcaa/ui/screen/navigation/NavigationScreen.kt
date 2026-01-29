@@ -369,6 +369,7 @@ class NavigationScreen : Screen {
                     // 主要內容區域
                     Scaffold(
                         modifier = Modifier.weight(1f),
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
                         topBar = {
                             when (tabNavigator.current.options.index) {
                                 HomeTab.options.index -> {
@@ -434,7 +435,7 @@ class NavigationScreen : Screen {
                                             expanded = model.searchModeActivated.value,
                                             onExpandedChange = { },
                                             shape = SearchBarDefaults.inputFieldShape,
-                                            colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.background),
+                                            colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
                                             tonalElevation = if (model.searchModeActivated.value) {
                                                 0.dp
                                             } else {
@@ -589,7 +590,7 @@ class NavigationScreen : Screen {
                             Column(
                                 modifier = Modifier
                                     .padding(padding)
-                                    .background(MaterialTheme.colorScheme.background)
+                                    .background(MaterialTheme.colorScheme.surfaceContainer)
                             ) {
                                 CurrentTab()
                             }
@@ -720,6 +721,7 @@ class NavigationScreen : Screen {
                 }
             ) {
                 Scaffold(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     topBar = {
                     when (tabNavigator.current.options.index) {
                         HomeTab.options.index -> {
@@ -796,7 +798,7 @@ class NavigationScreen : Screen {
                                     expanded = model.searchModeActivated.value,
                                     onExpandedChange = { },
                                     shape = SearchBarDefaults.inputFieldShape,
-                                    colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.background),
+                                    colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
                                     tonalElevation = if (model.searchModeActivated.value) {
                                         0.dp
                                     } else {
@@ -1043,7 +1045,7 @@ class NavigationScreen : Screen {
                     Column(
                         modifier = Modifier
                             .padding(padding)
-                            .background(MaterialTheme.colorScheme.background)
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
                     ) {
                         CurrentTab()
                     }

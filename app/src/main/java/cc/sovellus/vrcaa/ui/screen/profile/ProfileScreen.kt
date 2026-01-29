@@ -224,7 +224,8 @@ class ProfileScreen : Screen {
             }
             
             Scaffold(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
             ) { padding ->
                 LazyColumn(
                     modifier = Modifier
@@ -320,7 +321,7 @@ class ProfileScreen : Screen {
                                 if (platform.isNotEmpty()) {
                                     Card(
                                         colors = CardDefaults.cardColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                                            containerColor = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.6f)
                                         ),
                                         shape = RoundedCornerShape(8.dp)
                                     ) {
@@ -537,9 +538,9 @@ class ProfileScreen : Screen {
                                                     shape = RoundedCornerShape(12.dp),
                                                     colors = CardDefaults.cardColors(
                                                         containerColor = if (badge.showcased) 
-                                                            MaterialTheme.colorScheme.surface
+                                                            MaterialTheme.colorScheme.surfaceContainer
                                                         else 
-                                                            MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                                                            MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.9f)
                                                     )
                                                 ) {
                                                     GlideImage(
@@ -806,7 +807,7 @@ class ProfileScreen : Screen {
                 .fillMaxWidth()
                 .clickable(onClick = onClick),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surfaceBright
             ),
             shape = RoundedCornerShape(12.dp)
         ) {

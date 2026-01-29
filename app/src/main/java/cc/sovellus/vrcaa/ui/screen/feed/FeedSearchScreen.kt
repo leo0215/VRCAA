@@ -61,7 +61,7 @@ class FeedSearchScreen : Screen {
         var filteredFeedStateFlow = remember { MutableStateFlow(listOf<FeedManager.Feed>()) }
         var filteredFeed = filteredFeedStateFlow.asStateFlow()
 
-        Scaffold { padding ->
+        Scaffold(containerColor = MaterialTheme.colorScheme.surfaceContainer) { padding ->
             SearchBar(
                 inputField = {
                     InputField(
@@ -107,7 +107,7 @@ class FeedSearchScreen : Screen {
                 shadowElevation = 4.dp
             ) {
                 Surface(
-                    color = MaterialTheme.colorScheme.background,
+                    color = MaterialTheme.colorScheme.surfaceContainer,
                     modifier = Modifier.fillMaxSize()
                 ) {
                     val feed = filteredFeed.collectAsState()

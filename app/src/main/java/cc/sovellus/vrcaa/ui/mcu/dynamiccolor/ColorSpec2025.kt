@@ -166,7 +166,7 @@ public class ColorSpec2025 : ColorSpec2021() {
                             return@setChromaMultiplier 1.36
                         }
                     }
-                    1.0
+                    0.0  // Light theme: no chroma, pure neutral N-98
                 }.build()
         return super
             .surfaceBright()

@@ -87,7 +87,7 @@ fun QuickActionsRow(
                 leadingIcon = { Icon(icon, contentDescription = null) },
                 label = { Text(label) },
                 colors = AssistChipDefaults.assistChipColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+                    containerColor = MaterialTheme.colorScheme.surfaceBright
                 )
             )
         }
