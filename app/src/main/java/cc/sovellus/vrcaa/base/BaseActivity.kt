@@ -34,16 +34,13 @@ import cc.sovellus.vrcaa.ui.theme.Theme
 open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
 
     private val currentTheme = mutableIntStateOf(-1)
-    lateinit var preferences: SharedPreferences
+    val preferences: SharedPreferences = App.getPreferences()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        preferences = getSharedPreferences(App.PREFERENCES_NAME, MODE_PRIVATE)
         currentTheme.intValue = preferences.currentThemeOption
-
-        // Register as theme listener
         ThemeManager.addListener(this)
 
         setContent {
@@ -121,9 +118,8 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-        // Unregister theme listener
         ThemeManager.removeListener(this)
+        super.onDestroy()
     }
 
     override fun onPreferenceUpdate(theme: Int) {

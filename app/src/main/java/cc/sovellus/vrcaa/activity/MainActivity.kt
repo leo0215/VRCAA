@@ -17,49 +17,48 @@
 package cc.sovellus.vrcaa.activity
 
 
-import android.Manifest
+import cc.sovellus.vrcaa.GlobalExceptionHandler
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.NavigatorDisposeBehavior
 import cafe.adriel.voyager.transitions.SlideTransition
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.base.BaseActivity
+import cc.sovellus.vrcaa.base.BaseClient.AuthorizationType
 import cc.sovellus.vrcaa.extension.authToken
+import cc.sovellus.vrcaa.extension.onboardingCompleted
 import cc.sovellus.vrcaa.extension.richPresenceEnabled
+import cc.sovellus.vrcaa.extension.timeInBackground
 import cc.sovellus.vrcaa.extension.twoFactorToken
-import cc.sovellus.vrcaa.extension.userCredentials
+import cc.sovellus.vrcaa.helper.NotificationHelper
+import cc.sovellus.vrcaa.manager.ApiManager.api
+import cc.sovellus.vrcaa.manager.CacheManager
+import cc.sovellus.vrcaa.manager.DatabaseManager
+import cc.sovellus.vrcaa.manager.DebugManager
+import cc.sovellus.vrcaa.manager.FavoriteManager
+import cc.sovellus.vrcaa.manager.FeedManager
+import cc.sovellus.vrcaa.manager.FriendManager
+import cc.sovellus.vrcaa.manager.GatewayManager
+import cc.sovellus.vrcaa.manager.NotificationManager
+import cc.sovellus.vrcaa.manager.ThemeManager
 import cc.sovellus.vrcaa.service.PipelineService
 import cc.sovellus.vrcaa.service.RichPresenceService
 import cc.sovellus.vrcaa.ui.screen.login.LoginScreen
 import cc.sovellus.vrcaa.ui.screen.navigation.NavigationScreen
+import cc.sovellus.vrcaa.ui.screen.onboarding.OnboardingScreen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // TODO: check is first time launch, redirect to "on-boarding" for permissions.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    0
-                )
-            }
-        }
 
         val invalidSession = intent.extras?.getBoolean("INVALID_SESSION") == true
         val terminateSession = intent.extras?.getBoolean("TERMINATE_SESSION") == true
@@ -107,13 +106,31 @@ class MainActivity : BaseActivity() {
             }
             App.setIsValidSession(false)
         }
+
+        if (savedInstanceState == null) {
+            preferences.timeInBackground = 0
+
+            GlobalExceptionHandler.initialize(applicationContext, CrashActivity::class.java)
+            NotificationHelper.createNotificationChannels()
+
+            if (preferences.authToken.isNotBlank() && preferences.twoFactorToken.isNotEmpty()) {
+                api.setAuthorization(AuthorizationType.Cookie, "${preferences.authToken} ${preferences.twoFactorToken}")
+                App.setIsValidSession(true)
+            }
+
+            if (App.getIsValidSession()) {
+                val intent = Intent(this, PipelineService::class.java)
+                ContextCompat.startForegroundService(this, intent)
+            }
+        }
     }
 
     @Composable
     override fun Content(bundle: Bundle?) {
-
         Navigator(
-            screen = if (App.getIsValidSession()) {
+            screen = if (!preferences.onboardingCompleted) {
+                OnboardingScreen()
+            } else if (App.getIsValidSession()) {
                 NavigationScreen()
             } else {
                 LoginScreen()
@@ -125,6 +142,23 @@ class MainActivity : BaseActivity() {
             onBackPressed = { true }
         ) { navigator ->
             SlideTransition(navigator = navigator)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        preferences.timeInBackground = System.currentTimeMillis()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (preferences.timeInBackground > 0) {
+            val minutes = (System.currentTimeMillis() - preferences.timeInBackground) / (1000 * 60)
+            if (minutes >= 15) {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    CacheManager.buildCache()
+                }
+            }
         }
     }
 }

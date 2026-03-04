@@ -1,14 +1,17 @@
-@file:OptIn(ExperimentalEncodingApi::class)
+@file:OptIn(ExperimentalEncodingApi::class, ExperimentalBuildToolsApi::class,
+    ExperimentalKotlinGradlePluginApi::class
+)
 
+import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
     id("dev.drewhamilton.poko")
-    id("com.mikepenz.aboutlibraries.plugin") version "13.1.0"
+    id("com.mikepenz.aboutlibraries.plugin") version "13.2.1"
 }
 
 android {
@@ -17,10 +20,10 @@ android {
 
     defaultConfig {
         applicationId = "cc.sovellus.vrcaa"
-        minSdk = 23
+        minSdk = 27
         targetSdk = 36
-        versionCode = 200708
-        versionName = "2.7.8"
+        versionCode = 200802
+        versionName = "2.8.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -30,6 +33,7 @@ android {
 
         buildConfigField("String", "GIT_HASH", "\"${getGitHash()}\"")
         buildConfigField("String", "GIT_BRANCH", "\"${getBranch()}\"")
+
         buildConfigField("String", "DISCORD_URL", "\"https://discord.gg/aJs8qJXuT3\"")
         buildConfigField("String", "CROWDIN_URL", "\"https://crowdin.com/project/vrcaa\"")
         buildConfigField("String", "KOFI_URL", "\"https://ko-fi.com/Nyabsi\"")
@@ -48,6 +52,7 @@ android {
                 keyAlias = keyAliasEnv
                 keyPassword = keyPasswordEnv
             } else {
+                // This warning can and should be ignored in local development environment, it's meant for CI
                 println("Warning: Release signing configuration not fully set up from environment variables.")
             }
         }
@@ -66,6 +71,9 @@ android {
                 signingConfig = releaseSigningConfig
             }
         }
+        debug {
+            applicationIdSuffix = ".dev"
+        }
     }
 
     compileOptions {
@@ -78,7 +86,6 @@ android {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
             languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1)
-            // Opt-in 全域啟用 Material3 Expressive API，讓所有頁面可直接使用
             optIn.add("androidx.compose.material3.ExperimentalMaterial3ExpressiveApi")
         }
     }
@@ -100,47 +107,24 @@ android {
         }
         create("quest") {
             dimension = "type"
+            applicationIdSuffix = ".quest"
         }
         create("pico") {
             dimension = "type"
+            applicationIdSuffix = ".pico"
         }
-    }
-}
-
-// credit: https://github.com/amwatson/CitraVR/blob/master/src/android/app/build.gradle.kts#L255C1-L275C2
-fun getGitHash(): String =
-    runGitCommand(ProcessBuilder("git", "rev-parse", "--short", "HEAD")) ?: "invalid-hash"
-
-fun getBranch(): String =
-    runGitCommand(ProcessBuilder("git", "rev-parse", "--abbrev-ref", "HEAD")) ?: "invalid-branch"
-
-fun runGitCommand(command: ProcessBuilder) : String? {
-    try {
-        command.directory(project.rootDir)
-        val process = command.start()
-        val inputStream = process.inputStream
-        val errorStream = process.errorStream
-        process.waitFor()
-
-        return if (process.exitValue() == 0) {
-            inputStream.bufferedReader()
-                .use { it.readText().trim() } // return the value of gitHash
-        } else {
-            val errorMessage = errorStream.bufferedReader().use { it.readText().trim() }
-            logger.error("Error running git command: $errorMessage")
-            return null
+        create("nightly") {
+            dimension = "type"
+            applicationIdSuffix = ".nightly"
         }
-    } catch (e: Exception) {
-        logger.error("$e: Cannot find git")
-        return null
     }
 }
 
 dependencies {
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
-    implementation("androidx.activity:activity-compose:1.12.2")
-    implementation(platform("androidx.compose:compose-bom:2025.12.01"))
+    implementation("androidx.activity:activity-compose:1.12.4")
+    implementation(platform("androidx.compose:compose-bom:2026.02.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -152,11 +136,11 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2025.12.01"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2026.02.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:okhttp:5.3.2")
     implementation("com.sealwu.jsontokotlin:library:3.7.4")
     implementation("com.google.code.gson:gson:2.13.2")
     implementation("com.github.bumptech.glide:compose:1.0.0-beta08")
@@ -166,16 +150,63 @@ dependencies {
     implementation("cafe.adriel.voyager:voyager-bottom-sheet-navigator:1.1.0-beta03")
     implementation("cafe.adriel.voyager:voyager-tab-navigator:1.1.0-beta03")
     implementation("cafe.adriel.voyager:voyager-transitions:1.1.0-beta03")
-    implementation("androidx.activity:activity-ktx:1.12.2")
+    implementation("androidx.activity:activity-ktx:1.12.4")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
-    implementation("com.mikepenz:aboutlibraries-core:13.1.0")
-    implementation("com.mikepenz:aboutlibraries-compose-m3-android:13.1.0")
+    implementation("com.mikepenz:aboutlibraries-core:13.2.1")
+    implementation("com.mikepenz:aboutlibraries-compose-m3-android:13.2.1")
     implementation ("androidx.glance:glance-appwidget:1.1.1")
     implementation ("androidx.glance:glance-material3:1.1.1@aar")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("net.thauvin.erik.urlencoder:urlencoder-lib:1.6.0")
     implementation(libs.materialKolor)
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
+    implementation("androidx.work:work-runtime:2.11.1")
 }
+
+// === Helpers ===
+
+internal enum class GitHashType {
+    GIT_HASH_COMMIT,
+    GIT_HASH_BRANCH;
+}
+
+internal fun getGitHash(type: GitHashType): String? {
+    try {
+        val builder = ProcessBuilder("git", "rev-parse")
+        when (type) {
+            GitHashType.GIT_HASH_COMMIT -> {
+                builder.command().add("--short")
+            }
+            GitHashType.GIT_HASH_BRANCH -> {
+                builder.command().add("--abbrev-ref")
+            }
+        }
+        builder.command().add("HEAD")
+        builder.directory(project.rootDir)
+
+        val process = builder.start()
+        val inputStream = process.inputStream
+        val errorStream = process.errorStream
+        process.waitFor()
+
+        return if (process.exitValue() == 0) {
+            inputStream.bufferedReader()
+                .use { it.readText().trim() }
+        } else {
+            val errorMessage = errorStream.bufferedReader().use { it.readText().trim() }
+            logger.error("Error running git command: $errorMessage")
+            null
+        }
+    } catch (_: Throwable) {
+        return null
+    }
+}
+
+fun getGitHash(): String =
+    getGitHash(GitHashType.GIT_HASH_COMMIT) ?: "invalid-hash"
+
+fun getBranch(): String =
+    getGitHash(GitHashType.GIT_HASH_BRANCH) ?: "invalid-branch"
+

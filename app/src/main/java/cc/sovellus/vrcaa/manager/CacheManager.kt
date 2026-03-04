@@ -28,9 +28,10 @@ import cc.sovellus.vrcaa.manager.ApiManager.api
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.Collections
-import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.collections.map
 
 object CacheManager : BaseManager<CacheManager.CacheListener>() {
 
@@ -54,11 +55,23 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
     private var profile: User? = null
     private var worldList = Collections.synchronizedList(mutableListOf<WorldCache>())
     private var recentWorldList = Collections.synchronizedList(mutableListOf<WorldCache>())
+    private val recentWorldsStateFlow = MutableStateFlow<List<WorldCache>>(emptyList())
+
+    val recentWorldsState: StateFlow<List<WorldCache>> = recentWorldsStateFlow.asStateFlow()
 
     private var cacheHasBeenBuilt: Boolean = false
 
     suspend fun buildCache() = coroutineScope {
         cacheHasBeenBuilt = false
+
+        synchronized(worldListLock) {
+            worldList.clear()
+        }
+
+        synchronized(recentWorldLock) {
+            recentWorldList.clear()
+            recentWorldsStateFlow.value = emptyList()
+        }
 
         App.setLoadingText(R.string.global_app_default_loading_text)
 
@@ -108,6 +121,7 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
                     thumbnailUrl = it.thumbnailImageUrl
                 }
             })
+            recentWorldsStateFlow.value = recentWorldList.toList()
         }
 
         getListeners().forEach { listener ->
@@ -124,15 +138,13 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
 
     fun isWorldCached(worldId: String): Boolean {
         synchronized(worldListLock) {
-            val snapshot = worldList.toList()
-            return snapshot.any { it.id == worldId }
+            return worldList.any { it.id == worldId }
         }
     }
 
     fun getWorld(worldId: String): WorldCache {
         synchronized(worldListLock) {
-            val snapshot = worldList.toList()
-            return snapshot.firstOrNull { it.id == worldId } ?: WorldCache("invalid")
+            return worldList.firstOrNull { it.id == worldId } ?: WorldCache("invalid")
         }
     }
 
@@ -165,7 +177,7 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
     fun updateProfile(profile: User) {
         synchronized(profileLock) {
             this.profile?.let {
-                val result = JsonHelper.mergeJson<User>(it, profile, User::class.java)
+                val result = JsonHelper.mergeJson(it, profile, User::class.java)
                 this.profile = result
                 getListeners().forEach { listener ->
                     listener.profileUpdated(result)
@@ -175,10 +187,7 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
     }
 
     fun getRecentWorlds(): List<WorldCache> {
-        synchronized(recentWorldLock) {
-            val snapshot = recentWorldList.toList()
-            return snapshot
-        }
+        return recentWorldsStateFlow.value
     }
 
     fun addRecentWorld(world: World) {
@@ -190,11 +199,11 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
                     thumbnailUrl = world.thumbnailImageUrl
                 }
             )
+            recentWorldsStateFlow.value = recentWorldList.toList()
         }
 
-        val listSnapshot = recentWorldList.toList()
         getListeners().forEach { listener ->
-            listener.updateRecentlyVisitedWorlds(listSnapshot)
+            listener.updateRecentlyVisitedWorlds(recentWorldsStateFlow.value)
         }
     }
 }

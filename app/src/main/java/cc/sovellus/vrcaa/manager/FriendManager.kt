@@ -4,6 +4,9 @@ import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.PartialFriend
 import cc.sovellus.vrcaa.base.BaseManager
 import cc.sovellus.vrcaa.helper.JsonHelper
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 object FriendManager : BaseManager<FriendManager.FriendListener>() {
 
@@ -13,79 +16,62 @@ object FriendManager : BaseManager<FriendManager.FriendListener>() {
 
     private val friendsLock = Any()
     private val friends: MutableList<Friend> = mutableListOf()
+    private val friendsStateFlow = MutableStateFlow<List<Friend>>(emptyList())
+
+    val friendsState: StateFlow<List<Friend>> = friendsStateFlow.asStateFlow()
 
     fun setFriends(newFriends: List<Friend>) {
-        val snapshot: List<Friend>
         synchronized(friendsLock) {
             friends.clear()
             friends.addAll(newFriends)
-            snapshot = friends.toList()
         }
-        notifyListeners(snapshot)
+        publishFriends()
     }
 
     fun addFriend(friend: Friend) {
-        val snapshot: List<Friend>?
         synchronized(friendsLock) {
             if (friends.none { it.id == friend.id }) {
                 friends.add(friend)
-                snapshot = friends.toList()
-            } else {
-                snapshot = null
             }
         }
-        snapshot?.let { notifyListeners(it) }
+        publishFriends()
     }
 
     fun removeFriend(userId: String) {
-        val snapshot: List<Friend>?
         synchronized(friendsLock) {
-            val removed = friends.removeIf { it.id == userId }
-            snapshot = if (removed) friends.toList() else null
+            friends.removeIf { it.id == userId }
         }
-        snapshot?.let { notifyListeners(it) }
+        publishFriends()
     }
 
     fun updateFriend(partial: PartialFriend) {
-        val snapshot: List<Friend>?
         synchronized(friendsLock) {
             val index = friends.indexOfFirst { it.id == partial.id }
             if (index != -1) {
                 friends[index] = JsonHelper.mergeDiffJson(friends[index], partial, Friend::class.java)
-                snapshot = friends.toList()
-            } else {
-                snapshot = null
             }
         }
-        snapshot?.let { notifyListeners(it) }
+        publishFriends()
     }
 
     fun updateLocation(userId: String, location: String) {
-        val snapshot: List<Friend>?
         synchronized(friendsLock) {
             val index = friends.indexOfFirst { it.id == userId }
             if (index != -1) {
                 friends[index] = friends[index].copy(location = location)
-                snapshot = friends.toList()
-            } else {
-                snapshot = null
             }
         }
-        snapshot?.let { notifyListeners(it) }
+        publishFriends()
     }
 
     fun updatePlatform(userId: String, platform: String) {
-        val snapshot: List<Friend>?
         synchronized(friendsLock) {
             val index = friends.indexOfFirst { it.id == userId }
             if (index != -1) {
                 friends[index] = friends[index].copy(platform = platform)
-                snapshot = friends.toList()
-            } else {
-                snapshot = null
             }
         }
-        snapshot?.let { notifyListeners(it) }
+        publishFriends()
     }
 
     fun getFriend(userId: String): Friend? {
@@ -95,12 +81,14 @@ object FriendManager : BaseManager<FriendManager.FriendListener>() {
     }
 
     fun getFriends(): List<Friend> {
-        synchronized(friendsLock) {
-            return friends.toList()
-        }
+        return friendsStateFlow.value
     }
 
-    private fun notifyListeners(snapshot: List<Friend>) {
+    private fun publishFriends() {
+        synchronized(friendsLock) {
+            friendsStateFlow.value = friends.toList()
+        }
+        val snapshot = friendsStateFlow.value
         getListeners().forEach { it.onUpdateFriends(snapshot) }
     }
 }

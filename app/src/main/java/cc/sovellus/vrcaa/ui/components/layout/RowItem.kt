@@ -21,10 +21,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
@@ -32,7 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -48,12 +46,14 @@ fun RowItem(
     url: Any,
     onClick: () -> Unit
 ) {
-    val window = LocalWindowInfo.current
+    val configuration = LocalConfiguration.current
+    val maxItemHeight = (configuration.screenHeightDp.dp * 0.25f).coerceIn(100.dp, 175.dp)
+    val maxItemWidth = (configuration.screenWidthDp.dp * 0.5f).coerceIn(133.dp, 233.dp)
 
     Card(
         modifier = Modifier
-            .heightIn(100.dp, window.containerSize.height.dp.coerceAtMost(175.dp).coerceAtLeast(100.dp))
-            .widthIn(133.dp, window.containerSize.width.dp.coerceAtMost(233.dp).coerceAtLeast(133.dp))
+            .heightIn(100.dp, maxItemHeight)
+            .widthIn(133.dp, maxItemWidth)
             .aspectRatio(4f / 3f)
             .clickable(onClick = { onClick() })
     ) {

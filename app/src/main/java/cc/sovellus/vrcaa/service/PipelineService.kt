@@ -62,30 +62,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 
 
 class PipelineService : Service(), CoroutineScope {
 
-    override val coroutineContext = Dispatchers.IO + SupervisorJob()
+    private val serviceJob = SupervisorJob()
+    override val coroutineContext = Dispatchers.IO + serviceJob
 
     private lateinit var preferences: SharedPreferences
 
     private var pipeline: PipelineSocket? = null
 
+    private var handlerThread: HandlerThread? = null
     private var serviceLooper: Looper? = null
     private var serviceHandler: ServiceHandler? = null
-
-    private val scheduler: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
-
-    private var refreshTask: Runnable = Runnable {
-        launch {
-            CacheManager.buildCache()
-            pipeline?.reconnect()
-        }
-    }
+    private var foregroundStarted = false
 
     private val listener = object : PipelineSocket.SocketListener {
         override fun onMessage(message: Any?) {
@@ -464,10 +455,11 @@ class PipelineService : Service(), CoroutineScope {
     }
 
     override fun onCreate() {
+        super.onCreate()
 
         this.preferences = getSharedPreferences(App.PREFERENCES_NAME, 0)
 
-        HandlerThread("VRCAA_BackgroundWorker", THREAD_PRIORITY_FOREGROUND).apply {
+        handlerThread = HandlerThread("VRCAA_BackgroundWorker", THREAD_PRIORITY_FOREGROUND).apply {
             start()
 
             serviceLooper = looper
@@ -476,34 +468,10 @@ class PipelineService : Service(), CoroutineScope {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
+
         try {
-            val builder = NotificationCompat.Builder(this, NotificationHelper.CHANNEL_DEFAULT_ID)
-                .setSmallIcon(R.drawable.ic_notification_icon)
-                .setContentTitle(application.getString(R.string.app_name))
-                .setContentText(application.getString(R.string.service_notification))
-                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                startForeground(
-                    NOTIFICATION_ID,
-                    builder.build(),
-                    FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-                )
-            } else {
-                // Older versions do not require to specify the `foregroundServiceType`
-                startForeground(NOTIFICATION_ID, builder.build())
-            }
-
-            launch {
-                api.auth.fetchToken()?.let { token ->
-                    pipeline = PipelineSocket(token)
-                    pipeline?.let { pipeline ->
-                        pipeline.setListener(listener)
-                        pipeline.connect()
-                    }
-                }
-                scheduler.scheduleWithFixedDelay(refreshTask, INITIAL_INTERVAL, RESTART_INTERVAL, TimeUnit.MILLISECONDS)
-            }
+            startService()
         } catch (_:  Throwable) {
             NotificationHelper.pushNotification(
                 application.getString(R.string.app_name),
@@ -513,13 +481,54 @@ class PipelineService : Service(), CoroutineScope {
             )
         }
 
+        launch {
+            api.auth.fetchToken()?.let { token ->
+                pipeline = PipelineSocket(token)
+                pipeline?.let { pipeline ->
+                    pipeline.setListener(listener)
+                    pipeline.connect()
+                }
+            }
+            CacheManager.buildCache()
+        }
+
+
         return START_STICKY
     }
 
+    fun startService() {
+        if (foregroundStarted) return
+        foregroundStarted = true
+
+        val builder = NotificationCompat.Builder(this, NotificationHelper.CHANNEL_DEFAULT_ID)
+            .setSmallIcon(R.drawable.ic_notification_icon)
+            .setContentTitle(application.getString(R.string.app_name))
+            .setContentText(application.getString(R.string.service_notification))
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(
+                NOTIFICATION_ID,
+                builder.build(),
+                FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+            )
+        } else {
+            // Older versions do not require to specify the `foregroundServiceType`
+            startForeground(NOTIFICATION_ID, builder.build())
+        }
+    }
+
     override fun onDestroy() {
+        serviceHandler?.removeCallbacksAndMessages(null)
+        serviceHandler = null
+        serviceLooper = null
+        handlerThread?.quitSafely()
+        handlerThread = null
+
+        serviceJob.cancel()
         super.onDestroy()
         pipeline?.disconnect()
-        scheduler.shutdown()
+        pipeline = null
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -528,7 +537,5 @@ class PipelineService : Service(), CoroutineScope {
 
     companion object {
         private const val NOTIFICATION_ID: Int = 42069
-        private const val INITIAL_INTERVAL: Long = 100
-        private const val RESTART_INTERVAL: Long = 1800000
     }
 }

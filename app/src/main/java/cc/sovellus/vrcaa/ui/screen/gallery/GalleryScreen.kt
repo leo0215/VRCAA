@@ -27,10 +27,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -52,14 +50,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -72,14 +69,12 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.models.File
 import cc.sovellus.vrcaa.extension.columnCountOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
-import cc.sovellus.vrcaa.manager.ApiManager.api
 import cc.sovellus.vrcaa.manager.CacheManager
 import cc.sovellus.vrcaa.ui.components.dialog.ImagePreviewDialog
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
-import kotlinx.coroutines.launch
 
 class GalleryScreen : Screen {
 
@@ -208,7 +203,8 @@ class GalleryScreen : Screen {
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val window = LocalWindowInfo.current
+                    val configuration = LocalConfiguration.current
+                    val maxItemWidth = (configuration.screenWidthDp.dp / 2).coerceAtLeast(133.dp)
                     LazyVerticalGrid(
                         columns = when (model.preferences.columnCountOption) {
                             0 -> GridCells.Adaptive(180.dp)
@@ -230,7 +226,7 @@ class GalleryScreen : Screen {
                                         .fillMaxWidth()
                                         .padding(4.dp)
                                         .heightIn(100.dp)
-                                        .widthIn(133.dp, (window.containerSize.width.dp / 2))
+                                        .widthIn(133.dp, maxItemWidth)
                                         .aspectRatio(16f / 10f)
                                         .clip(RoundedCornerShape(10))
                                         .clickable(onClick = {

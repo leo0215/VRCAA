@@ -19,13 +19,10 @@ package cc.sovellus.vrcaa.ui.screen.login
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -39,7 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
@@ -98,8 +95,10 @@ class LoginScreen : Screen {
 
                     Button(
                         modifier = Modifier
-                            .width(200.dp)
-                            .padding(8.dp), onClick = {
+                            .fillMaxWidth()
+                            .widthIn(max = 320.dp)
+                            .padding(8.dp),
+                        onClick = {
                             screenModel.doLogin { result, type ->
                                 if (result) {
                                     if (type == IAuth.AuthType.AUTH_NONE)
@@ -127,7 +126,8 @@ class LoginScreen : Screen {
                     Text(
                         text = stringResource(R.string.legal_disclaimer),
                         textAlign = TextAlign.Center,
-                        maxLines = 1,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
                         fontSize = 12.sp
                     )
                 }

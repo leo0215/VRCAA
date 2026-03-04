@@ -27,7 +27,6 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites
 import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
 import cc.sovellus.vrcaa.api.vrchat.http.models.Instance
-import cc.sovellus.vrcaa.api.vrchat.http.models.LimitedUser
 import cc.sovellus.vrcaa.api.vrchat.http.models.World
 import cc.sovellus.vrcaa.helper.LocationHelper
 import cc.sovellus.vrcaa.manager.ApiManager.api
@@ -127,7 +126,7 @@ class WorldScreenModel(
                 }
 
                 injectedUserLocations.sortBy { it.second.friends.isEmpty() }
-                mutableState.value = WorldInfoState.Result(world, injectedUserLocations.toList())
+                mutableState.value = WorldInfoState.Result(world, injectedUserLocations)
             } ?: run {
                 mutableState.value = WorldInfoState.Failure
             }

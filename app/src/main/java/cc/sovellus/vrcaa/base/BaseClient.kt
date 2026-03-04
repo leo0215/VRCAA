@@ -27,10 +27,8 @@ import android.net.Uri
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
 import cc.sovellus.vrcaa.App
-import cc.sovellus.vrcaa.api.vrchat.Config
 import cc.sovellus.vrcaa.extension.await
 import cc.sovellus.vrcaa.helper.DnsHelper
-import cc.sovellus.vrcaa.helper.TLSHelper
 import cc.sovellus.vrcaa.manager.DebugManager
 import okhttp3.ConnectionPool
 import okhttp3.Headers
@@ -42,9 +40,9 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
-import okhttp3.internal.EMPTY_REQUEST
 import okhttp3.internal.http2.StreamResetException
 import java.io.ByteArrayOutputStream
+import java.net.ProtocolException
 import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -55,7 +53,6 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
 @OptIn(ExperimentalAtomicApi::class)
 open class BaseClient {
 
-    private val tlsHelper = TLSHelper()
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
@@ -63,7 +60,6 @@ open class BaseClient {
             .writeTimeout(30, TimeUnit.SECONDS)
             .connectionPool(ConnectionPool(5, 5, TimeUnit.MINUTES))
             .dns(DnsHelper())
-            .sslSocketFactory(tlsHelper.getSSLContext().socketFactory, tlsHelper.systemDefaultTrustManager())
             .addInterceptor { chain ->
                 val original = chain.request()
 
@@ -119,7 +115,6 @@ open class BaseClient {
         data object UnknownMethod : Result()
         data object NotModified : Result()
         data object Forbidden : Result()
-        data class GenericException(val exception: Throwable) : Result()
     }
 
     enum class AuthorizationType {
@@ -163,7 +158,7 @@ open class BaseClient {
     ): Result {
 
         val type: MediaType = "application/json; charset=utf-8".toMediaType()
-        val requestBody: RequestBody = body?.toRequestBody(type) ?: EMPTY_REQUEST
+        val requestBody: RequestBody = body?.toRequestBody(type) ?: RequestBody.EMPTY
 
         if (ignoreAuthorization)
            skipNextAuthorization.exchange(true)
@@ -181,7 +176,7 @@ open class BaseClient {
                         .build()
 
                     val response = client.newCall(request).await()
-                    val responseBody = response.body?.string().toString()
+                    val responseBody = response.body.string()
 
                     if (App.isNetworkLoggingEnabled()) {
                         DebugManager.addDebugMetadata(
@@ -341,8 +336,9 @@ open class BaseClient {
             Result.NoInternet
         } catch (_: StreamResetException) {
             Result.InternalError
-        } catch (e: Throwable) {
-            Result.GenericException(e)
+        } catch (_: ProtocolException) {
+            // This should force the user to re-initialize the connection and get rid of whatever is happening.
+            Result.NoInternet
         }
     }
 
@@ -481,8 +477,6 @@ open class BaseClient {
             Result.NoInternet
         } catch (_: StreamResetException) {
             Result.InternalError
-        } catch (e: Throwable) {
-            Result.GenericException(e)
         }
     }
 

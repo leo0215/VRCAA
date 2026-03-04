@@ -76,6 +76,7 @@ import cc.sovellus.vrcaa.api.vrchat.http.models.Users
 import cc.sovellus.vrcaa.api.vrchat.http.models.World
 import cc.sovellus.vrcaa.api.vrchat.http.models.Worlds
 import cc.sovellus.vrcaa.api.vrchat.http.models.AuthResponse
+import cc.sovellus.vrcaa.api.vrchat.http.models.FavoriteGroup
 import cc.sovellus.vrcaa.api.vrchat.http.models.File
 import cc.sovellus.vrcaa.api.vrchat.http.models.Files
 import cc.sovellus.vrcaa.api.vrchat.http.models.FriendStatus
@@ -141,6 +142,10 @@ class HttpClient : BaseClient(), CoroutineScope {
         this.listener = listener
     }
 
+    fun clearSessionListener() {
+        listener = null
+    }
+
     private fun handleExceptions(result: Result) {
         when (result) {
             Result.InternalError -> {
@@ -179,15 +184,6 @@ class HttpClient : BaseClient(), CoroutineScope {
                         ).show()
                     }
                 } catch (_: Throwable) { }
-            }
-            is Result.GenericException -> {
-                launch(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        "API request threw unknown exception!\n${result.exception.message}\n\n",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
             }
             else -> { /* Stub! */ }
         }
@@ -253,12 +249,17 @@ class HttpClient : BaseClient(), CoroutineScope {
         }
 
         override suspend fun verify(type: AuthType, code: String): IAuth.AuthResult {
-            
+
             val dParameter = when (type) {
                 AuthType.AUTH_EMAIL -> "emailotp"
                 AuthType.AUTH_TOTP -> "totp"
                 else -> { "" }
             }
+
+            // Forcefully establish authToken before running check logic to prevent
+            // race conditions with onAuthorizationFailure, where request may override authorization.
+            // TODO: is this an architectural issue, or is this what I *should* do?
+            setAuthorization(AuthorizationType.Cookie, preferences.authToken)
 
             val result = doRequest(
                 method = "POST",
@@ -317,7 +318,7 @@ class HttpClient : BaseClient(), CoroutineScope {
         }
 
         override suspend fun fetchToken(): String? {
-            
+
             val result = doRequest(
                 method = "GET",
                 url = buildString {
@@ -469,7 +470,7 @@ class HttpClient : BaseClient(), CoroutineScope {
             offset: Int,
             friends: ArrayList<Friend>
         ): ArrayList<Friend> {
-            
+
             val result = doRequest(
                 method = "GET",
                 url = buildString {
@@ -494,11 +495,11 @@ class HttpClient : BaseClient(), CoroutineScope {
                     fetchFriends(offline, n, offset + n, friends)
                 }
                 is Result.NotModified -> {
-                    return friends
+                    friends
                 }
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -507,7 +508,7 @@ class HttpClient : BaseClient(), CoroutineScope {
     val users = object : IUsers {
 
         override suspend fun fetchUserByUserId(userId: String): LimitedUser? {
-            
+
             val result = doRequest(
                 method = "GET",
                 url = buildString {
@@ -535,7 +536,7 @@ class HttpClient : BaseClient(), CoroutineScope {
             n: Int,
             offset: Int
         ): ArrayList<LimitedUser> {
-            
+
             val result = doRequest(
                 method = "GET",
                 url = buildString {
@@ -558,17 +559,17 @@ class HttpClient : BaseClient(), CoroutineScope {
                     val json = gson.fromJson(result.body, Users::class.java)
 
                     users.addAll(json)
-                    return users
+                    users
                 }
                 is Result.NotModified -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 is Result.Forbidden -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -747,7 +748,7 @@ class HttpClient : BaseClient(), CoroutineScope {
             n: Int,
             offset: Int
         ): ArrayList<World> {
-            
+
             val result = doRequest(
                 method = "GET",
                 url = buildString {
@@ -772,11 +773,11 @@ class HttpClient : BaseClient(), CoroutineScope {
                     val json = gson.fromJson(result.body, Worlds::class.java)
 
                     worlds.addAll(json)
-                    return worlds
+                    worlds
                 }
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -826,14 +827,14 @@ class HttpClient : BaseClient(), CoroutineScope {
                     fetchWorldsByAuthorId(userId, private, n, offset + n, worlds)
                 }
                 is Result.NotModified -> {
-                    return worlds
+                    worlds
                 }
                 is Result.Forbidden -> {
-                    return worlds
+                    worlds
                 }
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -889,10 +890,11 @@ class HttpClient : BaseClient(), CoroutineScope {
             }
         }
 
-        override suspend fun fetchFavoriteGroups(type: FavoriteType): FavoriteGroups? {
+        override suspend fun fetchFavoriteGroups(type: FavoriteType): ArrayList<FavoriteGroup> {
 
             val dTypeString = when (type) {
                 FavoriteType.FAVORITE_WORLD -> "world"
+                FavoriteType.FAVORITE_VRC_PLUS_WORLD -> "vrcPlusWorld"
                 FavoriteType.FAVORITE_AVATAR -> "avatar"
                 FavoriteType.FAVORITE_FRIEND -> "friend"
                 FavoriteType.FAVORITE_NONE -> ""
@@ -915,7 +917,7 @@ class HttpClient : BaseClient(), CoroutineScope {
                 }
                 else -> {
                     handleExceptions(result)
-                    return null
+                    return arrayListOf()
                 }
             }
         }
@@ -923,10 +925,11 @@ class HttpClient : BaseClient(), CoroutineScope {
         override suspend fun fetchFavoriteGroupsByUserId(
             userId: String,
             type: FavoriteType
-        ): FavoriteGroups? {
+        ): ArrayList<FavoriteGroup> {
 
             val dTypeString = when (type) {
                 FavoriteType.FAVORITE_WORLD -> "world"
+                FavoriteType.FAVORITE_VRC_PLUS_WORLD -> "vrcPlusWorld"
                 FavoriteType.FAVORITE_AVATAR -> "avatar"
                 FavoriteType.FAVORITE_FRIEND -> "friend"
                 FavoriteType.FAVORITE_NONE -> ""
@@ -951,7 +954,7 @@ class HttpClient : BaseClient(), CoroutineScope {
                 }
                 else -> {
                     handleExceptions(result)
-                    return null
+                    return arrayListOf()
                 }
             }
         }
@@ -964,6 +967,7 @@ class HttpClient : BaseClient(), CoroutineScope {
 
             val dTypeString = when (type) {
                 FavoriteType.FAVORITE_WORLD -> "world"
+                FavoriteType.FAVORITE_VRC_PLUS_WORLD -> "vrcPlusWorld"
                 FavoriteType.FAVORITE_AVATAR -> "avatar"
                 FavoriteType.FAVORITE_FRIEND -> "friend"
                 FavoriteType.FAVORITE_NONE -> ""
@@ -1034,6 +1038,7 @@ class HttpClient : BaseClient(), CoroutineScope {
 
             val dTypeString = when (type) {
                 FavoriteType.FAVORITE_WORLD -> "world"
+                FavoriteType.FAVORITE_VRC_PLUS_WORLD -> "vrcPlusWorld"
                 FavoriteType.FAVORITE_AVATAR -> "avatar"
                 FavoriteType.FAVORITE_FRIEND -> "friend"
                 FavoriteType.FAVORITE_NONE -> ""
@@ -1076,6 +1081,7 @@ class HttpClient : BaseClient(), CoroutineScope {
 
             val dTypeString = when (type) {
                 FavoriteType.FAVORITE_WORLD -> "world"
+                FavoriteType.FAVORITE_VRC_PLUS_WORLD -> "vrcPlusWorld"
                 FavoriteType.FAVORITE_AVATAR -> "avatar"
                 FavoriteType.FAVORITE_FRIEND -> "friend"
                 FavoriteType.FAVORITE_NONE -> ""
@@ -1107,12 +1113,12 @@ class HttpClient : BaseClient(), CoroutineScope {
                 }
 
                 is Result.NotModified -> {
-                    return favorites
+                    favorites
                 }
 
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -1128,6 +1134,7 @@ class HttpClient : BaseClient(), CoroutineScope {
 
             val dTypeString = when (type) {
                 FavoriteType.FAVORITE_WORLD -> "world"
+                FavoriteType.FAVORITE_VRC_PLUS_WORLD -> "vrcPlusWorld"
                 FavoriteType.FAVORITE_AVATAR -> "avatar"
                 FavoriteType.FAVORITE_FRIEND -> "friend"
                 FavoriteType.FAVORITE_NONE -> ""
@@ -1161,12 +1168,12 @@ class HttpClient : BaseClient(), CoroutineScope {
                 }
 
                 is Result.NotModified -> {
-                    return favorites
+                    favorites
                 }
 
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -1177,7 +1184,7 @@ class HttpClient : BaseClient(), CoroutineScope {
             offset: Int,
             favorites: ArrayList<FavoriteAvatar>
         ): ArrayList<FavoriteAvatar> {
-            
+
             val result = doRequest(
                 method = "GET",
                 url = buildString {
@@ -1203,12 +1210,12 @@ class HttpClient : BaseClient(), CoroutineScope {
                 }
 
                 is Result.NotModified -> {
-                    return favorites
+                    favorites
                 }
 
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -1245,12 +1252,12 @@ class HttpClient : BaseClient(), CoroutineScope {
                 }
 
                 is Result.NotModified -> {
-                    return favorites
+                    favorites
                 }
 
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -1287,7 +1294,7 @@ class HttpClient : BaseClient(), CoroutineScope {
         }
 
         override suspend fun fetchAvatarById(avatarId: String): Avatar? {
-            
+
             val result = doRequest(
                 method = "GET",
                 url = buildString {
@@ -1321,7 +1328,7 @@ class HttpClient : BaseClient(), CoroutineScope {
             n: Int,
             offset: Int
         ): ArrayList<Group> {
-            
+
             val result = doRequest(
                 method = "GET",
                 url = buildString {
@@ -1345,17 +1352,17 @@ class HttpClient : BaseClient(), CoroutineScope {
                     val json = gson.fromJson(result.body, Groups::class.java)
 
                     groups.addAll(json)
-                    return groups
+                    groups
                 }
                 is Result.NotModified -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 is Result.Forbidden -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -1447,7 +1454,7 @@ class HttpClient : BaseClient(), CoroutineScope {
         }
 
         override suspend fun withdrawRequestByGroupId(groupId: String): Boolean {
-            
+
             val result = doRequest(
                 method = "DELETE",
                 url = buildString {
@@ -1529,17 +1536,17 @@ class HttpClient : BaseClient(), CoroutineScope {
                     val json = gson.fromJson(result.body, Files::class.java)
 
                     groups.addAll(json)
-                    return groups
+                    groups
                 }
                 is Result.NotModified -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 is Result.Forbidden -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -1574,17 +1581,17 @@ class HttpClient : BaseClient(), CoroutineScope {
                     val json = gson.fromJson(result.body, Files::class.java)
 
                     groups.addAll(json)
-                    return groups
+                    groups
                 }
                 is Result.NotModified -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 is Result.Forbidden -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -1594,7 +1601,7 @@ class HttpClient : BaseClient(), CoroutineScope {
             val fields: MutableMap<String, String> = mutableMapOf("tag" to tag)
 
             if (aspectRatio == ImageAspectRatio.IMAGE_ASPECT_RATIO_SQUARE)
-                fields.put("maskTag", "square")
+                fields["maskTag"] = "square"
 
             val result = doRequestUpload(
                 App.getContext(),
@@ -1609,17 +1616,17 @@ class HttpClient : BaseClient(), CoroutineScope {
 
             return when (result) {
                 is Result.Succeeded -> {
-                    return gson.fromJson(result.body, File::class.java)
+                    gson.fromJson(result.body, File::class.java)
                 }
                 is Result.NotModified -> {
-                    return null
+                    null
                 }
                 is Result.Forbidden -> {
-                    return null
+                    null
                 }
                 else -> {
                     handleExceptions(result)
-                    return null
+                    null
                 }
             }
         }
@@ -1644,17 +1651,17 @@ class HttpClient : BaseClient(), CoroutineScope {
 
             return when (result) {
                 is Result.Succeeded -> {
-                    return gson.fromJson(result.body, File::class.java)
+                    gson.fromJson(result.body, File::class.java)
                 }
                 is Result.NotModified -> {
-                    return null
+                    null
                 }
                 is Result.Forbidden -> {
-                    return null
+                    null
                 }
                 else -> {
                     handleExceptions(result)
-                    return null
+                    null
                 }
             }
         }
@@ -1740,14 +1747,14 @@ class HttpClient : BaseClient(), CoroutineScope {
                     fetchNotifications(n, offset + n, notifications)
                 }
                 is Result.NotModified -> {
-                    return notifications
+                    notifications
                 }
                 is Result.Forbidden -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -1798,7 +1805,7 @@ class HttpClient : BaseClient(), CoroutineScope {
             offset: Int,
             avatars: ArrayList<Avatar>
         ): ArrayList<Avatar> {
-            
+
             val result = doRequest(
                 method = "GET",
                 url = buildString {
@@ -1826,11 +1833,11 @@ class HttpClient : BaseClient(), CoroutineScope {
                     fetchOwnedAvatars(n, offset + n, avatars)
                 }
                 is Result.NotModified -> {
-                    return avatars
+                    avatars
                 }
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -1868,14 +1875,14 @@ class HttpClient : BaseClient(), CoroutineScope {
                     fetchPrintsByUserId(userId, n, offset + n, prints)
                 }
                 is Result.NotModified -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 is Result.Forbidden -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -1895,17 +1902,17 @@ class HttpClient : BaseClient(), CoroutineScope {
 
             return when (result) {
                 is Result.Succeeded -> {
-                    return gson.fromJson(result.body, Print::class.java)
+                    gson.fromJson(result.body, Print::class.java)
                 }
                 is Result.NotModified -> {
-                    return null
+                    null
                 }
                 is Result.Forbidden -> {
-                    return null
+                    null
                 }
                 else -> {
                     handleExceptions(result)
-                    return null
+                    null
                 }
             }
         }
@@ -1925,17 +1932,17 @@ class HttpClient : BaseClient(), CoroutineScope {
 
             return when (result) {
                 is Result.Succeeded -> {
-                    return gson.fromJson(result.body, Print::class.java)
+                    gson.fromJson(result.body, Print::class.java)
                 }
                 is Result.NotModified -> {
-                    return null
+                    null
                 }
                 is Result.Forbidden -> {
-                    return null
+                    null
                 }
                 else -> {
                     handleExceptions(result)
-                    return null
+                    null
                 }
             }
         }
@@ -1965,17 +1972,17 @@ class HttpClient : BaseClient(), CoroutineScope {
 
             return when (result) {
                 is Result.Succeeded -> {
-                    return gson.fromJson(result.body, Print::class.java)
+                    gson.fromJson(result.body, Print::class.java)
                 }
                 is Result.NotModified -> {
-                    return null
+                    null
                 }
                 is Result.Forbidden -> {
-                    return null
+                    null
                 }
                 else -> {
                     handleExceptions(result)
-                    return null
+                    null
                 }
             }
         }
@@ -2028,14 +2035,14 @@ class HttpClient : BaseClient(), CoroutineScope {
                     fetchInventory(type, tags, flags, notFlags, archived, n, offset + n, order, items)
                 }
                 is Result.NotModified -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 is Result.Forbidden -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }
@@ -2124,14 +2131,14 @@ class HttpClient : BaseClient(), CoroutineScope {
 
             return when (result) {
                 is Result.Succeeded -> {
-                    return gson.fromJson(result.body, NotificationsV2::class.java)
+                    gson.fromJson(result.body, NotificationsV2::class.java)
                 }
                 is Result.Forbidden -> {
-                    return arrayListOf()
+                    arrayListOf()
                 }
                 else -> {
                     handleExceptions(result)
-                    return arrayListOf()
+                    arrayListOf()
                 }
             }
         }

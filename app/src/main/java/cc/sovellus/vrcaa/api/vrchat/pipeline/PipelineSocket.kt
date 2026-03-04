@@ -17,6 +17,7 @@
 package cc.sovellus.vrcaa.api.vrchat.pipeline
 
 import cc.sovellus.vrcaa.App
+import cc.sovellus.vrcaa.api.vrchat.Config
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendActive
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendAdd
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendDelete
@@ -24,17 +25,15 @@ import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendLocation
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendOffline
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendOnline
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.FriendUpdate
+import cc.sovellus.vrcaa.api.vrchat.pipeline.models.HideNotification
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.Notification
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.NotificationV2
+import cc.sovellus.vrcaa.api.vrchat.pipeline.models.NotificationV2Delete
+import cc.sovellus.vrcaa.api.vrchat.pipeline.models.SeeNotification
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.UpdateModel
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.UserLocation
 import cc.sovellus.vrcaa.api.vrchat.pipeline.models.UserUpdate
-import cc.sovellus.vrcaa.api.vrchat.Config
-import cc.sovellus.vrcaa.api.vrchat.pipeline.models.HideNotification
-import cc.sovellus.vrcaa.api.vrchat.pipeline.models.NotificationV2Delete
-import cc.sovellus.vrcaa.api.vrchat.pipeline.models.SeeNotification
 import cc.sovellus.vrcaa.helper.DnsHelper
-import cc.sovellus.vrcaa.helper.TLSHelper
 import cc.sovellus.vrcaa.manager.ApiManager.api
 import cc.sovellus.vrcaa.manager.DebugManager
 import cc.sovellus.vrcaa.manager.DebugManager.DebugType
@@ -42,16 +41,16 @@ import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
+import java.net.SocketException
 import java.time.LocalDateTime
-import java.util.Date
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 
@@ -61,14 +60,11 @@ class PipelineSocket(
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO + SupervisorJob()
 
-    private val tlsHelper = TLSHelper()
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.MINUTES)
+            .readTimeout(2, TimeUnit.MINUTES)
             .dns(DnsHelper())
-            .sslSocketFactory(tlsHelper.getSSLContext().socketFactory, tlsHelper.systemDefaultTrustManager())
             .build()
     }
 
@@ -171,7 +167,7 @@ class PipelineSocket(
                 if (App.isNetworkLoggingEnabled()) {
                     DebugManager.addDebugMetadata(
                         DebugManager.DebugMetadataData(
-                            type = DebugManager.DebugType.DEBUG_TYPE_PIPELINE,
+                            type = DebugType.DEBUG_TYPE_PIPELINE,
                             name = update.type,
                             unknown = isUnknown,
                             payload = update.content
@@ -194,7 +190,16 @@ class PipelineSocket(
             ) {
                 if (shouldReconnect)
                 {
-                    reconnect()
+                    if (t is SocketException) {
+                        reconnect()
+                    } else {
+                        launch {
+                            api.auth.fetchToken()?.let {
+                                token = it
+                                reconnect()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -222,11 +227,8 @@ class PipelineSocket(
         )
         launch {
             delay(Config.RECONNECTION_INTERVAL)
-            api.auth.fetchToken()?.let { tkn ->
-                token = tkn
-                socket.cancel()
-                connect()
-            }
+            socket.cancel()
+            connect()
         }
     }
 
