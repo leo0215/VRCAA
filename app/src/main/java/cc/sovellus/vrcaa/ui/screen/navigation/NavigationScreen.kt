@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -85,6 +86,7 @@ import androidx.compose.material3.SearchBarDefaults.InputField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerState
@@ -435,7 +437,7 @@ class NavigationScreen : Screen {
                                             expanded = model.searchModeActivated.value,
                                             onExpandedChange = { },
                                             shape = SearchBarDefaults.inputFieldShape,
-                                            colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                                            colors = SearchBarDefaults.colors(containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.surfaceContainerHighest),
                                             tonalElevation = if (model.searchModeActivated.value) {
                                                 0.dp
                                             } else {
@@ -481,7 +483,10 @@ class NavigationScreen : Screen {
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
-                                        }
+                                        },
+                                        colors = TopAppBarDefaults.topAppBarColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                        )
                                     )
                                 }
                                 ProfileTab.options.index -> {
@@ -492,12 +497,18 @@ class NavigationScreen : Screen {
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
-                                        }
+                                        },
+                                        colors = TopAppBarDefaults.topAppBarColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                        )
                                     )
                                 }
                                 FavoritesTab.options.index -> {
                                     TopAppBar(
                                         title = { Text(stringResource(R.string.tabs_label_favorites)) },
+                                        colors = TopAppBarDefaults.topAppBarColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                        ),
                                         actions = {
                                             IconButton(onClick = { isMenuExpanded = true }) {
                                                 Icon(
@@ -571,7 +582,10 @@ class NavigationScreen : Screen {
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
-                                        }
+                                        },
+                                        colors = TopAppBarDefaults.topAppBarColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                        )
                                     )
                                 }
                                 SettingsTab.options.index -> {
@@ -582,7 +596,10 @@ class NavigationScreen : Screen {
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
-                                        }
+                                        },
+                                        colors = TopAppBarDefaults.topAppBarColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                        )
                                     )
                                 }
                             }
@@ -798,7 +815,7 @@ class NavigationScreen : Screen {
                                     expanded = model.searchModeActivated.value,
                                     onExpandedChange = { },
                                     shape = SearchBarDefaults.inputFieldShape,
-                                    colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                                    colors = SearchBarDefaults.colors(containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.surfaceContainerLowest),
                                     tonalElevation = if (model.searchModeActivated.value) {
                                         0.dp
                                     } else {
@@ -857,7 +874,10 @@ class NavigationScreen : Screen {
                                             contentDescription = null
                                         )
                                     }
-                                }
+                                },
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                )
                             )
                         }
 
@@ -881,39 +901,19 @@ class NavigationScreen : Screen {
                                             contentDescription = null
                                         )
                                     }
-                                }
-                            )
-                        }
-
-                        ProfileTab.options.index -> {
-                            TopAppBar(
-                                title = {
-                                    Text(
-                                        text = stringResource(id = R.string.tabs_label_profile),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
                                 },
-                                navigationIcon = {
-                                    IconButton(onClick = {
-                                        if (CacheManager.isBuilt()) {
-                                            scope.launch {
-                                                drawerState.open()
-                                            }
-                                        }
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Menu,
-                                            contentDescription = null
-                                        )
-                                    }
-                                }
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                )
                             )
                         }
 
                         FavoritesTab.options.index -> {
                             TopAppBar(
                                 title = { Text(stringResource(R.string.tabs_label_favorites)) },
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                ),
                                 navigationIcon = {
                                     IconButton(onClick = {
                                         scope.launch {
@@ -1012,7 +1012,10 @@ class NavigationScreen : Screen {
                                             contentDescription = null
                                         )
                                     }
-                                }
+                                },
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                )
                             )
                         }
 
@@ -1036,7 +1039,10 @@ class NavigationScreen : Screen {
                                             contentDescription = null
                                         )
                                     }
-                                }
+                                },
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                )
                             )
                         }
                     }

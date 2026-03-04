@@ -152,17 +152,8 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.App
 
 import cc.sovellus.vrcaa.api.vrchat.http.models.User
-import cc.sovellus.vrcaa.api.vrchat.http.models.Badge as UserBadge
-import cc.sovellus.vrcaa.helper.StatusHelper
 import cc.sovellus.vrcaa.helper.TrustHelper
 import cc.sovellus.vrcaa.extension.clickableIf
-import cc.sovellus.vrcaa.manager.ApiManager.api
-import cc.sovellus.vrcaa.manager.CacheManager
-import cc.sovellus.vrcaa.ui.components.card.ProfileCard
-import cc.sovellus.vrcaa.ui.components.controls.QuickActionsRow
-import cc.sovellus.vrcaa.ui.components.input.ComboInput
-import cc.sovellus.vrcaa.ui.components.misc.Description
-import cc.sovellus.vrcaa.ui.components.misc.SubHeader
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.screen.avatars.AvatarsScreen
@@ -172,15 +163,9 @@ import cc.sovellus.vrcaa.ui.screen.gallery.IconGalleryScreen
 import cc.sovellus.vrcaa.ui.screen.group.UserGroupsScreen
 import cc.sovellus.vrcaa.ui.screen.items.ItemsScreen
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
-import cc.sovellus.vrcaa.ui.screen.group.GroupScreen
 import cc.sovellus.vrcaa.ui.screen.prints.PrintsScreen
 import cc.sovellus.vrcaa.ui.screen.stickers.StickersScreen
 import cc.sovellus.vrcaa.ui.screen.worlds.WorldsScreen
-import kotlinx.coroutines.launch
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
-import java.util.TimeZone
 
 class ProfileScreen : Screen {
 
@@ -223,16 +208,10 @@ class ProfileScreen : Screen {
                 )
             }
             
-            Scaffold(
+            LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
-            ) { padding ->
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(padding)
-                        .fillMaxSize(),
-                    verticalArrangement = Arrangement.Top
-                ) {
+                verticalArrangement = Arrangement.Top
+            ) {
                     // Banner image section with overlay buttons
                     item {
                         Box(
@@ -747,7 +726,6 @@ class ProfileScreen : Screen {
                         }
                     }
                 }
-            }
             
         }
     }
