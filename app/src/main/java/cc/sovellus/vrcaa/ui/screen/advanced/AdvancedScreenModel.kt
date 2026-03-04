@@ -29,6 +29,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.networkLogging
+import cc.sovellus.vrcaa.extension.onboardingCompleted
 
 import cc.sovellus.vrcaa.service.PipelineService
 import androidx.core.net.toUri
@@ -74,6 +75,10 @@ class AdvancedScreenModel : ScreenModel {
     fun killBackgroundService() {
         val intent = Intent(context, PipelineService::class.java)
         context.stopService(intent)
+    }
+
+    fun resetOnboardingState() {
+        preferences.onboardingCompleted = false
     }
 
     fun deleteDatabase() {

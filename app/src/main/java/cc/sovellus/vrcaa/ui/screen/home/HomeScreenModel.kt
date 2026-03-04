@@ -17,6 +17,8 @@
 package cc.sovellus.vrcaa.ui.screen.home
 
 import cafe.adriel.voyager.core.model.StateScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
+import kotlinx.coroutines.launch
 import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
 import cc.sovellus.vrcaa.manager.CacheManager
 import cc.sovellus.vrcaa.manager.CacheManager.WorldCache

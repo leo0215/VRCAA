@@ -18,7 +18,6 @@ package cc.sovellus.vrcaa.ui.screen.favorites
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,27 +32,26 @@ import androidx.compose.material.icons.filled.Cabin
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ButtonGroupDefaults
-import androidx.compose.material3.ToggleButton
-import androidx.compose.material3.ToggleButtonDefaults
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MultiChoiceSegmentedButtonRow
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites.FavoriteType
 import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.manager.FriendManager
 import cc.sovellus.vrcaa.ui.components.dialog.FavoriteEditDialog
@@ -61,21 +59,13 @@ import cc.sovellus.vrcaa.ui.components.dialog.GenericDialog
 import cc.sovellus.vrcaa.ui.components.layout.FavoriteHorizontalRow
 import cc.sovellus.vrcaa.ui.components.layout.RowItem
 import cc.sovellus.vrcaa.ui.screen.avatar.AvatarScreen
+import cc.sovellus.vrcaa.ui.screen.favorites.FavoritesScreenModel.FavoriteState
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
-import android.content.SharedPreferences
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import cc.sovellus.vrcaa.App
-import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites.FavoriteType
-
 
 class FavoritesScreen : Screen {
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -84,8 +74,8 @@ class FavoritesScreen : Screen {
         val state by model.state.collectAsState()
 
         when (state) {
-            is FavoritesScreenModel.FavoriteState.Loading -> LoadingIndicatorScreen().Content()
-            is FavoritesScreenModel.FavoriteState.Result -> ShowScreen(model)
+            is FavoriteState.Loading -> LoadingIndicatorScreen().Content()
+            is FavoriteState.Result -> ShowScreen(model)
             else -> {}
         }
     }
@@ -93,7 +83,8 @@ class FavoritesScreen : Screen {
     @Composable
     fun ShowScreen(model: FavoritesScreenModel) {
 
-
+        val version = model.version.collectAsState()
+        version.value
 
         if (model.editDialogShown.value) {
             FavoriteEditDialog(
@@ -133,31 +124,42 @@ class FavoritesScreen : Screen {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                Modifier
+            MultiChoiceSegmentedButtonRow(
+                modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                    .padding(start = 16.dp, end = 16.dp)
             ) {
-                val modifiers = List(options.size) { Modifier.weight(1f) }
                 options.forEachIndexed { index, label ->
-                    val selected = index == model.currentIndex.intValue
-                    ToggleButton(
-                        checked = selected,
-                        onCheckedChange = { model.currentIndex.intValue = index },
-                        modifier = modifiers[index],
-                        shapes = when (index) {
-                            0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                            options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                            else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index = index,
+                            count = options.size
+                        ),
+                        icon = {
+                            SegmentedButtonDefaults.Icon(
+                                active = index == model.currentIndex.intValue,
+                                activeContent = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SegmentedButtonDefaults.IconSize).offset(y = 2.5.dp)
+                                    )
+                                },
+                                inactiveContent = {
+                                    Icon(
+                                        imageVector = icons[index],
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SegmentedButtonDefaults.IconSize).offset(y = 2.5.dp)
+                                    )
+                                }
+                            )
                         },
+                        onCheckedChange = {
+                            model.currentIndex.intValue = index
+                        },
+                        checked = index == model.currentIndex.intValue
                     ) {
-                        Icon(
-                            imageVector = if (selected) Icons.Filled.Check else icons[index],
-                            contentDescription = null,
-                        )
-                        Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
-                        Text(text = label, softWrap = true, maxLines = 1)
+                        Text(text = label, softWrap = true, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
             }
@@ -175,7 +177,6 @@ class FavoritesScreen : Screen {
                         0 -> ShowWorlds(model)
                         1 -> ShowAvatars(model)
                         2 -> ShowFriends(model)
-                        else -> {}
                     }
                 }
             }
@@ -186,11 +187,10 @@ class FavoritesScreen : Screen {
     fun ShowWorlds(
         model: FavoritesScreenModel,
     ) {
-        val worldList = model.worldList.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
+        val worldList = model.getWorldList()
 
-        val sortedWorldList = worldList.value.toSortedMap(compareBy { it.substring(6).toInt() })
-        sortedWorldList.forEach { item ->
+        worldList.forEach { item ->
             if (item.value.isNotEmpty()) {
                 FavoriteHorizontalRow(
                     title = "${FavoriteManager.getDisplayNameFromTag(item.key)} (${FavoriteManager.getGroupMetadata(item.key)?.size ?: 0}/${FavoriteManager.getMaximumFavoritesForType(FavoriteType.FAVORITE_WORLD)})",
@@ -200,7 +200,7 @@ class FavoritesScreen : Screen {
                         model.editDialogShown.value = true
                     }
                 ) {
-                    items(item.value) {
+                    items(item.value.distinct()) {
                         RowItem(name = it.name, url = it.thumbnailUrl) {
                             if (it.name != "???") {
                                 navigator.parent?.parent?.push(WorldScreen(it.id) {
@@ -226,11 +226,10 @@ class FavoritesScreen : Screen {
     fun ShowAvatars(
         model: FavoritesScreenModel,
     ) {
-        val avatarList = model.avatarList.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
+        val avatarList = model.getAvatarList()
 
-        val sortedAvatarList = avatarList.value.toSortedMap(compareBy { it.substring(7).toInt() })
-        sortedAvatarList.forEach { item ->
+        avatarList.forEach { item ->
             if (item.value.isNotEmpty()) {
                 FavoriteHorizontalRow(
                     title = "${FavoriteManager.getDisplayNameFromTag(item.key)} (${FavoriteManager.getGroupMetadata(item.key)?.size ?: 0}/${FavoriteManager.getMaximumFavoritesForType(FavoriteType.FAVORITE_AVATAR)})",
@@ -240,7 +239,7 @@ class FavoritesScreen : Screen {
                         model.editDialogShown.value = true
                     }
                 ) {
-                    items(item.value) {
+                    items(item.value.distinct()) {
                         RowItem(name = it.name, url = it.thumbnailUrl) {
                             if (it.name != "???") {
                                 navigator.parent?.parent?.push(AvatarScreen(it.id) {
@@ -264,13 +263,12 @@ class FavoritesScreen : Screen {
 
     @Composable
     fun ShowFriends(
-        model: FavoritesScreenModel,
+        model: FavoritesScreenModel
     ) {
-        val friendList = model.friendList.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
+        val friendList = model.getFriendList()
 
-        val sortedFriendList = friendList.value.toSortedMap(compareBy { it.substring(6).toInt() })
-        sortedFriendList.forEach { item ->
+        friendList.forEach { item ->
             if (item.value.isNotEmpty()) {
                 FavoriteHorizontalRow(
                     title = "${FavoriteManager.getDisplayNameFromTag(item.key)} (${FavoriteManager.getGroupMetadata(item.key)?.size ?: 0}/${FavoriteManager.getMaximumFavoritesForType(FavoriteType.FAVORITE_FRIEND)})",
@@ -281,7 +279,7 @@ class FavoritesScreen : Screen {
                         model.editDialogShown.value = true
                     }
                 ) {
-                    items(item.value) {
+                    items(item.value.distinct()) {
                         val user = FriendManager.getFriend(it.id)
                         user?.let {
                             RowItem(name = user.displayName, url = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl }) {

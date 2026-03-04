@@ -128,6 +128,8 @@ class ColorDebugScreen : Screen {
                             "onBackground" to colorScheme.onBackground,
                             "surface" to colorScheme.surface,
                             "onSurface" to colorScheme.onSurface,
+                            "surfaceDim" to colorScheme.surfaceDim,
+                            "surfaceBright" to colorScheme.surfaceBright,
                             "surfaceVariant" to colorScheme.surfaceVariant,
                             "onSurfaceVariant" to colorScheme.onSurfaceVariant
                         ),

@@ -1902,7 +1902,7 @@ public class ColorSpec2025 : ColorSpec2021() {
 
             val bgTone2 = color.secondBackground?.invoke(scheme)?.getTone(scheme) ?: return answer
 
-            // Case 2: Adjust for dual backgrounds.
+            // image.pngCase 2: Adjust for dual backgrounds.
             val bgTone1 = bgTone
             val upper: Double = max(bgTone1, bgTone2)
             val lower: Double = min(bgTone1, bgTone2)
