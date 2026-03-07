@@ -369,34 +369,6 @@ class PipelineService : Service(), CoroutineScope {
 
                 is FriendActive -> {
                     val update = msg.obj as FriendActive
-                    // val friend = FriendManager.getFriend(update.userId)
-                    // PS. Active != Offline, it implies the user become active on a secondary platform
-                    // However this does not guarantee the player actually went active on the client.
-
-                    /*
-                    val feed = FeedManager.Feed(FeedManager.FeedType.FRIEND_FEED_ONLINE).apply {
-                        friendId = update.userId
-                        friendName = update.user.displayName
-                        friendPictureUrl = update.user.userIcon.ifEmpty { update.user.profilePicOverride.ifEmpty { update.user.currentAvatarImageUrl } }
-                    }
-
-                    if (NotificationHelper.isOnWhitelist(update.userId) &&
-                        NotificationHelper.isIntentEnabled(
-                            update.userId,
-                            NotificationHelper.Intents.FRIEND_FLAG_ONLINE
-                        )
-                    ) {
-                        NotificationHelper.pushNotification(
-                            title = application.getString(R.string.notification_service_title_online),
-                            content = application.getString(R.string.notification_service_description_online)
-                                .format(update.user.displayName),
-                            channel = NotificationHelper.CHANNEL_ONLINE_ID
-                        )
-                    }
-
-                    FeedManager.addFeed(feed)
-                    */
-
                     FriendManager.updateFriend(update.user)
                     FriendManager.updatePlatform(update.userId, update.platform)
                 }

@@ -64,8 +64,6 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
-import cc.sovellus.vrcaa.App
-
 import cc.sovellus.vrcaa.extension.columnCountOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
 import cc.sovellus.vrcaa.ui.components.layout.GridItem
@@ -76,8 +74,6 @@ import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.search.SearchResultScreenModel.SearchState
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
-import android.content.SharedPreferences
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -111,10 +107,6 @@ class SearchResultScreen(
     ) {
 
         val navigator = LocalNavigator.currentOrThrow
-
-        // Real-time observe anonymous mode
-        val preferences = App.getPreferences()
-
 
         BackHandler(enabled = model.currentIndex.intValue != 0, onBack = {
             model.currentIndex.intValue = 0

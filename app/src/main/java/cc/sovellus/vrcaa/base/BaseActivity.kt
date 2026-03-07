@@ -1,6 +1,5 @@
 package cc.sovellus.vrcaa.base
 
-import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity

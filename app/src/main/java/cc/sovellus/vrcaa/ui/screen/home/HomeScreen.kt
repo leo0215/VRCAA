@@ -66,11 +66,6 @@ import cc.sovellus.vrcaa.ui.screen.home.HomeScreenModel.HomeState
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
-import android.content.SharedPreferences
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 
 class HomeScreen : Screen {
 

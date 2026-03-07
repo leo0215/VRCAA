@@ -249,10 +249,6 @@ class GatewaySocket {
         val timestamps = ArrayMap<String, Any>()
         timestamps["start"] = sessionTime
 
-        // TODO: how do we actually determine the amount of people without log parsing, we don't, for future.
-        // val party = ArrayMap<String, Any?>()
-        // party["size"] = arrayOf<Any>(16, 64)
-        
         val activity = ArrayMap<String, Any>()
 
         activity["name"] = "VRChat"
