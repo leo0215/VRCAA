@@ -154,7 +154,7 @@ import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.api.vrchat.http.models.User
 import cc.sovellus.vrcaa.helper.TrustHelper
 import cc.sovellus.vrcaa.extension.clickableIf
-import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
+import cc.sovellus.vrcaa.ui.components.settings.ExpandableSettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.screen.avatars.AvatarsScreen
 import cc.sovellus.vrcaa.ui.screen.emojis.EmojisScreen
@@ -541,41 +541,24 @@ class ProfileScreen : Screen {
                             }
                             
                             Column(
-                        modifier = Modifier
+                                modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp)
                             ) {
-                                val settingsItems = buildList {
-                                    // Add header as first item
-                                    add(
-                                        SettingsItem(
-                                            title = stringResource(R.string.profile_label_account_info),
-                                            description = null,
-                                            icon = null,
-                                            onClick = { },
-                                            isHeader = true
-                                        )
-                                    )
+                                val accountItems = buildList {
                                     if (profile.hasBirthday) {
-                                        // Format dateJoined as birthday display (using dateJoined as placeholder since actual birthday is not available in API)
                                         val notAvailableText = stringResource(R.string.profile_not_available)
                                         val birthdayText = try {
                                             if (profile.dateJoined.isNotEmpty() && profile.dateJoined.length >= 10) {
                                                 val date = profile.dateJoined.substring(0, 10)
-
                                                 val parts = date.split("-")
-                                                if (parts.size == 3) {  
+                                                if (parts.size == 3) {
                                                     "${parts[0]}/${parts[1].toInt()}/${parts[2].toInt()}"
-                                                } else {
-                                                    date
-                                                }
-                                            } else {
-                                                notAvailableText
-                                            }
+                                                } else date
+                                            } else notAvailableText
                                         } catch (e: Exception) {
                                             notAvailableText
                                         }
-                                        
                                         add(
                                             SettingsItem(
                                                 title = birthdayText,
@@ -585,7 +568,6 @@ class ProfileScreen : Screen {
                                             )
                                         )
                                     }
-                                    // Add bio if available
                                     if (profile.bio.isNotEmpty()) {
                                         add(
                                             SettingsItem(
@@ -597,8 +579,13 @@ class ProfileScreen : Screen {
                                         )
                                     }
                                 }
-                                
-                                SettingsGroup(items = settingsItems)
+                                if (accountItems.isNotEmpty()) {
+                                    ExpandableSettingsGroup(
+                                        headerTitle = stringResource(R.string.profile_label_account_info),
+                                        items = accountItems,
+                                        initiallyExpanded = true
+                                    )
+                                }
                             }
                             
                             Spacer(modifier = Modifier.height(24.dp))
@@ -607,118 +594,96 @@ class ProfileScreen : Screen {
                             if (profile.bioLinks.isNotEmpty() && profile.bioLinks.any { it.isNotEmpty() }) {
                                 val context = LocalContext.current
                                 Column(
-                        modifier = Modifier
+                                    modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(horizontal = 16.dp)
                                 ) {
-                                    val socialLinksItems = buildList {
-                                        add(
+                                    val socialLinksItems = profile.bioLinks
+                                        .filter { it.isNotEmpty() }
+                                        .map { link ->
                                             SettingsItem(
-                                                title = stringResource(R.string.profile_edit_dialog_title_bio_links),
+                                                title = link,
                                                 description = null,
-                                                icon = null,
-                                                onClick = { },
-                                                isHeader = true
+                                                icon = Icons.Default.Link,
+                                                onClick = {
+                                                    try {
+                                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+                                                        context.startActivity(intent)
+                                                    } catch (e: Exception) {
+                                                        Toast.makeText(
+                                                            context,
+                                                            context.getString(R.string.profile_failed_to_open_link),
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                    }
+                                                }
                                             )
-                                        )
-                                        profile.bioLinks.forEach { link ->
-                                            if (link.isNotEmpty()) {
-                                                add(
-                                                    SettingsItem(
-                                                        title = link,
-                                                        description = null,
-                                                        icon = Icons.Default.Link,
-                                                        onClick = {
-                                                            try {
-                                                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
-                                                                context.startActivity(intent)
-                                                            } catch (e: Exception) {
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    context.getString(R.string.profile_failed_to_open_link),
-                                                                    Toast.LENGTH_SHORT
-                                                                ).show()
-                                                            }
-                                                        }
-                                                    )
-                                                )
-                                            }
                                         }
-                                    }
-                                    
-                                    SettingsGroup(items = socialLinksItems)
+                                    ExpandableSettingsGroup(
+                                        headerTitle = stringResource(R.string.profile_edit_dialog_title_bio_links),
+                                        items = socialLinksItems,
+                                        initiallyExpanded = false
+                                    )
                                 }
-                                
                                 Spacer(modifier = Modifier.height(24.dp))
                             }
-                            
+
                             // Known Languages section
                             val languageTags = profile.tags.filter { it.contains("language_") }
                             if (languageTags.isNotEmpty()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
                                         .padding(horizontal = 16.dp)
                                 ) {
-                                    val languagesItems = buildList {
-                                        add(
-                                            SettingsItem(
-                                                title = stringResource(R.string.profile_label_known_languages),
-                                                description = null,
-                                                icon = null,
-                                                onClick = { },
-                                                isHeader = true
-                                            )
-                                        )
-                                        languageTags.forEach { tag ->
-                                            val languageCode = tag.substring("language_".length)
-                                            val languageName = when (languageCode.lowercase()) {
-                                                "eng" -> stringResource(R.string.language_english)
-                                                "kor" -> stringResource(R.string.language_korean)
-                                                "rus" -> stringResource(R.string.language_russian)
-                                                "spa" -> stringResource(R.string.language_spanish)
-                                                "por" -> stringResource(R.string.language_portuguese)
-                                                "zho" -> stringResource(R.string.language_chinese)
-                                                "deu" -> stringResource(R.string.language_german)
-                                                "jpn" -> stringResource(R.string.language_japanese)
-                                                "fra" -> stringResource(R.string.language_french)
-                                                "swe" -> stringResource(R.string.language_swedish)
-                                                "nld" -> stringResource(R.string.language_dutch)
-                                                "pol" -> stringResource(R.string.language_polish)
-                                                "dan" -> stringResource(R.string.language_danish)
-                                                "nor" -> stringResource(R.string.language_norwegian)
-                                                "ita" -> stringResource(R.string.language_italian)
-                                                "tha" -> stringResource(R.string.language_thai)
-                                                "fin" -> stringResource(R.string.language_finnish)
-                                                "hun" -> stringResource(R.string.language_hungarian)
-                                                "ces" -> stringResource(R.string.language_czech)
-                                                "tur" -> stringResource(R.string.language_turkish)
-                                                "ara" -> stringResource(R.string.language_arabic)
-                                                "ron" -> stringResource(R.string.language_romanian)
-                                                "vie" -> stringResource(R.string.language_vietnamese)
-                                                "ukr" -> stringResource(R.string.language_ukrainian)
-                                                "ase" -> stringResource(R.string.language_american_sign_language)
-                                                "bfi" -> stringResource(R.string.language_british_sign_language)
-                                                "dse" -> stringResource(R.string.language_german_sign_language)
-                                                "fsl" -> stringResource(R.string.language_french_sign_language)
-                                                "jsl" -> stringResource(R.string.language_japanese_sign_language)
-                                                "kvk" -> stringResource(R.string.language_korean_sign_language)
-                                                else -> languageCode.uppercase()
-                                            }
-                                            add(
-                                                SettingsItem(
-                                                    title = languageName,
-                                                    description = null,
-                                                    icon = Icons.Default.Translate,
-                                                    onClick = { }
-                                                )
-                                            )
+                                    val languagesItems = languageTags.map { tag ->
+                                        val languageCode = tag.substring("language_".length)
+                                        val languageName = when (languageCode.lowercase()) {
+                                            "eng" -> stringResource(R.string.language_english)
+                                            "kor" -> stringResource(R.string.language_korean)
+                                            "rus" -> stringResource(R.string.language_russian)
+                                            "spa" -> stringResource(R.string.language_spanish)
+                                            "por" -> stringResource(R.string.language_portuguese)
+                                            "zho" -> stringResource(R.string.language_chinese)
+                                            "deu" -> stringResource(R.string.language_german)
+                                            "jpn" -> stringResource(R.string.language_japanese)
+                                            "fra" -> stringResource(R.string.language_french)
+                                            "swe" -> stringResource(R.string.language_swedish)
+                                            "nld" -> stringResource(R.string.language_dutch)
+                                            "pol" -> stringResource(R.string.language_polish)
+                                            "dan" -> stringResource(R.string.language_danish)
+                                            "nor" -> stringResource(R.string.language_norwegian)
+                                            "ita" -> stringResource(R.string.language_italian)
+                                            "tha" -> stringResource(R.string.language_thai)
+                                            "fin" -> stringResource(R.string.language_finnish)
+                                            "hun" -> stringResource(R.string.language_hungarian)
+                                            "ces" -> stringResource(R.string.language_czech)
+                                            "tur" -> stringResource(R.string.language_turkish)
+                                            "ara" -> stringResource(R.string.language_arabic)
+                                            "ron" -> stringResource(R.string.language_romanian)
+                                            "vie" -> stringResource(R.string.language_vietnamese)
+                                            "ukr" -> stringResource(R.string.language_ukrainian)
+                                            "ase" -> stringResource(R.string.language_american_sign_language)
+                                            "bfi" -> stringResource(R.string.language_british_sign_language)
+                                            "dse" -> stringResource(R.string.language_german_sign_language)
+                                            "fsl" -> stringResource(R.string.language_french_sign_language)
+                                            "jsl" -> stringResource(R.string.language_japanese_sign_language)
+                                            "kvk" -> stringResource(R.string.language_korean_sign_language)
+                                            else -> languageCode.uppercase()
                                         }
+                                        SettingsItem(
+                                            title = languageName,
+                                            description = null,
+                                            icon = Icons.Default.Translate,
+                                            onClick = { }
+                                        )
                                     }
-                                    
-                                    SettingsGroup(items = languagesItems)
+                                    ExpandableSettingsGroup(
+                                        headerTitle = stringResource(R.string.profile_label_known_languages),
+                                        items = languagesItems,
+                                        initiallyExpanded = false
+                                    )
                                 }
-                                
                                 Spacer(modifier = Modifier.height(24.dp))
                             }
                             

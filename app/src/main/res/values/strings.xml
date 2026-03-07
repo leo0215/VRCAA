@@ -29,6 +29,10 @@
 
     <!-- Home -->
 
+    <string name="home_greeting_morning">Good morning</string>
+    <string name="home_greeting_afternoon">Good afternoon</string>
+    <string name="home_greeting_evening">Good evening</string>
+    <string name="home_greeting_night">Good night</string>
     <string name="home_active_friends">Online Friends</string>
     <string name="home_recently_visited">Recently Visited</string>
     <string name="home_offline_friends">Offline Friends</string>
@@ -49,6 +53,8 @@
     <string name="onboarding_description">Stay connected to your VRChat world. Manage your profile, keep up with friends, and never miss what’s happening — all from your Android device.</string>
     <string name="onboarding_permissions_title">You might need to grant permissions.</string>
     <string name="onboarding_permissions_description">Enable notifications to receive friend updates and activity alerts in real time.</string>
+    <string name="onboarding_button_get_started">Get started</string>
+    <string name="onboarding_button_continue">Continue</string>
 
     <!-- Two Auth -->
 
@@ -358,7 +364,7 @@
     <string name="user_overlay_note">Add Note</string>
 
     <!-- Profile Edit Dialog -->
-
+    <string name="profile_edit_sheet_title">Edit profile</string>
     <string name="profile_edit_dialog_title_status">Status</string>
     <string name="profile_edit_dialog_title_age_verification_visibility">Age Verification Visibility</string>
     <string name="profile_edit_dialog_title_status_description">Status Description</string>
@@ -430,6 +436,19 @@
 
     <!-- Debug -->
 
+    <string name="settings_section_debug" translatable="false">Debug</string>
+    <string name="settings_item_debug" translatable="false">Debug</string>
+    <string name="settings_item_debug_description" translatable="false">Developer tools and Material color debug</string>
+    <string name="debug_page_section_ui" translatable="false">UI</string>
+    <string name="debug_page_material_colors" translatable="false">Material Colors Debug</string>
+    <string name="debug_page_material_colors_description" translatable="false">View all Material color values</string>
+    <string name="debug_page_navigation_type" translatable="false">Navigation Type</string>
+    <string name="debug_page_navigation_type_description" translatable="false">Choose main navigation layout (restart to apply)</string>
+    <string name="debug_navigation_type_auto" translatable="false">Auto (Drawer on phone, Rail on tablet)</string>
+    <string name="debug_navigation_type_drawer" translatable="false">Drawer (sidebar)</string>
+    <string name="debug_navigation_type_rail" translatable="false">Rail (sidebar)</string>
+    <string name="debug_navigation_type_bottom_bar" translatable="false">Bottom Bar</string>
+
     <string-array name="debug_selection_options" translatable="false">
         <item>HTTP Traffic</item>
         <item>Pipeline Traffic</item>
@@ -485,6 +504,12 @@
     <string name="theme_page_follow_system_color_theme_description">使用系統的動態顏色主題</string>
     <string name="theme_page_use_legacy_material_theme">Use Material Expressive Theme</string>
     <string name="theme_page_fixed_column_size">Fixed Column Size: %1$d</string>
+    <string name="theme_page_color_scheme_tonal">Tonal</string>
+    <string name="theme_page_color_scheme_expressive">Expressive</string>
+    <string name="theme_page_color_scheme_fruit">Fruit</string>
+    <string name="theme_page_color_scheme_vibrant">Vibrant</string>
+    <string name="theme_page_color_palette_style">Palette style</string>
+    <string name="theme_page_color_seed_colors">Colors</string>
 
     <!-- Advanced Settings -->
 

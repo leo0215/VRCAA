@@ -90,6 +90,7 @@ import cc.sovellus.vrcaa.manager.ApiManager.api
 import cc.sovellus.vrcaa.manager.CacheManager
 import cc.sovellus.vrcaa.ui.components.dialog.EmojiUploadConfigDialog
 import cc.sovellus.vrcaa.ui.components.dialog.ImagePreviewDialog
+import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -263,6 +264,7 @@ class EmojisScreen : Screen {
                                     options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                                     else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                                 },
+                                colors = connectedButtonGroupToggleColors(),
                             ) {
                                 Icon(
                                     imageVector = if (selected) Icons.Filled.Check else icons[index],

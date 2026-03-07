@@ -50,8 +50,8 @@ fun ButtonGroupTabs(
             FilledTonalButton(
                 onClick = { onSelect(index) },
                 colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainer,
-                    contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = if (isSelected) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSecondaryContainer
                 ),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
             ) {

@@ -39,7 +39,6 @@ import androidx.compose.material.icons.filled.ViewColumn
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material.icons.outlined.Coffee
 import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Palette
@@ -96,6 +95,7 @@ import cc.sovellus.vrcaa.extension.fixedColumnSize
 import cc.sovellus.vrcaa.extension.fontFamily
 import cc.sovellus.vrcaa.extension.minimalistMode
 import cc.sovellus.vrcaa.manager.ThemeManager
+import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
@@ -104,7 +104,6 @@ import cc.sovellus.vrcaa.ui.components.dialog.FontSelectionDialog
 import cc.sovellus.vrcaa.ui.components.settings.ColorPicker
 import cc.sovellus.vrcaa.ui.components.settings.ColorPickerContent
 import cc.sovellus.vrcaa.ui.components.settings.SettingsCard
-import cc.sovellus.vrcaa.ui.screen.debug.ColorDebugScreen
 import kotlin.math.roundToInt
 
 class ThemeScreen : Screen {
@@ -191,6 +190,7 @@ class ThemeScreen : Screen {
                                                 options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                                                 else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                                             },
+                                        colors = connectedButtonGroupToggleColors(),
                                     ) {
                                         Icon(
                                             if (selectedIndex == index) checkedIcons[index] else unCheckedIcons[index],
@@ -263,6 +263,7 @@ class ThemeScreen : Screen {
                                                     options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                                                     else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                                                 },
+                                            colors = connectedButtonGroupToggleColors(),
                                         ) {
                                             Icon(
                                                 if (selectedColumnIndex == index) checkedIcons[index] else unCheckedIcons[index],
@@ -395,29 +396,6 @@ class ThemeScreen : Screen {
                                 )
                             }
                         }
-                    }
-
-                    item {
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-
-                    item {
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-
-                    item {
-                        SettingsGroup(
-                            items = listOf(
-                                SettingsItem(
-                                    title = "Material Colors Debug",
-                                    description = "View all Material color values",
-                                    icon = Icons.Outlined.BugReport,
-                                    onClick = {
-                                        navigator.push(ColorDebugScreen())
-                                    }
-                                )
-                            )
-                        )
                     }
 
                     item {

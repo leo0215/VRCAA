@@ -22,15 +22,23 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,8 +70,44 @@ class OnboardingPermissionsScreen : Screen {
         val context = LocalContext.current
 
         Scaffold(
-            floatingActionButton = {
-                FloatingActionButton(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .padding(padding)
+                    .padding(horizontal = 24.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .widthIn(max = 480.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Logo(size = 160.dp)
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = stringResource(R.string.onboarding_permissions_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Text(
+                        text = stringResource(R.string.onboarding_permissions_description),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                Button(
                     onClick = {
                         if (
                             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
@@ -91,43 +135,29 @@ class OnboardingPermissionsScreen : Screen {
                             }
                         )
                     },
-                    modifier = Modifier.padding(top = 24.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ButtonDefaults.ExtraLargeContainerHeight)
+                        .padding(bottom = 24.dp)
+                        .navigationBarsPadding(),
+                    shape = RoundedCornerShape(1000.dp),
+                    contentPadding = PaddingValues(vertical = 24.dp, horizontal = 32.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = null
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.ExtraLargeIconSize),
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
-                }
-            },
-            floatingActionButtonPosition = FabPosition.End
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Column(
-                    modifier = Modifier.widthIn(max = 520.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Logo(size = 172.dp)
-
+                    Spacer(modifier = Modifier.size(ButtonDefaults.ExtraLargeIconSpacing))
                     Text(
-                        text = stringResource(R.string.onboarding_permissions_title),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Text(
-                        text = stringResource(R.string.onboarding_permissions_description),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
+                        text = stringResource(R.string.onboarding_button_continue),
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }

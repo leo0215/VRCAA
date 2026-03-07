@@ -18,15 +18,23 @@ package cc.sovellus.vrcaa.ui.screen.onboarding
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,48 +59,68 @@ class OnboardingScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { navigator.push(OnboardingPermissionsScreen()) },
-                    modifier = Modifier.padding(top = 24.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = null
-                    )
-                }
-            },
-            floatingActionButtonPosition = FabPosition.End
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         ) { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .statusBarsPadding()
                     .padding(padding)
-                    .padding(horizontal = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .padding(horizontal = 24.dp)
             ) {
                 Column(
-                    modifier = Modifier.widthIn(max = 520.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .widthIn(max = 480.dp)
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Logo(size = 172.dp)
+                    Logo(size = 160.dp)
+
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
                         text = stringResource(R.string.onboarding_title),
+                        style = MaterialTheme.typography.headlineMedium,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 12.dp)
+                        modifier = Modifier.fillMaxWidth()
                     )
 
                     Text(
                         text = stringResource(R.string.onboarding_description),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                Button(
+                    onClick = { navigator.push(OnboardingPermissionsScreen()) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ButtonDefaults.ExtraLargeContainerHeight)
+                        .padding(bottom = 24.dp)
+                        .navigationBarsPadding(),
+                    shape = RoundedCornerShape(1000.dp),
+                    contentPadding = PaddingValues(vertical = 24.dp, horizontal = 32.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.ExtraLargeIconSize),
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(modifier = Modifier.size(ButtonDefaults.ExtraLargeIconSpacing))
+                    Text(
+                        text = stringResource(R.string.onboarding_button_get_started),
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }

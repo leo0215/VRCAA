@@ -41,7 +41,9 @@ import cc.sovellus.vrcaa.manager.CacheManager
 import cc.sovellus.vrcaa.manager.DatabaseManager
 import cc.sovellus.vrcaa.manager.NotificationManager
 import cc.sovellus.vrcaa.service.PipelineService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class NavigationScreenModel : ScreenModel {
@@ -51,7 +53,7 @@ class NavigationScreenModel : ScreenModel {
 
     var searchModeActivated = mutableStateOf(false)
     var searchText = mutableStateOf("")
-    var searchHistory = DatabaseManager.readQueries()
+    var searchHistory = mutableStateListOf<String>()
     var hasNoInternet = mutableStateOf(false)
     var invalidSession = mutableStateOf(false)
 
@@ -112,6 +114,9 @@ class NavigationScreenModel : ScreenModel {
         CacheManager.addListener(cacheListener)
 
         screenModelScope.launch {
+            searchHistory.addAll(withContext(Dispatchers.IO) { DatabaseManager.readQueries() })
+        }
+        screenModelScope.launch {
             NotificationManager.notificationCountState.collect { count ->
                 notificationsCount.intValue = count
             }
@@ -121,8 +126,9 @@ class NavigationScreenModel : ScreenModel {
     fun addSearchHistory() {
         screenModelScope.launch {
             if (searchText.value.isNotEmpty()) {
-                searchHistory.add(searchText.value)
-                DatabaseManager.writeQuery(searchText.value)
+                val query = searchText.value
+                withContext(Dispatchers.IO) { DatabaseManager.writeQuery(query) }
+                searchHistory.add(query)
             }
             clearSearchText()
         }

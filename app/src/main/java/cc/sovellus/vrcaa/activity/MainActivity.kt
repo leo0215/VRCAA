@@ -145,6 +145,20 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    override fun onDestroy() {
+        try {
+            val storeClass = Class.forName("cafe.adriel.voyager.core.lifecycle.ScreenLifecycleStore")
+            val field = storeClass.getDeclaredField("newOwners")
+            field.isAccessible = true
+            val map = field.get(null)
+            if (map != null) {
+                val clearMethod = map.javaClass.getMethod("clear")
+                clearMethod.invoke(map)
+            }
+        } catch (_: Exception) { }
+        super.onDestroy()
+    }
+
     override fun onPause() {
         super.onPause()
         preferences.timeInBackground = System.currentTimeMillis()

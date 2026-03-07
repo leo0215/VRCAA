@@ -84,6 +84,7 @@ import cc.sovellus.vrcaa.ui.components.dialog.GenericDialog
 import cc.sovellus.vrcaa.ui.components.misc.Description
 import cc.sovellus.vrcaa.ui.components.misc.RegionFlag
 import cc.sovellus.vrcaa.ui.components.misc.SubHeader
+import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 
@@ -265,6 +266,7 @@ class GroupScreen(
                                     options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                                     else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                                 },
+                                colors = connectedButtonGroupToggleColors(),
                             ) {
                                 Icon(
                                     imageVector = if (selected) Icons.Filled.Check else icons[index],

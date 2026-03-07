@@ -51,7 +51,7 @@ fun NotificationDialogV2(notification: NotificationV2, onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = MaterialTheme.shapes.medium,
-            color = MaterialTheme.colorScheme.surfaceContainer,
+            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp
         ) {
             Column(

@@ -33,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.Coffee
 import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.DeveloperMode
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.ImagesearchRoller
@@ -74,6 +75,7 @@ import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.screen.about.AboutScreen
 import cc.sovellus.vrcaa.ui.screen.advanced.AdvancedScreen
 import cc.sovellus.vrcaa.ui.screen.database.DatabaseScreen
+import cc.sovellus.vrcaa.ui.screen.debug.DebugScreen
 import cc.sovellus.vrcaa.ui.screen.presence.RichPresenceScreen
 import cc.sovellus.vrcaa.ui.screen.theme.ThemeScreen
 
@@ -268,6 +270,29 @@ class SettingsScreen : Screen {
                         )
                     )
                 )
+            }
+
+            // Debug Section (debug builds only)
+            if (BuildConfig.DEBUG) {
+                item {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    SectionHeader(stringResource(R.string.settings_section_debug))
+                }
+
+                item {
+                    SettingsGroup(
+                        items = listOf(
+                            SettingsItem(
+                                title = stringResource(R.string.settings_item_debug),
+                                description = stringResource(R.string.settings_item_debug_description),
+                                icon = Icons.Outlined.BugReport,
+                                onClick = {
+                                    navigator.parent?.parent?.push(DebugScreen())
+                                }
+                            )
+                        )
+                    )
+                }
             }
 
             // Account Section

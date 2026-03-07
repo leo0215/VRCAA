@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.PowerSettingsNew
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,11 +35,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
-import androidx.compose.foundation.clickable
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -151,25 +149,19 @@ class AdvancedScreen : Screen {
                     }
 
                     item {
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = stringResource(R.string.advanced_page_section_testing),
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        SectionHeader(stringResource(R.string.advanced_page_section_testing))
                     }
 
                     item {
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.advanced_page_reset_onboarding)) },
-                            supportingContent = { Text(stringResource(R.string.advanced_page_reset_onboarding_description)) },
-                            modifier = Modifier.clickable(
-                                onClick = {
-                                    model.resetOnboardingState()
-                                }
+                        SettingsGroup(
+                            items = listOf(
+                                SettingsItem(
+                                    title = stringResource(R.string.advanced_page_reset_onboarding),
+                                    description = stringResource(R.string.advanced_page_reset_onboarding_description),
+                                    icon = Icons.Outlined.Refresh,
+                                    onClick = { model.resetOnboardingState() }
+                                )
                             )
                         )
                     }

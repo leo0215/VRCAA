@@ -16,35 +16,38 @@
 
 package cc.sovellus.vrcaa.ui.components.settings
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,44 +56,41 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import com.materialkolor.hct.Hct
+import com.materialkolor.scheme.SchemeExpressive
+import com.materialkolor.scheme.SchemeFruitSalad
 import com.materialkolor.scheme.SchemeTonalSpot
 import com.materialkolor.scheme.SchemeVibrant
-import com.materialkolor.scheme.SchemeFruitSalad
-import com.materialkolor.scheme.SchemeExpressive
 
 // Color list using HCT color space (same as Seal)
 private val ColorPalette = ((4..10) + (1..3)).map { it * 35.0 }.map { Color(Hct.from(it, 40.0, 40.0).toInt()) }
 
-// Color scheme types (4 styles per color, matching Seal)
-// Order: TonalSpot (0), Expressive (1), FruitSalad (2), Vibrant (3)
-private enum class ColorSchemeType {
-    TONAL_SPOT,      // 0
-    EXPRESSIVE,      // 1 (replaces Spritz in Seal)
-    FRUIT_SALAD,     // 2
-    VIBRANT          // 3
+// Color scheme types (4 styles per color)
+private enum class ColorSchemeType(val labelRes: Int) {
+    TONAL_SPOT(R.string.theme_page_color_scheme_tonal),
+    EXPRESSIVE(R.string.theme_page_color_scheme_expressive),
+    FRUIT_SALAD(R.string.theme_page_color_scheme_fruit),
+    VIBRANT(R.string.theme_page_color_scheme_vibrant)
 }
 
-// Data class to represent color + scheme combination
-private data class ColorSchemeOption(
-    val seedColor: Color,
-    val schemeType: ColorSchemeType,
-    val schemeIndex: Int // Index for this scheme type (0-3)
-)
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ColorPicker(
     selectedColor: Color?,
-    selectedSchemeIndex: Int = 0, // Index of selected scheme (0-3)
-    onColorSelected: (Color, Int) -> Unit, // Color and scheme index
+    selectedSchemeIndex: Int = 0,
+    onColorSelected: (Color, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceBright
         )
@@ -103,58 +103,86 @@ fun ColorPicker(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ColorPickerContent(
     selectedColor: Color?,
     selectedSchemeIndex: Int = 0,
-    onColorSelected: (Color, Int) -> Unit, // Color and scheme index
+    onColorSelected: (Color, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val pageCount = ColorPalette.size // One page per color
-    
-    val initialPage = remember(selectedColor) {
-        selectedColor?.let { color ->
-            ColorPalette.indexOfFirst { it.toArgb() == color.toArgb() }.let {
-                if (it >= 0) it else 0
-            }
-        } ?: 0
-    }
-    
-    val pagerState = rememberPagerState(
-        initialPage = initialPage
-    ) {
-        pageCount
-    }
+    val schemeOptions = ColorSchemeType.values()
+    val schemeLabels = schemeOptions.map { stringResource(it.labelRes) }
 
     Column(
-        modifier = modifier.padding(vertical = 12.dp)
+        modifier = modifier.padding(16.dp)
     ) {
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxWidth().clearAndSetSemantics {},
-            contentPadding = PaddingValues(horizontal = 12.dp),
-            pageSpacing = 8.dp
-        ) { page ->
-            val color = ColorPalette[page]
-            // Show 4 style options for this color
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                ColorSchemeType.values().forEachIndexed { schemeIndex, schemeType ->
-                    val option = ColorSchemeOption(color, schemeType, schemeIndex)
-                    // Only select if both color AND scheme index match
-                    val isSelected = selectedColor?.toArgb() == color.toArgb() && 
-                                    selectedSchemeIndex == schemeIndex
-                    
-                    ColorButton(
-                        colorOption = option,
-                        isSelected = isSelected,
-                        onClick = { onColorSelected(color, schemeIndex) },
-                        modifier = Modifier.weight(1f)
+        // Scheme style: Connected ToggleButton group (Expressive pattern)
+        Text(
+            text = stringResource(R.string.theme_page_color_palette_style),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+        ) {
+            schemeOptions.forEachIndexed { index, _ ->
+                ToggleButton(
+                    checked = selectedSchemeIndex == index,
+                    onCheckedChange = {
+                        val currentColor = selectedColor ?: ColorPalette.first()
+                        onColorSelected(currentColor, index)
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .semantics { role = Role.RadioButton },
+                    shapes = when (index) {
+                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                        schemeOptions.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                    },
+                    colors = connectedButtonGroupToggleColors(),
+                ) {
+                    Text(
+                        text = schemeLabels[index],
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Color swatches: Horizontal scroll of circular chips
+        Text(
+            text = stringResource(R.string.theme_page_color_seed_colors),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+        val scrollState = rememberScrollState()
+        val chipSize = 56.dp
+        val chipSpacing = 12.dp
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(scrollState),
+            horizontalArrangement = Arrangement.spacedBy(chipSpacing),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ColorPalette.forEach { color ->
+                val isSelected = selectedColor?.toArgb() == color.toArgb()
+                ColorSchemeChip(
+                    seedColor = color,
+                    schemeIndex = selectedSchemeIndex,
+                    isSelected = isSelected,
+                    onClick = { onColorSelected(color, selectedSchemeIndex) },
+                    modifier = Modifier.size(chipSize)
+                )
             }
         }
     }
@@ -162,141 +190,133 @@ fun ColorPickerContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RowScope.ColorButton(
-    colorOption: ColorSchemeOption,
+private fun ColorSchemeChip(
+    seedColor: Color,
+    schemeIndex: Int,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val containerSize by animateDpAsState(
-        targetValue = if (isSelected) 28.dp else 0.dp,
-        label = "containerSize"
+    val borderWidth by animateDpAsState(
+        targetValue = if (isSelected) 3.dp else 0.dp,
+        label = "borderWidth"
     )
-    val iconSize by animateDpAsState(
-        targetValue = if (isSelected) 16.dp else 0.dp,
-        label = "iconSize"
+    val outlineColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+        label = "outlineColor"
     )
-    
-    // Generate 3 colors from seed color using Material Color Utilities
-    val sourceColorHct = Hct.fromInt(colorOption.seedColor.toArgb())
-    
-    // Create scheme based on scheme type
-    val scheme = when (colorOption.schemeType) {
+
+    val sourceColorHct = Hct.fromInt(seedColor.toArgb())
+    val scheme = when (ColorSchemeType.values()[schemeIndex]) {
         ColorSchemeType.TONAL_SPOT -> SchemeTonalSpot(sourceColorHct, false, 0.0)
         ColorSchemeType.VIBRANT -> SchemeVibrant(sourceColorHct, false, 0.0)
         ColorSchemeType.FRUIT_SALAD -> SchemeFruitSalad(sourceColorHct, false, 0.0)
         ColorSchemeType.EXPRESSIVE -> SchemeExpressive(sourceColorHct, false, 0.0)
     }
-    
-    // Get colors from tonal palettes at specific tones (similar to Seal's 80.a1, 90.a2, 60.a3)
-    val color1 = Color(scheme.primaryPalette.tone(80))  // Primary color at 80 tone
-    val color2 = Color(scheme.secondaryPalette.tone(90))  // Secondary color at 90 tone
-    val color3 = Color(scheme.tertiaryPalette.tone(60))  // Tertiary color at 60 tone
-    
+    val color1 = Color(scheme.primaryPalette.tone(80))
+    val color2 = Color(scheme.secondaryPalette.tone(90))
+    val color3 = Color(scheme.tertiaryPalette.tone(60))
     val primaryContainerColor = MaterialTheme.colorScheme.primaryContainer
     val onPrimaryContainerColor = MaterialTheme.colorScheme.onPrimaryContainer
-    val surfaceBrightColor = MaterialTheme.colorScheme.surfaceBright
 
     Surface(
         modifier = modifier
-            .padding(4.dp)
-            .sizeIn(maxHeight = 80.dp, maxWidth = 80.dp, minHeight = 64.dp, minWidth = 64.dp)
-            .aspectRatio(1f),
-        shape = RoundedCornerShape(16.dp),
-        color = surfaceBrightColor,
+            .clip(CircleShape)
+            .then(
+                if (borderWidth > 0.dp) {
+                    Modifier.border(borderWidth, outlineColor, CircleShape)
+                } else Modifier
+            ),
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surfaceBright,
         onClick = onClick
     ) {
-        Box(Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .drawBehind {
-                        val center = Offset(size.width / 2, size.height / 2)
-                        val radius = size.minDimension / 2
-                        
-                        // Draw quadrant 1: 0-90 degrees (top-right) - Primary
-                        val path1 = Path().apply {
-                            moveTo(center.x, center.y)
-                            lineTo(center.x, center.y - radius)
-                            arcTo(
-                                rect = androidx.compose.ui.geometry.Rect(
-                                    center.x - radius,
-                                    center.y - radius,
-                                    center.x + radius,
-                                    center.y + radius
-                                ),
-                                startAngleDegrees = 270f,
-                                sweepAngleDegrees = 90f,
-                                forceMoveTo = false
-                            )
-                            close()
-                        }
-                        drawPath(path1, color1)
-                        
-                        val path2 = Path().apply {
-                            moveTo(center.x, center.y)
-                            lineTo(center.x - radius, center.y)
-                            arcTo(
-                                rect = androidx.compose.ui.geometry.Rect(
-                                    center.x - radius,
-                                    center.y - radius,
-                                    center.x + radius,
-                                    center.y + radius
-                                ),
-                                startAngleDegrees = 180f,
-                                sweepAngleDegrees = 90f,
-                                forceMoveTo = false
-                            )
-                            close()
-                        }
-                        drawPath(path2, color1)
-                        
-                        val path3 = Path().apply {
-                            moveTo(center.x, center.y)
-                            lineTo(center.x, center.y + radius)
-                            arcTo(
-                                rect = androidx.compose.ui.geometry.Rect(
-                                    center.x - radius,
-                                    center.y - radius,
-                                    center.x + radius,
-                                    center.y + radius
-                                ),
-                                startAngleDegrees = 90f,
-                                sweepAngleDegrees = 90f,
-                                forceMoveTo = false
-                            )
-                            close()
-                        }
-                        drawPath(path3, color2)
-                        
-                        // Draw quadrant 4: 270-360 degrees (bottom-right) - Tertiary
-                        val path4 = Path().apply {
-                            moveTo(center.x, center.y)
-                            lineTo(center.x + radius, center.y)
-                            arcTo(
-                                rect = androidx.compose.ui.geometry.Rect(
-                                    center.x - radius,
-                                    center.y - radius,
-                                    center.x + radius,
-                                    center.y + radius
-                                ),
-                                startAngleDegrees = 0f,
-                                sweepAngleDegrees = 90f,
-                                forceMoveTo = false
-                            )
-                            close()
-                        }
-                        drawPath(path4, color3)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(6.dp)
+                .drawBehind {
+                    val center = Offset(size.width / 2, size.height / 2)
+                    val radius = size.minDimension / 2 - 2
+
+                    val path1 = Path().apply {
+                        moveTo(center.x, center.y)
+                        lineTo(center.x, center.y - radius)
+                        arcTo(
+                            rect = androidx.compose.ui.geometry.Rect(
+                                center.x - radius,
+                                center.y - radius,
+                                center.x + radius,
+                                center.y + radius
+                            ),
+                            startAngleDegrees = 270f,
+                            sweepAngleDegrees = 90f,
+                            forceMoveTo = false
+                        )
+                        close()
                     }
-                    .align(Alignment.Center)
-            ) {
-                // Selection indicator
+                    drawPath(path1, color1)
+
+                    val path2 = Path().apply {
+                        moveTo(center.x, center.y)
+                        lineTo(center.x - radius, center.y)
+                        arcTo(
+                            rect = androidx.compose.ui.geometry.Rect(
+                                center.x - radius,
+                                center.y - radius,
+                                center.x + radius,
+                                center.y + radius
+                            ),
+                            startAngleDegrees = 180f,
+                            sweepAngleDegrees = 90f,
+                            forceMoveTo = false
+                        )
+                        close()
+                    }
+                    drawPath(path2, color1)
+
+                    val path3 = Path().apply {
+                        moveTo(center.x, center.y)
+                        lineTo(center.x, center.y + radius)
+                        arcTo(
+                            rect = androidx.compose.ui.geometry.Rect(
+                                center.x - radius,
+                                center.y - radius,
+                                center.x + radius,
+                                center.y + radius
+                            ),
+                            startAngleDegrees = 90f,
+                            sweepAngleDegrees = 90f,
+                            forceMoveTo = false
+                        )
+                        close()
+                    }
+                    drawPath(path3, color2)
+
+                    val path4 = Path().apply {
+                        moveTo(center.x, center.y)
+                        lineTo(center.x + radius, center.y)
+                        arcTo(
+                            rect = androidx.compose.ui.geometry.Rect(
+                                center.x - radius,
+                                center.y - radius,
+                                center.x + radius,
+                                center.y + radius
+                            ),
+                            startAngleDegrees = 0f,
+                            sweepAngleDegrees = 90f,
+                            forceMoveTo = false
+                        )
+                        close()
+                    }
+                    drawPath(path4, color3)
+                }
+        ) {
+            if (isSelected) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .clip(CircleShape)
-                        .size(containerSize)
+                        .size(24.dp)
                         .drawBehind {
                             drawCircle(primaryContainerColor)
                         }
@@ -305,7 +325,7 @@ private fun RowScope.ColorButton(
                         imageVector = Icons.Filled.Check,
                         contentDescription = null,
                         modifier = Modifier
-                            .size(iconSize)
+                            .size(14.dp)
                             .align(Alignment.Center),
                         tint = onPrimaryContainerColor
                     )
@@ -314,4 +334,3 @@ private fun RowScope.ColorButton(
         }
     }
 }
-

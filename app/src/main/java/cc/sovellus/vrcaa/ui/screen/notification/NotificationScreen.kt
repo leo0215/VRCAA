@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,7 +46,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.helper.NotificationHelper
-import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
 
 class NotificationScreen(
     private val friendId: String, private val friendName: String
@@ -63,7 +61,7 @@ class NotificationScreen(
 
         val model = rememberScreenModel { NotificationScreenModel(friendId) }
 
-        Scaffold(containerColor = MaterialTheme.colorScheme.surfaceContainer, topBar = {
+        Scaffold(topBar = {
             TopAppBar(navigationIcon = {
                 IconButton(onClick = { navigator.pop() }) {
                     Icon(
@@ -97,7 +95,12 @@ class NotificationScreen(
                         Switch(
                             checked = model.isNotificationsEnabled.value,
                             onCheckedChange = { toggle -> model.toggleNotifications(toggle) },
-                            thumbContent = rememberThumbContent(isChecked = model.isNotificationsEnabled.value)
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                            )
                         )
                     }
                 }
@@ -120,7 +123,12 @@ class NotificationScreen(
                                     NotificationHelper.Intents.FRIEND_FLAG_OFFLINE
                                 )
                             },
-                            thumbContent = rememberThumbContent(isChecked = model.isOfflineIntentEnabled.value),
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                            ),
                             enabled = model.isNotificationsEnabled.value
                         )
                     }
@@ -143,7 +151,12 @@ class NotificationScreen(
                                     toggleOnline, NotificationHelper.Intents.FRIEND_FLAG_ONLINE
                                 )
                             },
-                            thumbContent = rememberThumbContent(isChecked = model.isOnlineIntentEnabled.value),
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                            ),
                             enabled = model.isNotificationsEnabled.value
                         )
                     }
@@ -166,7 +179,12 @@ class NotificationScreen(
                                     toggle, NotificationHelper.Intents.FRIEND_FLAG_LOCATION
                                 )
                             },
-                            thumbContent = rememberThumbContent(isChecked = model.isLocationIntentEnabled.value),
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                            ),
                             enabled = model.isNotificationsEnabled.value
                         )
                     }
@@ -189,7 +207,12 @@ class NotificationScreen(
                                     toggle, NotificationHelper.Intents.FRIEND_FLAG_STATUS
                                 )
                             },
-                            thumbContent = rememberThumbContent(isChecked = model.isStatusIntentEnabled.value),
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                            ),
                             enabled = model.isNotificationsEnabled.value
                         )
                     }

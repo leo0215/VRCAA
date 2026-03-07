@@ -150,3 +150,8 @@ internal var SharedPreferences.timeInBackground: Long
 internal var SharedPreferences.onboardingCompleted: Boolean
     get() = getBoolean("onboardingCompleted", false)
     set(it) = edit { putBoolean("onboardingCompleted", it) }
+
+// Navigation type: 0 = auto (tablet=rail, phone=drawer), 1 = drawer, 2 = rail, 3 = bottom bar
+internal var SharedPreferences.navigationType: Int
+    get() = getInt("navigationType", 0)
+    set(value) = edit { putInt("navigationType", value) }

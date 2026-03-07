@@ -18,11 +18,11 @@ package cc.sovellus.vrcaa.ui.screen.favorites
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,11 +32,12 @@ import androidx.compose.material.icons.filled.Cabin
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MultiChoiceSegmentedButtonRow
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -54,6 +55,7 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites.FavoriteType
 import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.manager.FriendManager
+import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.components.dialog.FavoriteEditDialog
 import cc.sovellus.vrcaa.ui.components.dialog.GenericDialog
 import cc.sovellus.vrcaa.ui.components.layout.FavoriteHorizontalRow
@@ -64,6 +66,7 @@ import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class FavoritesScreen : Screen {
 
     @Composable
@@ -124,41 +127,31 @@ class FavoritesScreen : Screen {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MultiChoiceSegmentedButtonRow(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp)
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
             ) {
+                val modifiers = List(options.size) { Modifier.weight(1f) }
                 options.forEachIndexed { index, label ->
-                    SegmentedButton(
-                        shape = SegmentedButtonDefaults.itemShape(
-                            index = index,
-                            count = options.size
-                        ),
-                        icon = {
-                            SegmentedButtonDefaults.Icon(
-                                active = index == model.currentIndex.intValue,
-                                activeContent = {
-                                    Icon(
-                                        imageVector = Icons.Filled.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SegmentedButtonDefaults.IconSize).offset(y = 2.5.dp)
-                                    )
-                                },
-                                inactiveContent = {
-                                    Icon(
-                                        imageVector = icons[index],
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SegmentedButtonDefaults.IconSize).offset(y = 2.5.dp)
-                                    )
-                                }
-                            )
+                    val selected = index == model.currentIndex.intValue
+                    ToggleButton(
+                        checked = selected,
+                        onCheckedChange = { model.currentIndex.intValue = index },
+                        modifier = modifiers[index],
+                        shapes = when (index) {
+                            0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                            options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                            else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                         },
-                        onCheckedChange = {
-                            model.currentIndex.intValue = index
-                        },
-                        checked = index == model.currentIndex.intValue
+                        colors = connectedButtonGroupToggleColors(),
                     ) {
+                        Icon(
+                            imageVector = if (selected) Icons.Filled.Check else icons[index],
+                            contentDescription = null,
+                        )
+                        Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                         Text(text = label, softWrap = true, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }

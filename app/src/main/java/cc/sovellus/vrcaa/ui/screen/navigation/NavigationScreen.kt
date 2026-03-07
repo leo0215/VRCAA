@@ -40,8 +40,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
@@ -49,7 +51,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
@@ -75,8 +76,12 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -104,6 +109,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -124,6 +130,7 @@ import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.TabDisposable
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cc.sovellus.vrcaa.App
+import cc.sovellus.vrcaa.extension.navigationType
 import cc.sovellus.vrcaa.BuildConfig
 import cc.sovellus.vrcaa.R
 
@@ -139,7 +146,6 @@ import cc.sovellus.vrcaa.ui.components.input.ComboInput
 import cc.sovellus.vrcaa.ui.screen.feed.FeedSearchScreen
 import cc.sovellus.vrcaa.ui.screen.notifications.NotificationsScreen
 import cc.sovellus.vrcaa.ui.screen.search.SearchResultScreen
-import cc.sovellus.vrcaa.ui.screen.economy.EconomyScreen
 import cc.sovellus.vrcaa.ui.tabs.FavoritesTab
 import cc.sovellus.vrcaa.ui.tabs.FeedTab
 import cc.sovellus.vrcaa.ui.tabs.FriendsTab
@@ -148,10 +154,97 @@ import cc.sovellus.vrcaa.ui.tabs.ProfileTab
 import cc.sovellus.vrcaa.ui.tabs.SettingsTab
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import android.content.SharedPreferences
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import java.time.LocalTime
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeTopBar(
+    onMenuClick: () -> Unit,
+    onSearchClick: () -> Unit,
+    showMenu: Boolean = true,
+) {
+    var tick by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) {
+        delay(2_000)
+        tick++
+        while (true) {
+            delay(60_000)
+            tick++
+        }
+    }
+
+    val profile = CacheManager.getProfile()
+    val userName = profile?.displayName ?: ""
+    val hour = LocalTime.now().hour
+    val greetingResId = when (hour) {
+        in 5..11 -> R.string.home_greeting_morning
+        in 12..17 -> R.string.home_greeting_afternoon
+        in 18..21 -> R.string.home_greeting_evening
+        else -> R.string.home_greeting_night
+    }
+    val title = if (userName.isNotEmpty()) {
+        stringResource(greetingResId) + ", $userName"
+    } else {
+        stringResource(greetingResId)
+    }
+
+    Surface(
+        modifier = Modifier.statusBarsPadding(),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        tonalElevation = 0.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(64.dp)
+                .padding(vertical = 8.dp, horizontal = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (showMenu) {
+                IconButton(
+                    onClick = onMenuClick,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.size(48.dp))
+            }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(
+                onClick = onSearchClick,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+}
 
 class NavigationScreen : Screen {
 
@@ -210,9 +303,14 @@ class NavigationScreen : Screen {
 
             val scope = rememberCoroutineScope()
             
-            // 檢測是否為平板模式（寬度 >= 600dp）
+            // Navigation type: 0=auto, 1=drawer, 2=rail, 3=bottom bar
             val configuration = LocalConfiguration.current
-            val isTablet = configuration.screenWidthDp >= 600
+            val navTypePref = App.getPreferences().navigationType
+            val isTabletByConfig = configuration.screenWidthDp >= 600
+            val useRail = navTypePref == 2 || (navTypePref == 0 && isTabletByConfig)
+            val useDrawer = navTypePref == 1 || (navTypePref == 0 && !isTabletByConfig)
+            val useBottomBar = navTypePref == 3
+            val isTablet = useRail  // for BackHandler and TopBar logic
 
             // 監聽 cache 建立狀態，預載入 drawer 中的 banner 和 icon 圖片
             val cacheBuilt = model.cacheBuilt.value
@@ -261,7 +359,11 @@ class NavigationScreen : Screen {
                 }
             }
 
-            BackHandler(enabled = !drawerState.isOpen && !isTablet, onBack = {
+            BackHandler(enabled = model.searchModeActivated.value && tabNavigator.current == HomeTab) {
+                model.searchModeActivated.value = false
+            }
+
+            BackHandler(enabled = !drawerState.isOpen && !model.searchModeActivated.value && !isTablet, onBack = {
                 if (tabNavigator.current != HomeTab) {
                     tabNavigator.current = HomeTab
                 } else {
@@ -283,10 +385,13 @@ class NavigationScreen : Screen {
                 }
             })
 
-            if (isTablet) {
-                // 平板模式：使用 Row + NavigationRail
+            if (useRail) {
+                // Rail mode: Row + NavigationRail
                 Row(modifier = Modifier.fillMaxSize()) {
-                    NavigationRail {
+                    val colorScheme = MaterialTheme.colorScheme
+                    NavigationRail(
+                        containerColor = colorScheme.surfaceContainer
+                    ) {
                         val scrollState = rememberScrollState()
                         
                         Column(
@@ -342,28 +447,17 @@ class NavigationScreen : Screen {
                                         pressBackCounter = 0
                                         tabNavigator.current = tab
                                     },
-                                    alwaysShowLabel = false
+                                    alwaysShowLabel = false,
+                                    colors = NavigationRailItemDefaults.colors(
+                                        selectedIconColor = colorScheme.onSecondaryContainer,
+                                        selectedTextColor = colorScheme.secondary,
+                                        indicatorColor = colorScheme.secondaryContainer,
+                                        unselectedIconColor = colorScheme.onSurfaceVariant,
+                                        unselectedTextColor = colorScheme.onSurfaceVariant
+                                    )
                                 )
                             }
 
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // 訂閱與餘額
-                            NavigationRailItem(
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Filled.AccountBalanceWallet,
-                                        contentDescription = "訂閱與餘額"
-                                    )
-                                },
-                                label = { Text("訂閱與餘額") },
-                                selected = false,
-                                onClick = {
-                                    navigator.push(EconomyScreen())
-                                },
-                                alwaysShowLabel = true
-                            )
-                            
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
@@ -375,37 +469,35 @@ class NavigationScreen : Screen {
                         topBar = {
                             when (tabNavigator.current.options.index) {
                                 HomeTab.options.index -> {
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        SearchBar(
-                                            modifier = Modifier.widthIn(max = 1080.dp),
-                                            inputField = {
-                                                InputField(
-                                                    query = model.searchText.value,
-                                                    onQueryChange = { model.searchText.value = it; },
-                                                    onSearch = {
-                                                        model.searchModeActivated.value = false
-                                                        navigator.push(SearchResultScreen(model.searchText.value))
-                                                        model.addSearchHistory()
-                                                    },
-                                                    expanded = model.searchModeActivated.value,
-                                                    onExpandedChange = {
-                                                        model.searchModeActivated.value = true
-                                                    },
-                                                    enabled = true,
-                                                    placeholder = {
-                                                        if (!App.isMinimalistModeEnabled()) {
-                                                            Text(
-                                                                text = stringResource(R.string.main_search_placeholder),
-                                                                overflow = TextOverflow.Ellipsis
-                                                            )
-                                                        }
-                                                    },
-                                                    leadingIcon = {
-                                                        if (model.searchModeActivated.value) {
+                                    if (model.searchModeActivated.value) {
+                                        Column(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalArrangement = Arrangement.Center,
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            SearchBar(
+                                                modifier = Modifier.widthIn(max = 1080.dp),
+                                                inputField = {
+                                                    InputField(
+                                                        query = model.searchText.value,
+                                                        onQueryChange = { model.searchText.value = it; },
+                                                        onSearch = {
+                                                            model.searchModeActivated.value = false
+                                                            navigator.push(SearchResultScreen(model.searchText.value))
+                                                            model.addSearchHistory()
+                                                        },
+                                                        expanded = true,
+                                                        onExpandedChange = { },
+                                                        enabled = true,
+                                                        placeholder = {
+                                                            if (!App.isMinimalistModeEnabled()) {
+                                                                Text(
+                                                                    text = stringResource(R.string.main_search_placeholder),
+                                                                    overflow = TextOverflow.Ellipsis
+                                                                )
+                                                            }
+                                                        },
+                                                        leadingIcon = {
                                                             IconButton(onClick = {
                                                                 model.searchModeActivated.value = false
                                                             }) {
@@ -414,45 +506,30 @@ class NavigationScreen : Screen {
                                                                     contentDescription = null
                                                                 )
                                                             }
-                                                        }
-                                                    },
-                                                    trailingIcon = {
-                                                        if (model.searchModeActivated.value) {
+                                                        },
+                                                        trailingIcon = {
                                                             IconButton(onClick = { model.clearSearchText() }) {
                                                                 Icon(
                                                                     imageVector = Icons.Filled.Close,
                                                                     contentDescription = null
                                                                 )
                                                             }
-                                                        } else {
-                                                            IconButton(onClick = { showSettingsSheet = true }) {
-                                                                Icon(
-                                                                    imageVector = Icons.Filled.MoreVert,
-                                                                    contentDescription = null
-                                                                )
-                                                            }
-                                                        }
-                                                    })
-                                            },
-                                            expanded = model.searchModeActivated.value,
-                                            onExpandedChange = { },
-                                            shape = SearchBarDefaults.inputFieldShape,
-                                            colors = SearchBarDefaults.colors(containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.surfaceContainerHighest),
-                                            tonalElevation = if (model.searchModeActivated.value) {
-                                                0.dp
-                                            } else {
-                                                8.dp
-                                            },
-                                            windowInsets = SearchBarDefaults.windowInsets.exclude(
-                                                WindowInsets(left = 4.dp, right = 4.dp)
-                                            ),
-                                            content = {
-                                                LazyColumn(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                ) {
-                                                    if (model.searchModeActivated.value) {
-                                                        items(model.searchHistory.size) {
-                                                            val item = model.searchHistory.reversed()[it]
+                                                        })
+                                                },
+                                                expanded = true,
+                                                onExpandedChange = { },
+                                                shape = SearchBarDefaults.inputFieldShape,
+                                                colors = SearchBarDefaults.colors(containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.surfaceContainerHighest),
+                                                tonalElevation = 0.dp,
+                                                windowInsets = SearchBarDefaults.windowInsets.exclude(
+                                                    WindowInsets(left = 4.dp, right = 4.dp)
+                                                ),
+                                                content = {
+                                                    LazyColumn(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                    ) {
+                                                        items(model.searchHistory.size) { index ->
+                                                            val item = model.searchHistory[model.searchHistory.lastIndex - index]
                                                             ListItem(leadingContent = {
                                                                 Icon(
                                                                     imageVector = Icons.Filled.History,
@@ -470,8 +547,14 @@ class NavigationScreen : Screen {
                                                             }))
                                                         }
                                                     }
-                                                }
-                                            },
+                                                },
+                                            )
+                                        }
+                                    } else {
+                                        HomeTopBar(
+                                            onMenuClick = { showSettingsSheet = true },
+                                            onSearchClick = { model.searchModeActivated.value = true },
+                                            showMenu = false
                                         )
                                     }
                                 }
@@ -614,8 +697,179 @@ class NavigationScreen : Screen {
                         }
                     )
                 }
+            } else if (useBottomBar) {
+                // Bottom bar mode
+                Scaffold(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    topBar = {
+                        when (tabNavigator.current.options.index) {
+                            HomeTab.options.index -> {
+                                if (model.searchModeActivated.value) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        SearchBar(
+                                            modifier = Modifier.widthIn(max = 1080.dp),
+                                            inputField = {
+                                                InputField(
+                                                    query = model.searchText.value,
+                                                    onQueryChange = { model.searchText.value = it },
+                                                    onSearch = {
+                                                        model.searchModeActivated.value = false
+                                                        navigator.push(SearchResultScreen(model.searchText.value))
+                                                        model.addSearchHistory()
+                                                    },
+                                                    expanded = true,
+                                                    onExpandedChange = { },
+                                                    enabled = true,
+                                                    placeholder = {
+                                                        if (!App.isMinimalistModeEnabled()) {
+                                                            Text(
+                                                                text = stringResource(R.string.main_search_placeholder),
+                                                                overflow = TextOverflow.Ellipsis
+                                                            )
+                                                        }
+                                                    },
+                                                    leadingIcon = {
+                                                        IconButton(onClick = { model.searchModeActivated.value = false }) {
+                                                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                                                        }
+                                                    },
+                                                    trailingIcon = {
+                                                        IconButton(onClick = { model.clearSearchText() }) {
+                                                            Icon(Icons.Filled.Close, contentDescription = null)
+                                                        }
+                                                    }
+                                                )
+                                            },
+                                            expanded = true,
+                                            onExpandedChange = { },
+                                            shape = SearchBarDefaults.inputFieldShape,
+                                            colors = SearchBarDefaults.colors(
+                                                containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainerLow
+                                                else MaterialTheme.colorScheme.surfaceContainerLowest
+                                            ),
+                                            tonalElevation = 0.dp,
+                                            windowInsets = SearchBarDefaults.windowInsets.exclude(
+                                                WindowInsets(left = 4.dp, right = 4.dp)
+                                            ),
+                                            content = {
+                                                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                                                    items(model.searchHistory.size) { index ->
+                                                        val item = model.searchHistory[model.searchHistory.lastIndex - index]
+                                                        ListItem(
+                                                            leadingContent = { Icon(Icons.Filled.History, contentDescription = null) },
+                                                            headlineContent = { Text(text = item) },
+                                                            modifier = Modifier.clickable(onClick = {
+                                                                model.searchModeActivated.value = false
+                                                                navigator.push(SearchResultScreen(item))
+                                                            })
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        )
+                                    }
+                                } else {
+                                    HomeTopBar(
+                                        onMenuClick = { showProfileSheet = true },
+                                        onSearchClick = { model.searchModeActivated.value = true },
+                                        showMenu = false
+                                    )
+                                }
+                            }
+                            FeedTab.options.index -> {
+                                TopAppBar(
+                                    actions = {
+                                        IconButton(
+                                            modifier = Modifier.size(64.dp, 64.dp),
+                                            onClick = {
+                                                if (CacheManager.isBuilt()) {
+                                                    navigator.push(FeedSearchScreen())
+                                                }
+                                            }
+                                        ) {
+                                            Icon(Icons.Filled.Search, contentDescription = null)
+                                        }
+                                        IconButton(
+                                            modifier = Modifier.size(64.dp, 64.dp),
+                                            onClick = {
+                                                if (CacheManager.isBuilt()) {
+                                                    navigator.push(NotificationsScreen())
+                                                }
+                                            }
+                                        ) {
+                                            BadgedBox(
+                                                badge = {
+                                                    if (model.notificationsCount.intValue > 0) {
+                                                        Badge {
+                                                            Text("${model.notificationsCount.intValue}")
+                                                        }
+                                                    }
+                                                }
+                                            ) {
+                                                Icon(Icons.Filled.Notifications, contentDescription = null)
+                                            }
+                                        }
+                                    },
+                                    title = {
+                                        Text(
+                                            text = stringResource(id = R.string.tabs_label_feed),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    },
+                                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+                                )
+                            }
+                            else -> {
+                                TopAppBar(
+                                    title = { Text(tabNavigator.current.options.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+                                )
+                            }
+                        }
+                    },
+                    bottomBar = {
+                        val colorScheme = MaterialTheme.colorScheme
+                        NavigationBar(
+                            containerColor = colorScheme.surfaceContainer
+                        ) {
+                            tabs.forEach { tab ->
+                                val isSelected = tabNavigator.current.key == tab.key
+                                NavigationBarItem(
+                                    icon = { Icon(painter = tab.options.icon!!, contentDescription = tab.options.title) },
+                                    label = { Text(tab.options.title) },
+                                    selected = isSelected,
+                                    onClick = {
+                                        pressBackCounter = 0
+                                        tabNavigator.current = tab
+                                    },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = colorScheme.onSecondaryContainer,
+                                        selectedTextColor = colorScheme.secondary,
+                                        indicatorColor = colorScheme.secondaryContainer,
+                                        unselectedIconColor = colorScheme.onSurfaceVariant,
+                                        unselectedTextColor = colorScheme.onSurfaceVariant
+                                    )
+                                )
+                            }
+                        }
+                    },
+                    content = { padding ->
+                        Column(
+                            modifier = Modifier
+                                .padding(padding)
+                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                        ) {
+                            CurrentTab()
+                        }
+                    }
+                )
             } else {
-                // 手機模式：使用 ModalNavigationDrawer
+                // Drawer mode: ModalNavigationDrawer
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
@@ -699,28 +953,6 @@ class NavigationScreen : Screen {
 
                             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                            // 訂閱與餘額
-                            Column(
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            ) {
-                                NavigationDrawerItem(
-                                    icon = {
-                                        Icon(
-                                            imageVector = Icons.Filled.AccountBalanceWallet,
-                                            contentDescription = "訂閱與餘額"
-                                        )
-                                    },
-                                    label = { Text("訂閱與餘額") },
-                                    selected = false,
-                                    onClick = {
-                                        navigator.push(EconomyScreen())
-                                        scope.launch {
-                                            drawerState.close()
-                                        }
-                                    }
-                                )
-                            }
-
                             Spacer(modifier = Modifier.weight(1f))
 
                             // 版本號
@@ -742,37 +974,35 @@ class NavigationScreen : Screen {
                     topBar = {
                     when (tabNavigator.current.options.index) {
                         HomeTab.options.index -> {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                SearchBar(
-                                    modifier = Modifier.widthIn(max = 1080.dp),
-                                    inputField = {
-                                        InputField(
-                                            query = model.searchText.value,
-                                            onQueryChange = { model.searchText.value = it; },
-                                            onSearch = {
-                                                model.searchModeActivated.value = false
-                                                navigator.push(SearchResultScreen(model.searchText.value))
-                                                model.addSearchHistory()
-                                            },
-                                            expanded = model.searchModeActivated.value,
-                                            onExpandedChange = {
-                                                model.searchModeActivated.value = true
-                                            },
-                                            enabled = true,
-                                            placeholder = {
-                                                if (!App.isMinimalistModeEnabled()) {
-                                                    Text(
-                                                        text = stringResource(R.string.main_search_placeholder),
-                                                        overflow = TextOverflow.Ellipsis
-                                                    )
-                                                }
-                                            },
-                                            leadingIcon = {
-                                                if (model.searchModeActivated.value) {
+                            if (model.searchModeActivated.value) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    SearchBar(
+                                        modifier = Modifier.widthIn(max = 1080.dp),
+                                        inputField = {
+                                            InputField(
+                                                query = model.searchText.value,
+                                                onQueryChange = { model.searchText.value = it; },
+                                                onSearch = {
+                                                    model.searchModeActivated.value = false
+                                                    navigator.push(SearchResultScreen(model.searchText.value))
+                                                    model.addSearchHistory()
+                                                },
+                                                expanded = true,
+                                                onExpandedChange = { },
+                                                enabled = true,
+                                                placeholder = {
+                                                    if (!App.isMinimalistModeEnabled()) {
+                                                        Text(
+                                                            text = stringResource(R.string.main_search_placeholder),
+                                                            overflow = TextOverflow.Ellipsis
+                                                        )
+                                                    }
+                                                },
+                                                leadingIcon = {
                                                     IconButton(onClick = {
                                                         model.searchModeActivated.value = false
                                                     }) {
@@ -781,56 +1011,30 @@ class NavigationScreen : Screen {
                                                             contentDescription = null
                                                         )
                                                     }
-                                                } else {
-                                                    IconButton(onClick = {
-                                                        scope.launch {
-                                                            drawerState.open()
-                                                        }
-                                                    }) {
-                                                        Icon(
-                                                            imageVector = Icons.Filled.Menu,
-                                                            contentDescription = null
-                                                        )
-                                                    }
-                                                }
-                                            },
-                                            trailingIcon = {
-                                                if (model.searchModeActivated.value) {
+                                                },
+                                                trailingIcon = {
                                                     IconButton(onClick = { model.clearSearchText() }) {
                                                         Icon(
                                                             imageVector = Icons.Filled.Close,
                                                             contentDescription = null
                                                         )
                                                     }
-                                                } else {
-                                                    IconButton(onClick = { showSettingsSheet = true }) {
-                                                        Icon(
-                                                            imageVector = Icons.Filled.MoreVert,
-                                                            contentDescription = null
-                                                        )
-                                                    }
-                                                }
-                                            })
-                                    },
-                                    expanded = model.searchModeActivated.value,
-                                    onExpandedChange = { },
-                                    shape = SearchBarDefaults.inputFieldShape,
-                                    colors = SearchBarDefaults.colors(containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.surfaceContainerLowest),
-                                    tonalElevation = if (model.searchModeActivated.value) {
-                                        0.dp
-                                    } else {
-                                        8.dp
-                                    },
-                                    windowInsets = SearchBarDefaults.windowInsets.exclude(
-                                        WindowInsets(left = 4.dp, right = 4.dp)
-                                    ),
-                                    content = {
-                                        LazyColumn(
-                                            modifier = Modifier.fillMaxWidth(),
-                                        ) {
-                                            if (model.searchModeActivated.value) {
-                                                items(model.searchHistory.size) {
-                                                    val item = model.searchHistory.reversed()[it]
+                                                })
+                                        },
+                                        expanded = true,
+                                        onExpandedChange = { },
+                                        shape = SearchBarDefaults.inputFieldShape,
+                                        colors = SearchBarDefaults.colors(containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.surfaceContainerLowest),
+                                        tonalElevation = 0.dp,
+                                        windowInsets = SearchBarDefaults.windowInsets.exclude(
+                                            WindowInsets(left = 4.dp, right = 4.dp)
+                                        ),
+                                        content = {
+                                            LazyColumn(
+                                                modifier = Modifier.fillMaxWidth(),
+                                            ) {
+                                                items(model.searchHistory.size) { index ->
+                                                    val item = model.searchHistory[model.searchHistory.lastIndex - index]
                                                     ListItem(leadingContent = {
                                                         Icon(
                                                             imageVector = Icons.Filled.History,
@@ -848,8 +1052,13 @@ class NavigationScreen : Screen {
                                                     }))
                                                 }
                                             }
-                                        }
-                                    },
+                                        },
+                                    )
+                                }
+                            } else {
+                                HomeTopBar(
+                                    onMenuClick = { scope.launch { drawerState.open() } },
+                                    onSearchClick = { model.searchModeActivated.value = true }
                                 )
                             }
                         }

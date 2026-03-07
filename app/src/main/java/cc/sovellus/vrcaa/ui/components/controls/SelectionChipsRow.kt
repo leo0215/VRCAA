@@ -60,9 +60,12 @@ fun SelectionChipsRow(
                     }
                 },
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    labelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    iconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    selectedContainerColor = MaterialTheme.colorScheme.secondary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onSecondary,
+                    selectedLeadingIconColor = MaterialTheme.colorScheme.onSecondary,
                 )
             )
         }

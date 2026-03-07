@@ -74,6 +74,7 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.models.Inventory
 import cc.sovellus.vrcaa.extension.columnCountOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
+import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -193,6 +194,7 @@ class ItemsScreen : Screen {
                                     options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                                     else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                                 },
+                                colors = connectedButtonGroupToggleColors(),
                             ) {
                                 Icon(
                                     imageVector = if (selected) Icons.Filled.Check else icons[index],
