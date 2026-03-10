@@ -184,7 +184,7 @@ class ThemeScreen : Screen {
                                     ) {
                                         Icon(
                                             if (selectedIndex == index) checkedIcons[index] else unCheckedIcons[index],
-                                            contentDescription = "Localized description",
+                                            contentDescription = null,
                                         )
                                         Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                                         Text(label)
@@ -257,7 +257,7 @@ class ThemeScreen : Screen {
                                         ) {
                                             Icon(
                                                 if (selectedColumnIndex == index) checkedIcons[index] else unCheckedIcons[index],
-                                                contentDescription = "Localized description",
+                                                contentDescription = null,
                                             )
                                             Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                                             Text(label)

@@ -113,7 +113,7 @@ fun AvatarCard(avatar: Avatar) {
                             .padding(start = 2.dp, top = 8.dp),
                         content = {
                             Text(
-                                text = "Windows"
+                                text = stringResource(R.string.platform_windows)
                             )
                         }
                     )
@@ -127,7 +127,7 @@ fun AvatarCard(avatar: Avatar) {
                             .padding(start = 2.dp, top = 8.dp),
                         content = {
                             Text(
-                                text = "Android"
+                                text = stringResource(R.string.platform_android)
                             )
                         }
                     )
@@ -141,7 +141,7 @@ fun AvatarCard(avatar: Avatar) {
                             .padding(start = 2.dp, top = 8.dp),
                         content = {
                             Text(
-                                text = "iOS"
+                                text = stringResource(R.string.platform_ios)
                             )
                         }
                     )

@@ -217,7 +217,7 @@ fun ProfileCard(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            text = "此用戶可能是惡作劇用戶",
+                            text = stringResource(R.string.profile_troll_warning),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -503,7 +503,7 @@ fun AccountStatusCard(
                 AccountInfoItem(
                     icon = Icons.Default.Verified,
                     label = stringResource(R.string.profile_label_age_verification),
-                    value = "18+ Verified",
+                    value = stringResource(R.string.profile_age_verified),
                     iconTint = Color(0xFF606FE4)
                 )
             }
@@ -511,7 +511,7 @@ fun AccountStatusCard(
             if (!platform.isNullOrEmpty() && platform != "unknown") {
                 AccountInfoItem(
                     icon = Icons.Default.Devices,
-                    label = "Platform",
+                    label = stringResource(R.string.platform_label),
                     value = platform.replaceFirstChar { it.uppercase() },
                     iconTint = MaterialTheme.colorScheme.tertiary
                 )

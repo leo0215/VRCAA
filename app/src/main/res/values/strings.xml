@@ -155,6 +155,11 @@
     </string-array>
 
     <string name="world_author_label">By %1$s</string>
+    <string name="world_section_statistics">Statistics</string>
+    <string name="world_section_activity">Activity</string>
+    <string name="world_section_dates">Dates</string>
+    <string name="world_favorites_format">%1$s (%2$s%%)</string>
+    <string name="world_capacity_format">%1$d (%2$d max)</string>
     <string name="world_instance_invite_dialog_title">Are you sure?</string>
     <string name="world_instance_invite_dialog_description">You\'re about to send invite to yourself onto this instance, do you really want to do that?</string>
     <string name="world_instance_no_public_instances_message">No public instances</string>
@@ -166,6 +171,7 @@
     <string name="tabs_label_favorites">Favorites</string>
     <string name="tabs_label_feed">Feed</string>
     <string name="tabs_label_profile">Profile</string>
+    <string name="tabs_label_options">Options</string>
     <string name="tabs_label_settings">Settings</string>
     <string name="tabs_label_debug" translatable="false">Debug</string>
 
@@ -651,6 +657,53 @@
     <string name="network_log_click_to_view_payload">Click to view the payload</string>
     <string name="network_log_bytes">%1$d bytes</string>
     <string name="packet_view_debug_info">Debug Info</string>
+    <string name="packet_view_copy_to_clipboard">Copy to clipboard</string>
+    <string name="packet_view_url">Url</string>
+    <string name="packet_view_payload">Payload</string>
     <string name="rich_presence_login_title">Rich Presence Login</string>
+
+    <!-- Disclaimer Dialog -->
+    <string name="disclaimer_consent_text">I understand, when I click \"Continue\" I waive my rights for complaints.</string>
+    <string name="disclaimer_go_back">Go Back</string>
+    <string name="disclaimer_continue">Continue</string>
+    <string name="disclaimer_toggle_checkbox_first">Please toggle the checkbox first!</string>
+
+    <!-- Economy Screen -->
+    <string name="economy_title">VRChat Credits &amp; Subscriptions</string>
+    <string name="economy_loading_failed">Loading Failed</string>
+    <string name="economy_loading_failed_description">Unable to load credits and subscription info</string>
+    <string name="economy_retry">Retry</string>
+    <string name="economy_credits">VRChat Credits</string>
+    <string name="economy_no_transactions">No transaction records yet</string>
+    <string name="economy_balance_load_failed">Unable to load balance</string>
+    <string name="economy_vrcplus_subscriptions">VRC+ Subscriptions</string>
+    <string name="economy_no_active_subscriptions">No active subscriptions</string>
+    <string name="economy_status_active">Active</string>
+    <string name="economy_label_price">Price</string>
+    <string name="economy_label_period">Period</string>
+    <string name="economy_period_month">Month</string>
+    <string name="economy_period_year">Year</string>
+    <string name="economy_label_store">Store</string>
+    <string name="economy_label_start_date">Start Date</string>
+    <string name="economy_label_next_date">Next Date</string>
+
+    <!-- Platform Labels -->
+    <string name="platform_windows">Windows</string>
+    <string name="platform_android">Android</string>
+    <string name="platform_ios">iOS</string>
+    <string name="platform_label">Platform</string>
+
+    <!-- Misc UI -->
+    <string name="friend_active_on_website">Active on website</string>
+    <string name="search_placeholder">Search</string>
+    <string name="app_version_format">VRCAA Version %1$s (%2$d)</string>
+    <string name="group_instance_capacity">Capacity: %1$d/%2$d, %3$s</string>
+    <string name="world_occupants_format">Public (%1$s) Private (%2$s) Total (%3$s)</string>
+    <string name="instance_capacity_format">(%1$d of %2$d)</string>
+    <string name="profile_troll_warning">This user may be a troll user</string>
+    <string name="profile_age_verified">18+ Verified</string>
+    <string name="system_version_format">Android %1$s</string>
+    <string name="color_debug_title">Material Colors Debug</string>
+    <string name="color_debug_current_theme">Current Theme Colors</string>
 
 </resources>

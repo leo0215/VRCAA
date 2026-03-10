@@ -29,21 +29,27 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cabin
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Update
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,8 +74,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -79,7 +85,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites
-import cc.sovellus.vrcaa.api.vrchat.http.models.Instance
 import cc.sovellus.vrcaa.api.vrchat.http.models.World
 import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.ui.components.card.WorldCard
@@ -87,8 +92,9 @@ import cc.sovellus.vrcaa.ui.components.dialog.FavoriteDialog
 import cc.sovellus.vrcaa.ui.components.dialog.GenericDialog
 import cc.sovellus.vrcaa.ui.components.layout.InstanceItem
 import cc.sovellus.vrcaa.ui.components.misc.BadgesFromTags
-import cc.sovellus.vrcaa.ui.components.misc.Description
-import cc.sovellus.vrcaa.ui.components.misc.SubHeader
+import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
+import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
+import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
@@ -189,7 +195,7 @@ class WorldScreen(
                             }) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Go Back"
+                                    contentDescription = null
                                 )
                             }
                         },
@@ -337,93 +343,157 @@ class WorldScreen(
 
     @Composable
     fun ShowInfo(world: World) {
+        val nf = NumberFormat.getInstance()
+        val userTimeZone = TimeZone.getDefault().toZoneId()
+        val dateFormatter = DateTimeFormatter.ofLocalizedDateTime(java.time.format.FormatStyle.SHORT)
+            .withLocale(Locale.getDefault())
+
+        val createdAtFormatted = ZonedDateTime.parse(world.createdAt).withZoneSameInstant(userTimeZone).format(dateFormatter)
+        val updatedAtFormatted = ZonedDateTime.parse(world.updatedAt).withZoneSameInstant(userTimeZone).format(dateFormatter)
+
+        val occupancyRate = world.visits.takeIf { it != 0 }?.let {
+            String.format(Locale.ENGLISH, "%.1f", world.favorites.toFloat() / it.toFloat() * 100)
+        } ?: "0.0"
+
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {
                 WorldCard(world)
+            }
 
-                Column(
-                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    Card(
-                        modifier = Modifier
-                            .padding(bottom = 16.dp)
-                            .widthIn(0.dp, 520.dp)
-                    ) {
-                        SubHeader(title = stringResource(R.string.world_label_description))
-                        Description(text = world.description)
-                    }
-
-                    Card(
-                        modifier = Modifier
-                            .padding(bottom = 16.dp)
-                            .widthIn(0.dp, 520.dp)
-                    ) {
-                        val userTimeZone = TimeZone.getDefault().toZoneId()
-                        val formatter = DateTimeFormatter.ofLocalizedDateTime(java.time.format.FormatStyle.SHORT)
-                            .withLocale(Locale.getDefault())
-
-                        val createdAtFormatted = ZonedDateTime.parse(world.createdAt).withZoneSameInstant(userTimeZone).format(formatter)
-                        val updatedAtFormatted = ZonedDateTime.parse(world.updatedAt).withZoneSameInstant(userTimeZone).format(formatter)
-
-                        SubHeader(title = stringResource(R.string.world_title_occupants))
-                        Description(text = "Public (${NumberFormat.getInstance().format(world.publicOccupants)}) Private (${NumberFormat.getInstance().format(world.privateOccupants)}) Total (${NumberFormat.getInstance().format(world.occupants)})")
-
-                        val occupancyRate = world.visits.takeIf { it != 0 }?.let {
-                            String.format(Locale.ENGLISH, "%.1f", world.favorites.toFloat() / it.toFloat() * 100)
-                        } ?: "0.0%"
-
-                        SubHeader(title = stringResource(R.string.world_title_favorites))
-                        Description(text = "${NumberFormat.getInstance().format(world.favorites)} (${occupancyRate}%)")
-
-                        SubHeader(title = stringResource(R.string.world_title_visits))
-                        Description(text = NumberFormat.getInstance().format(world.visits))
-
-                        SubHeader(title = stringResource(R.string.world_title_capacity))
-                        Description(text = "${world.recommendedCapacity} (${world.capacity})")
-
-                        SubHeader(title = stringResource(R.string.world_title_created_at))
-                        Description(text = createdAtFormatted)
-
-                        SubHeader(title = stringResource(R.string.world_title_updated_at))
-                        Description(text = updatedAtFormatted)
-
-                        SubHeader(title = stringResource(R.string.world_title_publication_date))
-                        Description(text = updatedAtFormatted)
-
-                        SubHeader(title = "${stringResource(R.string.world_title_heat)} (${world.heat})")
-
-                        Row(
-                            modifier = Modifier.padding(start = 12.dp)
-                        ) {
-                            for (i in 0..world.heat) {
-                                Icon(Icons.Filled.LocalFireDepartment, contentDescription = null, modifier = Modifier.size(28.dp).padding(4.dp))
-                            }
-                        }
-
-                        SubHeader(title = "${stringResource(R.string.world_title_popularity)} (${world.popularity})")
-
-                        Row(
-                            modifier = Modifier.padding(start = 12.dp)
-                        ) {
-                            for (i in 0..world.popularity) {
-                                Icon(Icons.Filled.Favorite, contentDescription = null, modifier = Modifier.size(28.dp).padding(4.dp))
-                            }
-                        }
-
-                        SubHeader(title = stringResource(R.string.world_label_tags))
-                        BadgesFromTags(
-                            tags = world.tags,
-                            tagPropertyName = "author_tag",
-                            localizationResourceInt = R.string.world_text_no_tags
+            if (!world.description.isNullOrEmpty()) {
+                item {
+                    SectionHeader(title = stringResource(R.string.world_label_description))
+                    SettingsGroup(
+                        items = listOf(
+                            SettingsItem(
+                                title = world.description,
+                                onClick = {}
+                            )
                         )
-                    }
+                    )
                 }
+            }
+
+            item {
+                SectionHeader(title = stringResource(R.string.world_section_statistics))
+                SettingsGroup(
+                    items = listOf(
+                        SettingsItem(
+                            title = stringResource(R.string.world_title_occupants),
+                            description = stringResource(
+                                R.string.world_occupants_format,
+                                nf.format(world.publicOccupants),
+                                nf.format(world.privateOccupants),
+                                nf.format(world.occupants)
+                            ),
+                            icon = Icons.Filled.Group,
+                            onClick = {}
+                        ),
+                        SettingsItem(
+                            title = stringResource(R.string.world_title_favorites),
+                            description = stringResource(
+                                R.string.world_favorites_format,
+                                nf.format(world.favorites),
+                                occupancyRate
+                            ),
+                            icon = Icons.Filled.Star,
+                            onClick = {}
+                        ),
+                        SettingsItem(
+                            title = stringResource(R.string.world_title_visits),
+                            description = nf.format(world.visits),
+                            icon = Icons.Filled.Visibility,
+                            onClick = {}
+                        ),
+                        SettingsItem(
+                            title = stringResource(R.string.world_title_capacity),
+                            description = stringResource(
+                                R.string.world_capacity_format,
+                                world.recommendedCapacity,
+                                world.capacity
+                            ),
+                            icon = Icons.Filled.Public,
+                            onClick = {}
+                        )
+                    )
+                )
+            }
+
+            item {
+                SectionHeader(title = stringResource(R.string.world_section_activity))
+                SettingsGroup(
+                    items = buildList {
+                        if (world.heat > 0) {
+                            add(
+                                SettingsItem(
+                                    title = stringResource(R.string.world_title_heat),
+                                    description = world.heat.toString(),
+                                    icon = Icons.Filled.LocalFireDepartment,
+                                    onClick = {}
+                                )
+                            )
+                        }
+                        if (world.popularity > 0) {
+                            add(
+                                SettingsItem(
+                                    title = stringResource(R.string.world_title_popularity),
+                                    description = world.popularity.toString(),
+                                    icon = Icons.Filled.Favorite,
+                                    onClick = {}
+                                )
+                            )
+                        }
+                    }
+                )
+            }
+
+            item {
+                SectionHeader(title = stringResource(R.string.world_section_dates))
+                SettingsGroup(
+                    items = listOf(
+                        SettingsItem(
+                            title = stringResource(R.string.world_title_created_at),
+                            description = createdAtFormatted,
+                            icon = Icons.Filled.CalendarMonth,
+                            onClick = {}
+                        ),
+                        SettingsItem(
+                            title = stringResource(R.string.world_title_updated_at),
+                            description = updatedAtFormatted,
+                            icon = Icons.Filled.Update,
+                            onClick = {}
+                        ),
+                        SettingsItem(
+                            title = stringResource(R.string.world_title_publication_date),
+                            description = updatedAtFormatted,
+                            icon = Icons.Filled.Public,
+                            onClick = {}
+                        )
+                    )
+                )
+            }
+
+            item {
+                SectionHeader(title = stringResource(R.string.world_label_tags))
+                SettingsGroup(
+                    items = listOf(
+                        SettingsItem(
+                            title = "",
+                            onClick = {},
+                            trailingContent = {
+                                BadgesFromTags(
+                                    tags = world.tags,
+                                    tagPropertyName = "author_tag",
+                                    localizationResourceInt = R.string.world_text_no_tags
+                                )
+                            }
+                        )
+                    )
+                )
             }
         }
     }

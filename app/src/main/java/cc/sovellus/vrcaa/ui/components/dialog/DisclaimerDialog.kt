@@ -33,8 +33,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
 
 @Composable
@@ -59,7 +61,7 @@ fun DisclaimerDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(modifier = Modifier.weight(0.80f), text = "I understand, when I click \"Continue\" I waive my rights for complaints.")
+                    Text(modifier = Modifier.weight(0.80f), text = stringResource(R.string.disclaimer_consent_text))
                     Switch(
                         modifier = Modifier.weight(0.20f),
                         checked = consentOfWithdrawal.value,
@@ -78,7 +80,7 @@ fun DisclaimerDialog(
                     onDismiss()
                 }
             ) {
-                Text("Go Back")
+                Text(stringResource(R.string.disclaimer_go_back))
             }
         },
         dismissButton = {
@@ -87,7 +89,7 @@ fun DisclaimerDialog(
                     if (!consentOfWithdrawal.value) {
                         Toast.makeText(
                             context,
-                            "Please toggle the checkbox first!",
+                            context.getString(R.string.disclaimer_toggle_checkbox_first),
                             Toast.LENGTH_LONG
                         ).show()
                     } else {
@@ -95,7 +97,7 @@ fun DisclaimerDialog(
                     }
                 }
             ) {
-                Text("Continue")
+                Text(stringResource(R.string.disclaimer_continue))
             }
         }
     )

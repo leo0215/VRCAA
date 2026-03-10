@@ -123,7 +123,7 @@ class AboutScreen : Screen {
                                 ),
                                 SettingsItem(
                                     title = stringResource(R.string.about_page_system_version),
-                                    description = "Android ${Build.VERSION.RELEASE}",
+                                    description = stringResource(R.string.system_version_format, Build.VERSION.RELEASE),
                                     icon = null,
                                     onClick = {}
                                 )

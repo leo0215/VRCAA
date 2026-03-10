@@ -38,9 +38,9 @@ import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.fontFamily
 import cc.sovellus.vrcaa.extension.useLegacyMaterialTheme
-import cc.sovellus.vrcaa.ui.mcu.rememberCustomDynamicMaterialThemeState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.materialkolor.PaletteStyle
+import com.materialkolor.dynamicColorScheme
 import com.materialkolor.dynamiccolor.ColorSpec
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -144,26 +144,21 @@ fun Theme(
         else -> PaletteStyle.TonalSpot
     }
 
-    // Use MaterialKolor when primaryColor is provided, otherwise use system/default colors
     val specVersion = if (useLegacyMaterialTheme) {
         ColorSpec.SpecVersion.SPEC_2025
     } else {
         ColorSpec.SpecVersion.SPEC_2021
     }
-    
-    val dynamicThemeState = if (primaryColor != null) {
-        rememberCustomDynamicMaterialThemeState(
+
+    val systemUiController = rememberSystemUiController()
+    val colorScheme = if (primaryColor != null) {
+        dynamicColorScheme(
+            seedColor = primaryColor,
             isDark = isDark,
             style = paletteStyle,
             specVersion = specVersion,
-            seedColor = primaryColor
         )
     } else {
-        null
-    }
-    
-    val systemUiController = rememberSystemUiController()
-    val colorScheme = dynamicThemeState?.colorScheme ?: run {
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                 when (theme) {

@@ -26,19 +26,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material3.Badge
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import cc.sovellus.vrcaa.R
@@ -64,170 +64,161 @@ import com.bumptech.glide.integration.compose.placeholder
 @Composable
 fun InstanceItem(instance: Instance, creator: String?, friends: List<Friend>, onClick: () -> Unit) {
     val result = LocationHelper.parseLocationInfo(instance.instanceId)
-    ElevatedCard(
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        ),
+
+    Card(
         modifier = Modifier
-            .padding(4.dp)
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
-        ListItem(
-            headlineContent = {
-
-            },
-            overlineContent = {
-                val label = buildAnnotatedString {
-                    append(creator ?: instance.world.authorName)
-                    append(" ")
-                    append("#${instance.name}")
-                    append(" ")
-                    append(result.instanceType)
-                    if (result.ageGated) {
-                        append(" ")
-                        withStyle(style = SpanStyle(color = Color.Red)) {
-                            append("AGE GATED")
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "#${instance.name}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    val subtitle = buildAnnotatedString {
+                        append(creator ?: instance.world.authorName)
+                        append(" · ")
+                        append(result.instanceType)
+                        if (result.ageGated) {
+                            append(" · ")
+                            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
+                                append("AGE GATED")
+                            }
                         }
                     }
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
-                Text(label)
-            },
-            supportingContent = {
-                Column {
-                    Spacer(Modifier.padding(4.dp))
-                    Row {
-                        ElevatedCard(
-                            elevation = CardDefaults.cardElevation(
-                                defaultElevation = 2.dp
-                            ),
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.End,
-                                modifier = Modifier.padding(4.dp)
-                            ) {
-                                Text(
-                                    text = "${instance.userCount} / ${instance.world.capacity}",
-                                    modifier = Modifier.padding(end = 2.dp)
-                                )
-                                Icon(
-                                    imageVector = Icons.Filled.Group,
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                        Spacer(Modifier.padding(start = 4.dp, end = 4.dp))
-                        ElevatedCard(
-                            elevation = CardDefaults.cardElevation(
-                                defaultElevation = 2.dp
-                            ),
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.End,
-                                modifier = Modifier.padding(4.dp)
-                            ) {
-                                Text(
-                                    text = friends.size.toString(),
-                                    modifier = Modifier.padding(end = 2.dp)
-                                )
-                                Icon(
-                                    imageVector = Icons.Filled.Groups,
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                    }
 
-                    if (friends.isNotEmpty()) {
-                        VerticalDivider(Modifier.padding(4.dp))
-
-                        Column(
-                            modifier = Modifier
-                                .heightIn(max = 240.dp)
-                        ) {
-                            friends.forEach { friend ->
-                                ElevatedCard(
-                                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Row(
-                                        horizontalArrangement = Arrangement.Start,
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(8.dp)
-                                    ) {
-                                        Badge(
-                                            containerColor = StatusHelper.getStatusFromString(friend.status).toColor(),
-                                            modifier = Modifier.size(40.dp)
-                                        ) {
-                                            GlideImage(
-                                                model = friend.userIcon.ifEmpty {
-                                                    friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl }
-                                                },
-                                                contentDescription = null,
-                                                modifier = Modifier
-                                                    .size(32.dp)
-                                                    .clip(RoundedCornerShape(50)),
-                                                contentScale = ContentScale.Crop,
-                                                loading = placeholder(R.drawable.image_placeholder),
-                                                failure = placeholder(R.drawable.image_placeholder),
-                                                alpha = 0.8f
-                                            )
-                                        }
-                                        Spacer(Modifier.padding(start = 4.dp, end = 4.dp))
-                                        Text(
-                                            text = friend.displayName,
-                                            maxLines = 2,
-                                            fontWeight = FontWeight.Normal,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            trailingContent = {
                 if (result.regionId.isNotEmpty()) {
-                    when (result.regionId.lowercase()) {
-                        "eu" -> Image(
-                            painter = painterResource(R.drawable.flag_eu),
-                            modifier = Modifier.padding(start = 2.dp),
-                            contentDescription = "Region flag"
-                        )
-                        "jp" -> Image(
-                            painter = painterResource(R.drawable.flag_jp),
-                            modifier = Modifier.padding(start = 2.dp),
-                            contentDescription = "Region flag"
-                        )
-                        "us" -> Image(
-                            painter = painterResource(R.drawable.flag_us),
-                            modifier = Modifier.padding(start = 2.dp),
-                            contentDescription = "Region flag"
-                        )
-                        "use" -> Image(
-                            painter = painterResource(R.drawable.flag_us),
-                            modifier = Modifier.padding(start = 2.dp),
-                            contentDescription = "Region flag"
-                        )
-                        "usw" -> Image(
-                            painter = painterResource(R.drawable.flag_us),
-                            modifier = Modifier.padding(start = 2.dp),
-                            contentDescription = "Region flag"
-                        )
-                    }
+                    RegionFlag(result.regionId)
                 } else {
                     Image(
                         painter = painterResource(R.drawable.flag_us),
-                        modifier = Modifier.padding(start = 2.dp),
-                        contentDescription = "Region flag",
+                        modifier = Modifier.padding(start = 8.dp),
+                        contentDescription = null
                     )
                 }
-            },
-            modifier = Modifier.clickable(
-                onClick = {
-                    onClick()
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Group,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "${instance.userCount} / ${instance.world.capacity}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
-            )
-        )
+                if (friends.isNotEmpty()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Groups,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = friends.size.toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+
+            if (friends.isNotEmpty()) {
+                Column(
+                    modifier = Modifier.heightIn(max = 200.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    friends.forEach { friend ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Badge(
+                                containerColor = StatusHelper.getStatusFromString(friend.status).toColor(),
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                GlideImage(
+                                    model = friend.userIcon.ifEmpty {
+                                        friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl }
+                                    },
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop,
+                                    loading = placeholder(R.drawable.image_placeholder),
+                                    failure = placeholder(R.drawable.image_placeholder),
+                                    alpha = 0.8f
+                                )
+                            }
+                            Text(
+                                text = friend.displayName,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
+}
+
+@Composable
+private fun RegionFlag(regionId: String) {
+    val flagRes = when (regionId.lowercase()) {
+        "eu" -> R.drawable.flag_eu
+        "jp" -> R.drawable.flag_jp
+        "us", "use", "usw" -> R.drawable.flag_us
+        else -> R.drawable.flag_us
+    }
+    Image(
+        painter = painterResource(flagRes),
+        modifier = Modifier.padding(start = 8.dp),
+        contentDescription = null
+    )
 }

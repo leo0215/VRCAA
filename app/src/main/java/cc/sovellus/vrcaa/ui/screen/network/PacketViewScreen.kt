@@ -108,7 +108,7 @@ class PacketViewScreen(
                                             clipboard?.setPrimaryClip(clip)
                                             isMenuExpanded = false
                                         },
-                                        text = { Text("Copy to clipboard") }
+                                        text = { Text(stringResource(R.string.packet_view_copy_to_clipboard)) }
                                     )
                                 }
                             }
@@ -130,7 +130,7 @@ class PacketViewScreen(
                                 .fillMaxWidth()
                                 .padding(4.dp)
                         ) {
-                            SubHeader(title = "Url")
+                            SubHeader(title = stringResource(R.string.packet_view_url))
 
                             Text(
                                 text = it,
@@ -151,7 +151,7 @@ class PacketViewScreen(
                             .fillMaxWidth()
                             .padding(4.dp)
                     ) {
-                        SubHeader(title = "Payload")
+                        SubHeader(title = stringResource(R.string.packet_view_payload))
 
                         Text(
                             text = payload,

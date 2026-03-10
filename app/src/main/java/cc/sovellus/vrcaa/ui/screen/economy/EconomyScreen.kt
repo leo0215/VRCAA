@@ -38,6 +38,8 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import androidx.compose.ui.res.stringResource
+import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.models.UserBalance
 import cc.sovellus.vrcaa.api.vrchat.http.models.UserSubscription
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
@@ -59,15 +61,15 @@ class EconomyScreen : Screen {
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
-                    title = { Text("VRChat 點數與訂閱") },
+                    title = { Text(stringResource(R.string.economy_title)) },
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                         }
                     },
                     actions = {
                         IconButton(onClick = { model.refresh() }) {
-                            Icon(Icons.Default.Refresh, contentDescription = "刷新")
+                            Icon(Icons.Default.Refresh, contentDescription = null)
                         }
                     }
                 )
@@ -88,19 +90,19 @@ class EconomyScreen : Screen {
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "載入失敗",
+                            text = stringResource(R.string.economy_loading_failed),
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.error
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "無法載入點數和訂閱信息",
+                            text = stringResource(R.string.economy_loading_failed_description),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(onClick = { model.refresh() }) {
-                            Text("重試")
+                            Text(stringResource(R.string.economy_retry))
                         }
                     }
                 }
@@ -135,7 +137,7 @@ class EconomyScreen : Screen {
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "VRC+ 訂閱",
+                                    text = stringResource(R.string.economy_vrcplus_subscriptions),
                                     style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -154,7 +156,7 @@ class EconomyScreen : Screen {
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
                                         Text(
-                                            text = "沒有啟用的訂閱",
+                                            text = stringResource(R.string.economy_no_active_subscriptions),
                                             style = MaterialTheme.typography.bodyLarge,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -201,7 +203,7 @@ private fun BalanceCard(balance: UserBalance?) {
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = "VRChat 點數",
+                    text = stringResource(R.string.economy_credits),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -221,14 +223,14 @@ private fun BalanceCard(balance: UserBalance?) {
                 if (balance.noTransactions) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "尚未有任何交易記錄",
+                        text = stringResource(R.string.economy_no_transactions),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                     )
                 }
             } else {
                 Text(
-                    text = "無法載入餘額",
+                    text = stringResource(R.string.economy_balance_load_failed),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.error
                 )
@@ -270,7 +272,7 @@ private fun SubscriptionCard(subscription: UserSubscription) {
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(
-                        text = if (subscription.active) "作用中" else subscription.status,
+                        text = if (subscription.active) stringResource(R.string.economy_status_active) else subscription.status,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                         style = MaterialTheme.typography.labelSmall,
                         color = if (subscription.active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -287,7 +289,7 @@ private fun SubscriptionCard(subscription: UserSubscription) {
             ) {
                 Column {
                     Text(
-                        text = "價格",
+                        text = stringResource(R.string.economy_label_price),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -300,14 +302,14 @@ private fun SubscriptionCard(subscription: UserSubscription) {
                 
                 Column {
                     Text(
-                        text = "週期",
+                        text = stringResource(R.string.economy_label_period),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = when(subscription.period) {
-                            "month" -> "月份"
-                            "year" -> "年分"
+                            "month" -> stringResource(R.string.economy_period_month)
+                            "year" -> stringResource(R.string.economy_period_year)
                             else -> subscription.period
                         },
                         style = MaterialTheme.typography.bodyMedium,
@@ -317,7 +319,7 @@ private fun SubscriptionCard(subscription: UserSubscription) {
                 
                 Column {
                     Text(
-                        text = "訂閱方式",
+                        text = stringResource(R.string.economy_label_store),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -337,7 +339,7 @@ private fun SubscriptionCard(subscription: UserSubscription) {
             ) {
                 Column {
                     Text(
-                        text = "開始訂閱時間",
+                        text = stringResource(R.string.economy_label_start_date),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -350,7 +352,7 @@ private fun SubscriptionCard(subscription: UserSubscription) {
                 if (subscription.expires.isNotEmpty()) {
                     Column {
                         Text(
-                            text = "下次訂閱時間",
+                            text = stringResource(R.string.economy_label_next_date),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

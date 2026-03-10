@@ -142,7 +142,7 @@ class FriendsScreen : Screen {
                         ) {
                             if (searchQuery.isEmpty()) {
                                 Text(
-                                    text = "Search",
+                                    text = stringResource(R.string.search_placeholder),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                     modifier = Modifier.padding(vertical = 12.dp)

@@ -372,7 +372,7 @@ class GroupScreen(
                 items(instances) { instance ->
                     val result = LocationHelper.parseLocationInfo(instance.location)
                     ListItem(headlineContent = {
-                        Text("Capacity: ${instance.memberCount}/${instance.world.capacity}, ${result.instanceType}")
+                        Text(stringResource(R.string.group_instance_capacity, instance.memberCount, instance.world.capacity, result.instanceType))
                     }, overlineContent = {
                         Text("${instance.world.name} #${instance.instanceId}")
                     }, trailingContent = {

@@ -113,7 +113,7 @@ fun InstanceCard(profile: LimitedUser, instance: Instance, disabled: Boolean, ca
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = "(${instance.userCount} of ${instance.world.capacity})",
+                        text = stringResource(R.string.instance_capacity_format, instance.userCount, instance.world.capacity),
                         textAlign = TextAlign.Left,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,

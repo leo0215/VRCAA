@@ -575,6 +575,14 @@ class NavigationScreen : Screen {
                                                 overflow = TextOverflow.Ellipsis
                                             )
                                         },
+                                        actions = {
+                                            IconButton(onClick = { showProfileSheet = true }) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Edit,
+                                                    contentDescription = stringResource(R.string.profile_edit_sheet_title)
+                                                )
+                                            }
+                                        },
                                         colors = TopAppBarDefaults.topAppBarColors(
                                             containerColor = MaterialTheme.colorScheme.surfaceContainer
                                         )
@@ -829,7 +837,7 @@ class NavigationScreen : Screen {
                     bottomBar = {
                         val colorScheme = MaterialTheme.colorScheme
                         NavigationBar(
-                            containerColor = colorScheme.surfaceContainer
+                            containerColor = colorScheme.surfaceContainerHighest
                         ) {
                             tabs.forEach { tab ->
                                 val isSelected = tabNavigator.current.key == tab.key
@@ -951,7 +959,7 @@ class NavigationScreen : Screen {
 
                             // 版本號
                             Text(
-                                text = "VRCAA Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                                text = stringResource(R.string.app_version_format, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier
@@ -1102,6 +1110,14 @@ class NavigationScreen : Screen {
                                         Icon(
                                             imageVector = Icons.Filled.Menu,
                                             contentDescription = null
+                                        )
+                                    }
+                                },
+                                actions = {
+                                    IconButton(onClick = { showProfileSheet = true }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = stringResource(R.string.profile_edit_sheet_title)
                                         )
                                     }
                                 },
@@ -1438,7 +1454,7 @@ class NavigationScreen : Screen {
                                             options = listOf("hidden", "18+"),
                                             readableOptions = mapOf(
                                                 "hidden" to "Hidden",
-                                                "18+" to "18+ Verified"
+                                                "18+" to stringResource(R.string.profile_age_verified)
                                             ),
                                             selection = model.verifiedStatus
                                         )

@@ -47,10 +47,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cc.sovellus.vrcaa.R
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -78,7 +80,7 @@ class ColorDebugScreen : Screen {
                             )
                         }
                     },
-                    title = { Text("Material Colors Debug") }
+                    title = { Text(stringResource(R.string.color_debug_title)) }
                 )
             },
             content = { paddingValues ->
@@ -91,7 +93,7 @@ class ColorDebugScreen : Screen {
                 ) {
                     item {
                         Text(
-                            text = "Current Theme Colors",
+                            text = stringResource(R.string.color_debug_current_theme),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(vertical = 8.dp)

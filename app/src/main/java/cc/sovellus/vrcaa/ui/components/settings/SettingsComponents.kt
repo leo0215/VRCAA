@@ -239,8 +239,8 @@ fun ExpandableSettingsGroup(
                     .fillMaxWidth()
                     .height(52.dp)
                     .clickable { expanded = !expanded }
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -252,10 +252,10 @@ fun ExpandableSettingsGroup(
                 )
                 Box(
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(width = 32.dp, height = 40.dp)
                         .background(
                             MaterialTheme.colorScheme.surfaceContainer,
-                            CircleShape
+                            RoundedCornerShape(20.dp)  // pill: 50% of 40dp height
                         ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -338,8 +338,7 @@ fun SettingsCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 48.dp)
-            .then(if (description == null) Modifier.height(52.dp) else Modifier.height(64.dp))
+            .heightIn(min = if (description == null) 52.dp else 64.dp)
             .clickable(onClick = onClick)
             .padding(vertical = 10.dp, horizontal = 16.dp),
         horizontalArrangement = if (isHeader) Arrangement.Center else Arrangement.spacedBy(12.dp),
