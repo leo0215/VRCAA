@@ -64,6 +64,7 @@ class UserProfileScreenModel(
     private var instance: Instance? = null
     var status: FriendStatus? = null
     val note = mutableStateOf("")
+    val groupMetadata: StateFlow<Map<String, FavoriteManager.FavoriteGroupMetadata>> = FavoriteManager.groupMetadataState
 
     val userGroups = kotlinx.coroutines.flow.MutableStateFlow<List<UserGroup>>(emptyList())
     val mutualGroups = kotlinx.coroutines.flow.MutableStateFlow<List<UserGroup>>(emptyList())

@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
@@ -69,6 +70,8 @@ import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class FavoritesScreen : Screen {
 
+    override val key = uniqueScreenKey
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -87,12 +90,14 @@ class FavoritesScreen : Screen {
     fun ShowScreen(model: FavoritesScreenModel) {
 
         val version = model.version.collectAsState()
+        val groupMetadata = model.groupMetadata.collectAsState()
         version.value
 
         if (model.editDialogShown.value) {
             FavoriteEditDialog(
-                model.currentSelectedGroup.value,
-                model.currentSelectedIsFriend.value,
+                tag = model.currentSelectedGroup.value,
+                isFriend = model.currentSelectedIsFriend.value,
+                groupMetadata = groupMetadata.value,
                 onDismiss = {
                     model.editDialogShown.value = false
                     model.currentSelectedIsFriend.value = false
@@ -100,6 +105,13 @@ class FavoritesScreen : Screen {
                 onConfirmation = {
                     model.editDialogShown.value = false
                     model.currentSelectedIsFriend.value = false
+                },
+                onUpdateGroupMetadata = { tag, metadata, isFriend ->
+                    if (isFriend) {
+                        FavoriteManager.updateGroupMetadataOnlyName(tag, metadata)
+                    } else {
+                        FavoriteManager.updateGroupMetadata(tag, metadata)
+                    }
                 }
             )
         }
@@ -167,9 +179,9 @@ class FavoritesScreen : Screen {
             ) {
                 item {
                     when (model.currentIndex.intValue) {
-                        0 -> ShowWorlds(model)
-                        1 -> ShowAvatars(model)
-                        2 -> ShowFriends(model)
+                        0 -> ShowWorlds(model, groupMetadata.value)
+                        1 -> ShowAvatars(model, groupMetadata.value)
+                        2 -> ShowFriends(model, groupMetadata.value)
                     }
                 }
             }
@@ -179,14 +191,18 @@ class FavoritesScreen : Screen {
     @Composable
     fun ShowWorlds(
         model: FavoritesScreenModel,
+        groupMetadata: Map<String, FavoriteManager.FavoriteGroupMetadata>
     ) {
         val navigator = LocalNavigator.currentOrThrow
         val worldList = model.getWorldList()
 
         worldList.forEach { item ->
             if (item.value.isNotEmpty()) {
+                val metadata = groupMetadata[item.key]
+                val title = "${metadata?.displayName ?: metadata?.name ?: item.key} (${metadata?.size ?: 0}/${FavoriteManager.getMaximumFavoritesForType(FavoriteType.FAVORITE_WORLD)})"
+
                 FavoriteHorizontalRow(
-                    title = "${FavoriteManager.getDisplayNameFromTag(item.key)} (${FavoriteManager.getGroupMetadata(item.key)?.size ?: 0}/${FavoriteManager.getMaximumFavoritesForType(FavoriteType.FAVORITE_WORLD)})",
+                    title = title,
                     allowEdit = true,
                     onEdit = {
                         model.currentSelectedGroup.value = item.key
@@ -218,14 +234,18 @@ class FavoritesScreen : Screen {
     @Composable
     fun ShowAvatars(
         model: FavoritesScreenModel,
+        groupMetadata: Map<String, FavoriteManager.FavoriteGroupMetadata>
     ) {
         val navigator = LocalNavigator.currentOrThrow
         val avatarList = model.getAvatarList()
 
         avatarList.forEach { item ->
             if (item.value.isNotEmpty()) {
+                val metadata = groupMetadata[item.key]
+                val title = "${metadata?.displayName ?: metadata?.name ?: item.key} (${metadata?.size ?: 0}/${FavoriteManager.getMaximumFavoritesForType(FavoriteType.FAVORITE_AVATAR)})"
+
                 FavoriteHorizontalRow(
-                    title = "${FavoriteManager.getDisplayNameFromTag(item.key)} (${FavoriteManager.getGroupMetadata(item.key)?.size ?: 0}/${FavoriteManager.getMaximumFavoritesForType(FavoriteType.FAVORITE_AVATAR)})",
+                    title = title,
                     allowEdit = true,
                     onEdit = {
                         model.currentSelectedGroup.value = item.key
@@ -256,15 +276,19 @@ class FavoritesScreen : Screen {
 
     @Composable
     fun ShowFriends(
-        model: FavoritesScreenModel
+        model: FavoritesScreenModel,
+        groupMetadata: Map<String, FavoriteManager.FavoriteGroupMetadata>
     ) {
         val navigator = LocalNavigator.currentOrThrow
         val friendList = model.getFriendList()
 
         friendList.forEach { item ->
             if (item.value.isNotEmpty()) {
+                val metadata = groupMetadata[item.key]
+                val title = "${metadata?.displayName ?: metadata?.name ?: item.key} (${metadata?.size ?: 0}/${FavoriteManager.getMaximumFavoritesForType(FavoriteType.FAVORITE_FRIEND)})"
+
                 FavoriteHorizontalRow(
-                    title = "${FavoriteManager.getDisplayNameFromTag(item.key)} (${FavoriteManager.getGroupMetadata(item.key)?.size ?: 0}/${FavoriteManager.getMaximumFavoritesForType(FavoriteType.FAVORITE_FRIEND)})",
+                    title = title,
                     allowEdit = true,
                     onEdit = {
                         model.currentSelectedIsFriend.value = true
