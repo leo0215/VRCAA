@@ -111,8 +111,12 @@ class MainActivity : BaseActivity() {
             }
 
             if (App.getIsValidSession()) {
-                val intent = Intent(this, PipelineService::class.java)
+                var intent = Intent(this, PipelineService::class.java)
                 ContextCompat.startForegroundService(this, intent)
+                if (preferences.richPresenceEnabled) {
+                    intent = Intent(this, RichPresenceService::class.java)
+                    ContextCompat.startForegroundService(this, intent)
+                }
             }
         }
     }

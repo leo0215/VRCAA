@@ -428,4 +428,5 @@
     <string name="settings_section_advanced">Erweitert</string>
     <string name="settings_section_community">Community</string>
     <string name="settings_section_account">Konto</string>
+<string name="activity_peek_no_url_handler">No app available to open the URL.</string>
 </resources>

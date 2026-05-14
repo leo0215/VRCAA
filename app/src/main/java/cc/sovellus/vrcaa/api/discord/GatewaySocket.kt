@@ -17,7 +17,6 @@
 package cc.sovellus.vrcaa.api.discord
 
 import android.util.ArrayMap
-import android.util.Log
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.api.discord.models.websocket.Hello
 import cc.sovellus.vrcaa.api.discord.models.websocket.Incoming
@@ -26,6 +25,7 @@ import cc.sovellus.vrcaa.extension.discordToken
 import cc.sovellus.vrcaa.extension.richPresenceWebhookUrl
 import cc.sovellus.vrcaa.helper.StatusHelper
 import cc.sovellus.vrcaa.manager.DebugManager
+import cc.sovellus.vrcaa.manager.PresenceManager
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.Headers
@@ -45,34 +45,25 @@ import java.util.zip.InflaterOutputStream
 
 class GatewaySocket {
 
-    val preferences = App.getPreferences()
+    private val preferences = App.getPreferences()
 
     private var socket: WebSocket? = null
     private val client: OkHttpClient by lazy { OkHttpClient() }
     private val gson = GsonBuilder().serializeNulls().create()
     private val inflater = Inflater()
-    private val mp: DiscordMediaProxy = DiscordMediaProxy(preferences.richPresenceWebhookUrl)
+    private val mp: DiscordMediaProxy = DiscordMediaProxy()
 
     private var currentGatewayUrl = "wss://gateway.discord.gg/?encoding=json&v=9&compress=zlib-stream"
 
     private var sequence: Int = 0
     private var interval: Long = 0
     private var sessionId = ""
+
     private var shouldResume: Boolean = false
     private var sessionTime: Int = 0
 
     private val scheduler: ScheduledExecutorService = Executors.newScheduledThreadPool(2)
     private lateinit var schedule: ScheduledFuture<*>
-
-    data class PresenceInfo(
-        var worldName: String = "",
-        var worldThumbnailUrl: String = "",
-        var worldId: String = "",
-        var instanceInfo: String = "",
-        var instanceNonce: String = "",
-        var instanceType: String = "",
-        var userStatus: StatusHelper.Status = StatusHelper.Status.Offline
-    )
 
     private val heartbeatRunnable = Runnable {
         sendHeartbeat()
@@ -98,7 +89,7 @@ class GatewaySocket {
 
                 val payload = Gson().fromJson(uncompressedStream.toString(), Incoming::class.java)
 
-                if (payload.s!= null) {
+                if (payload.s != null) {
                     sequence = payload.s
                 }
 
@@ -115,7 +106,8 @@ class GatewaySocket {
                         schedule = scheduler.scheduleWithFixedDelay(heartbeatRunnable, interval, interval, TimeUnit.MILLISECONDS)
                     }
                     Opcodes.HEARTBEAT_ACK -> {
-                        scheduler.schedule(heartbeatRunnable, interval, TimeUnit.MILLISECONDS)
+                        // Discord expect you to acknowledge the acknowledgement.
+                        // scheduler.schedule(heartbeatRunnable, interval, TimeUnit.MILLISECONDS)
                     }
                     else -> {
                         isUnknown = true
@@ -173,7 +165,6 @@ class GatewaySocket {
     }
 
     fun disconnect() {
-
         val presence = ArrayMap<String, Any?>()
         presence["status"] = "idle"
         presence["since"] = 0
@@ -215,7 +206,7 @@ class GatewaySocket {
         }
     }
 
-    suspend fun sendPresence(info: PresenceInfo) {
+    suspend fun sendPresence(info: PresenceManager.PresenceInfo) {
 
         val assets = ArrayMap<String, String>()
 
@@ -229,10 +220,8 @@ class GatewaySocket {
             APP_ASSET_LARGE_ICON
         }
 
-        assets["large_url"] = if (info.userStatus == StatusHelper.Status.JoinMe || info.userStatus == StatusHelper.Status.Active) {
-            "https://vrchat.com/home/world/${info.worldId}/info"
-        } else {
-            ""
+        if (info.userStatus == StatusHelper.Status.JoinMe || info.userStatus == StatusHelper.Status.Active) {
+            assets["large_url"] = "https://vrchat.com/home/world/${info.worldId}/info"
         }
 
         assets["small_image"] = when(info.userStatus) {
@@ -249,6 +238,10 @@ class GatewaySocket {
         val timestamps = ArrayMap<String, Any>()
         timestamps["start"] = sessionTime
 
+        // TODO: how do we actually determine the amount of people without log parsing, we don't, for future.
+        // val party = ArrayMap<String, Any?>()
+        // party["size"] = arrayOf<Any>(16, 64)
+
         val activity = ArrayMap<String, Any>()
 
         activity["name"] = "VRChat"
@@ -260,10 +253,8 @@ class GatewaySocket {
             "User location hidden."
         }
 
-        activity["details_url"] = if ((info.userStatus == StatusHelper.Status.JoinMe || info.userStatus == StatusHelper.Status.Active) && (info.instanceType == "Public" || info.instanceType == "Group" || info.instanceType == "Group+")) {
-            "vrchat://launch?ref=vrchat.com&id=${info.instanceNonce}"
-        } else {
-            ""
+        if ((info.userStatus == StatusHelper.Status.JoinMe || info.userStatus == StatusHelper.Status.Active) && (info.instanceType == "Public" || info.instanceType == "Group" || info.instanceType == "Group+")) {
+            activity["details_url"] = "vrchat://launch?ref=vrchat.com&id=${info.instanceNonce}"
         }
 
         activity["details"] = if (info.userStatus == StatusHelper.Status.JoinMe || info.userStatus == StatusHelper.Status.Active) {
