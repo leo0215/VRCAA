@@ -58,6 +58,7 @@ import cc.sovellus.vrcaa.App
 
 import cc.sovellus.vrcaa.helper.StatusHelper
 import cc.sovellus.vrcaa.manager.CacheManager
+import cc.sovellus.vrcaa.manager.RecommendationManager
 import cc.sovellus.vrcaa.ui.components.layout.HorizontalRow
 import cc.sovellus.vrcaa.ui.components.layout.RoundedRowItem
 import cc.sovellus.vrcaa.ui.components.layout.RowItem
@@ -230,10 +231,10 @@ class HomeScreen : Screen {
 
                     Spacer(modifier = Modifier.padding(4.dp))
 
-                val offlineFriends = friends.filter { it.platform.isEmpty() }
-                if (offlineFriends.isEmpty()) {
+                if (model.recommendedWorlds.isEmpty()) {
                     Text(
-                        text = stringResource(R.string.home_offline_friends),
+                        text = stringResource(R.string.home_curated_for_you),
+                        style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         fontSize = 32.sp,
                         modifier = Modifier.padding(bottom = 4.dp)
@@ -253,13 +254,13 @@ class HomeScreen : Screen {
                     )
                 } else {
                     HorizontalRow(
-                        title = stringResource(R.string.home_offline_friends)
+                        title = stringResource(R.string.home_curated_for_you)
                     ) {
-                        items(offlineFriends) { friend ->
+                        items(model.recommendedWorlds) { world ->
                             RowItem(
-                                name = friend.displayName,
-                                url = friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl },
-                                onClick = { navigator.parent?.parent?.push(UserProfileScreen(friend.id)) }
+                                name = world.name,
+                                url = world.imageUrl.ifEmpty { world.thumbnailImageUrl },
+                                onClick = { navigator.parent?.parent?.push(WorldScreen(world.id)) }
                             )
                         }
                     }

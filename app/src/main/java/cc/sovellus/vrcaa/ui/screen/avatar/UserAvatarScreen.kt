@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -111,6 +112,7 @@ class UserAvatarScreen(
         val groupMetadata by model.groupMetadata.collectAsState()
 
         Scaffold(
+            modifier = Modifier.fillMaxHeight(),
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
@@ -208,7 +210,7 @@ class UserAvatarScreen(
 
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxHeight()
                         .padding(
                             top = padding.calculateTopPadding(),
                             bottom = padding.calculateBottomPadding(),
@@ -230,7 +232,7 @@ class UserAvatarScreen(
                         Description(text = avatar.description)
 
                         val userTimeZone = TimeZone.getDefault().toZoneId()
-                        val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                        val formatter = DateTimeFormatter.ofLocalizedDateTime(java.time.format.FormatStyle.SHORT)
                             .withLocale(Locale.getDefault())
 
                         val createdAtFormatted = ZonedDateTime.parse(avatar.createdAt).withZoneSameInstant(userTimeZone).format(formatter)

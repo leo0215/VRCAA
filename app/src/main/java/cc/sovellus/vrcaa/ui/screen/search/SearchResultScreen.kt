@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -36,9 +37,14 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cabin
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.outlined.Devices
+import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.Button
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -50,9 +56,14 @@ import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringArrayResource
@@ -66,6 +77,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.columnCountOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
+import cc.sovellus.vrcaa.extension.worldsAmount
 import cc.sovellus.vrcaa.ui.components.layout.GridItem
 import cc.sovellus.vrcaa.ui.components.controls.SelectionChipsRow
 import cc.sovellus.vrcaa.ui.screen.avatar.AvatarScreen
@@ -105,6 +117,9 @@ class SearchResultScreen(
     fun MultiChoiceHandler(
         model: SearchResultScreenModel
     ) {
+        val settingsSheetState = rememberModalBottomSheetState()
+        var showSettingsSheet by remember { mutableStateOf(false) }
+        val scope = rememberCoroutineScope()
 
         val navigator = LocalNavigator.currentOrThrow
 
@@ -120,6 +135,16 @@ class SearchResultScreen(
                         IconButton(onClick = { navigator.pop() }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            showSettingsSheet = true
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.MoreVert,
                                 contentDescription = null
                             )
                         }
@@ -161,6 +186,214 @@ class SearchResultScreen(
                     1 -> ShowUsers(model)
                     2 -> ShowAvatars(model)
                     3 -> ShowGroups(model)
+                }
+
+                if (showSettingsSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = {
+                            showSettingsSheet = false
+                        }, sheetState = settingsSheetState
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentPadding = PaddingValues(
+                                start = 16.dp,
+                                end = 16.dp,
+                                top = 8.dp,
+                                bottom = 24.dp
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            item {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    OutlinedButton(
+                                        modifier = Modifier.weight(1f),
+                                        onClick = {
+                                            when (model.currentIndex.intValue) {
+                                                0 -> model.resetWorldFilters()
+                                                1 -> model.resetUserFilters()
+                                                2 -> model.resetAvatarFilters()
+                                                3 -> model.resetGroupFilters()
+                                            }
+                                        }
+                                    ) {
+                                        Text(stringResource(R.string.search_filter_button_reset))
+                                    }
+
+                                    Button(
+                                        modifier = Modifier.weight(1f),
+                                        onClick = {
+                                            scope.launch {
+                                                when (model.currentIndex.intValue) {
+                                                    0 -> model.filterWorlds()
+                                                    1 -> model.filterUsers()
+                                                    2 -> model.filterAvatars()
+                                                    3 -> model.filterGroups()
+                                                }
+                                                settingsSheetState.hide()
+                                            }.invokeOnCompletion {
+                                                if (!settingsSheetState.isVisible) {
+                                                    showSettingsSheet = false
+                                                }
+                                            }
+                                        }
+                                    ) {
+                                        Text(stringResource(R.string.search_filter_button_apply))
+                                    }
+                                }
+                            }
+                            item {
+                                when (model.currentIndex.intValue) {
+                                    0 -> { // worlds
+                                        SearchFilterSection(
+                                            title = stringResource(R.string.search_filter_label_count),
+                                            icon = Icons.Outlined.Devices
+                                        ) {
+                                            SnappedCountSlider(
+                                                value = model.worldsAmount.intValue,
+                                                onValueChange = { model.worldsAmount.intValue = it }
+                                            )
+                                        }
+
+                                        HorizontalDivider(
+                                            Modifier,
+                                            DividerDefaults.Thickness,
+                                            DividerDefaults.color
+                                        )
+
+                                        SearchFilterSection(
+                                            title = stringResource(R.string.search_filter_label_platform),
+                                            icon = Icons.Outlined.Devices
+                                        ) {
+                                            LimitedChipSelect(
+                                                items = listOf("PC", "Android", "iOS"),
+                                                selected = model.worldPlatformFilterSelection.value,
+                                                minSelected = 1,
+                                                maxSelected = 3,
+                                                onSelectedChange = { changed ->
+                                                    model.worldPlatformFilterSelection.value = changed
+                                                }
+                                            )
+                                        }
+
+                                        HorizontalDivider(
+                                            Modifier,
+                                            DividerDefaults.Thickness,
+                                            DividerDefaults.color
+                                        )
+
+                                        SearchFilterSection(
+                                            title = stringResource(R.string.search_filter_label_content_gating),
+                                            icon = Icons.Outlined.WarningAmber
+                                        ) {
+                                            LimitedChipSelect(
+                                                items = listOf("Sexually Suggestive", " Adult Language and Themes", "Graphic Violence", "Excessive Gore", "Extreme Horror"),
+                                                selected = model.worldContentFilterSelection.value,
+                                                minSelected = 0,
+                                                maxSelected = 5,
+                                                onSelectedChange = { changed ->
+                                                    model.worldContentFilterSelection.value = changed
+                                                }
+                                            )
+                                        }
+                                    }
+                                    1 -> { // users
+                                        SearchFilterSection(
+                                            title = stringResource(R.string.search_filter_label_count),
+                                            icon = Icons.Outlined.Devices
+                                        ) {
+                                            SnappedCountSlider(
+                                                value = model.usersAmount.intValue,
+                                                onValueChange = { model.usersAmount.intValue = it }
+                                            )
+                                        }
+                                    }
+                                    2 -> { // avatars
+                                        SearchFilterSection(
+                                            title = stringResource(R.string.search_filter_label_count),
+                                            icon = Icons.Outlined.Devices
+                                        ) {
+                                            SnappedCountSlider(
+                                                value = model.avatarsAmount.intValue,
+                                                onValueChange = { model.avatarsAmount.intValue = it }
+                                            )
+                                        }
+                                        HorizontalDivider(
+                                            Modifier,
+                                            DividerDefaults.Thickness,
+                                            DividerDefaults.color
+                                        )
+                                        SearchFilterSection(
+                                            title = stringResource(R.string.search_filter_label_platform),
+                                            icon = Icons.Outlined.Devices
+                                        ) {
+                                            LimitedChipSelect(
+                                                items = listOf("PC", "Android", "iOS"),
+                                                selected = model.avatarPlatformFilterSelection.value,
+                                                minSelected = 1,
+                                                maxSelected = 3,
+                                                onSelectedChange = { changed ->
+                                                    model.avatarPlatformFilterSelection.value = changed
+                                                }
+                                            )
+                                        }
+                                        HorizontalDivider(
+                                            Modifier,
+                                            DividerDefaults.Thickness,
+                                            DividerDefaults.color
+                                        )
+                                        SearchFilterSection(
+                                            title = stringResource(R.string.search_filter_label_performance_rank),
+                                            icon = Icons.Outlined.Shield
+                                        ) {
+                                            LimitedChipSelect(
+                                                items = listOf("Very Poor", "Poor", "Medium", "Good", "Excellent"),
+                                                selected = model.avatarPerformanceFilterSelection.value,
+                                                minSelected = 1,
+                                                maxSelected = 5,
+                                                onSelectedChange = { changed ->
+                                                    model.avatarPerformanceFilterSelection.value = changed
+                                                }
+                                            )
+                                        }
+                                        HorizontalDivider(
+                                            Modifier,
+                                            DividerDefaults.Thickness,
+                                            DividerDefaults.color
+                                        )
+                                        SearchFilterSection(
+                                            title = stringResource(R.string.search_filter_label_content_gating),
+                                            icon = Icons.Outlined.WarningAmber
+                                        ) {
+                                            LimitedChipSelect(
+                                                items = listOf("Sexually Suggestive", " Adult Language and Themes", "Graphic Violence", "Excessive Gore", "Extreme Horror"),
+                                                selected = model.avatarContentFilterSelection.value,
+                                                minSelected = 0,
+                                                maxSelected = 5,
+                                                onSelectedChange = { changed ->
+                                                    model.avatarContentFilterSelection.value = changed
+                                                }
+                                            )
+                                        }
+                                    }
+                                    3 -> { // groups
+                                        SearchFilterSection(
+                                            title = stringResource(R.string.search_filter_label_count),
+                                            icon = Icons.Outlined.Devices
+                                        ) {
+                                            SnappedCountSlider(
+                                                value = model.groupsAmount.intValue,
+                                                onValueChange = { model.groupsAmount.intValue = it }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         })
@@ -272,51 +505,53 @@ class SearchResultScreen(
         val state = model.avatars.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
 
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            if (state.value.isEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = stringResource(R.string.result_not_found))
-                }
-            } else {
-                LazyVerticalGrid(
-                    columns = when (model.preferences.columnCountOption) {
-                        0 -> GridCells.Adaptive(166.dp)
-                        else -> GridCells.Fixed(model.preferences.fixedColumnSize)
-                    },contentPadding = PaddingValues(
-                        start = 12.dp, top = 16.dp, end = 16.dp, bottom = 16.dp
-                    ), content = {
-                        items(state.value) { avatar ->
-                            GridItem(
-                                name = avatar.name, url = avatar.imageUrl ?: "", count = null
-                            ) {
-                                navigator.push(AvatarScreen(avatar.id))
-                            }
+        if (state.value.isEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = stringResource(R.string.result_not_found))
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = when (model.preferences.columnCountOption) {
+                    0 -> GridCells.Adaptive(166.dp)
+                    else -> GridCells.Fixed(model.preferences.fixedColumnSize)
+                }, contentPadding = PaddingValues(
+                    start = 12.dp, top = 16.dp, end = 16.dp, bottom = 16.dp
+                ), content = {
+                    items(state.value) { avatar ->
+                        GridItem(
+                            name = avatar.name, url = avatar.imageUrl ?: "", count = null
+                        ) {
+                            navigator.push(AvatarScreen(avatar.vrcId))
                         }
+                    }
 
-                        if (!model.avatarLimitReached.value) {
-                            item(span = { GridItemSpan(if (model.preferences.columnCountOption == 0) { 2 } else { model.preferences.fixedColumnSize })}) {
-                                Column(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Button(onClick = { model.fetchMoreAvatars() }) {
-                                        Text(text = stringResource(R.string.search_button_more))
-                                    }
+                    if (!model.avatarLimitReached.value) {
+                        item(span = {
+                            GridItemSpan(
+                                if (model.preferences.columnCountOption == 0) {
+                                    2
+                                } else {
+                                    model.preferences.fixedColumnSize
+                                }
+                            )
+                        }) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Button(onClick = { model.fetchMoreAvatars() }) {
+                                    Text(text = stringResource(R.string.search_button_more))
                                 }
                             }
                         }
                     }
-                )
-            }
+                }
+            )
         }
     }
 

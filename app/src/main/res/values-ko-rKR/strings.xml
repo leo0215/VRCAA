@@ -21,8 +21,8 @@
     <!-- Home -->
     <string name="home_active_friends">온라인 친구</string>
     <string name="home_recently_visited">최근 방문</string>
-    <string name="home_offline_friends">오프라인 친구</string>
     <string name="home_friend_locations">친구 위치</string>
+    <string name="home_curated_for_you">Curated For You</string>
     <!-- Login -->
     <string name="login_text">VRC Android Assistant에 로그인</string>
     <string name="login_label_username">닉네임 혹은 이메일</string>
@@ -56,19 +56,12 @@
     <string name="profile_user_note_dialog_title">Set Note</string>
     <!-- Search -->
     <string name="search_text_result">검색 결과:</string>
-    <string name="search_filter_category_worlds">월드</string>
-    <string name="search_filter_category_worlds_sort_by">정렬</string>
-    <string name="search_filter_category_worlds_count">표시 수</string>
-    <string name="search_filter_category_users">유저</string>
-    <string name="search_filter_category_users_count">표시 수</string>
-    <string name="search_filter_category_avatars">아바타</string>
-    <string name="search_filter_category_avatars_provider">제공자</string>
-    <string name="search_filter_category_groups">그룹</string>
-    <string name="search_filter_category_groups_count">표시 수</string>
+    <string name="search_filter_label_count">표시 수</string>
+    <string name="search_filter_label_platform">Platform</string>
+    <string name="search_filter_label_content_gating">Content Gating</string>
+    <string name="search_filter_label_performance_rank">Performance Rank</string>
     <string name="copy_id_label">ID 복사</string>
     <string name="copied_toast">%1$s의 ID를 복사했습니다.</string>
-    <!-- TODO: remove duplicate labels :) -->
-    <string name="search_filter_label_count">표시 수</string>
     <string name="search_filter_button_reset">초기화</string>
     <string name="search_filter_button_apply">적용</string>
     <string-array name="search_selection_options">
@@ -101,6 +94,8 @@
     <string name="world_title_favorites">즐겨찾기 수</string>
     <string name="world_title_capacity">인원 제한</string>
     <string name="world_title_occupants">유저 수</string>
+    <string name="world_title_time_spent">Time Spent</string>
+    <string name="world_description_no_data_time_spent">No data available.</string>
     <string name="world_title_publication_date">공개일</string>
     <string name="world_title_heat">히트</string>
     <string name="world_title_popularity">인기</string>

@@ -24,7 +24,6 @@ import android.widget.Toast
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.BuildConfig
 import cc.sovellus.vrcaa.R
-import cc.sovellus.vrcaa.base.BaseClient
 import cc.sovellus.vrcaa.api.vrchat.Config
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IAuth
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IAuth.AuthType
@@ -44,6 +43,7 @@ import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IUser
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IUsers
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IWorlds
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IEconomy
+import cc.sovellus.vrcaa.api.vrchat.http.models.AuthResponse
 import cc.sovellus.vrcaa.api.vrchat.http.models.Avatar
 import cc.sovellus.vrcaa.api.vrchat.http.models.Avatars
 import cc.sovellus.vrcaa.api.vrchat.http.models.Code
@@ -53,13 +53,17 @@ import cc.sovellus.vrcaa.api.vrchat.http.models.FavoriteAdd
 import cc.sovellus.vrcaa.api.vrchat.http.models.FavoriteAvatar
 import cc.sovellus.vrcaa.api.vrchat.http.models.FavoriteAvatars
 import cc.sovellus.vrcaa.api.vrchat.http.models.FavoriteBody
+import cc.sovellus.vrcaa.api.vrchat.http.models.FavoriteGroup
 import cc.sovellus.vrcaa.api.vrchat.http.models.FavoriteGroups
 import cc.sovellus.vrcaa.api.vrchat.http.models.FavoriteLimits
 import cc.sovellus.vrcaa.api.vrchat.http.models.FavoriteWorld
 import cc.sovellus.vrcaa.api.vrchat.http.models.FavoriteWorlds
 import cc.sovellus.vrcaa.api.vrchat.http.models.Favorites
+import cc.sovellus.vrcaa.api.vrchat.http.models.File
 import cc.sovellus.vrcaa.api.vrchat.http.models.FileMetadata
+import cc.sovellus.vrcaa.api.vrchat.http.models.Files
 import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
+import cc.sovellus.vrcaa.api.vrchat.http.models.FriendStatus
 import cc.sovellus.vrcaa.api.vrchat.http.models.Friends
 import cc.sovellus.vrcaa.api.vrchat.http.models.Group
 import cc.sovellus.vrcaa.api.vrchat.http.models.GroupInstance
@@ -67,20 +71,9 @@ import cc.sovellus.vrcaa.api.vrchat.http.models.GroupInstances
 import cc.sovellus.vrcaa.api.vrchat.http.models.Groups
 import cc.sovellus.vrcaa.api.vrchat.http.models.Instance
 import cc.sovellus.vrcaa.api.vrchat.http.models.InstanceCreateBody
-import cc.sovellus.vrcaa.api.vrchat.http.models.LimitedUser
-import cc.sovellus.vrcaa.api.vrchat.http.models.ProfileUpdate
-import cc.sovellus.vrcaa.api.vrchat.http.models.User
-import cc.sovellus.vrcaa.api.vrchat.http.models.UserGroup
-import cc.sovellus.vrcaa.api.vrchat.http.models.UserGroups
-import cc.sovellus.vrcaa.api.vrchat.http.models.Users
-import cc.sovellus.vrcaa.api.vrchat.http.models.World
-import cc.sovellus.vrcaa.api.vrchat.http.models.Worlds
-import cc.sovellus.vrcaa.api.vrchat.http.models.AuthResponse
-import cc.sovellus.vrcaa.api.vrchat.http.models.FavoriteGroup
-import cc.sovellus.vrcaa.api.vrchat.http.models.File
-import cc.sovellus.vrcaa.api.vrchat.http.models.Files
-import cc.sovellus.vrcaa.api.vrchat.http.models.FriendStatus
 import cc.sovellus.vrcaa.api.vrchat.http.models.Inventory
+import cc.sovellus.vrcaa.api.vrchat.http.models.LimitedUser
+import cc.sovellus.vrcaa.api.vrchat.http.models.NoteResponse
 import cc.sovellus.vrcaa.api.vrchat.http.models.Notification
 import cc.sovellus.vrcaa.api.vrchat.http.models.NotificationResponse
 import cc.sovellus.vrcaa.api.vrchat.http.models.NotificationV2
@@ -88,9 +81,17 @@ import cc.sovellus.vrcaa.api.vrchat.http.models.Notifications
 import cc.sovellus.vrcaa.api.vrchat.http.models.NotificationsV2
 import cc.sovellus.vrcaa.api.vrchat.http.models.Print
 import cc.sovellus.vrcaa.api.vrchat.http.models.Prints
+import cc.sovellus.vrcaa.api.vrchat.http.models.ProfileUpdate
+import cc.sovellus.vrcaa.api.vrchat.http.models.User
 import cc.sovellus.vrcaa.api.vrchat.http.models.UserBalance
+import cc.sovellus.vrcaa.api.vrchat.http.models.UserGroup
+import cc.sovellus.vrcaa.api.vrchat.http.models.UserGroups
 import cc.sovellus.vrcaa.api.vrchat.http.models.UserNoteUpdate
 import cc.sovellus.vrcaa.api.vrchat.http.models.UserSubscription
+import cc.sovellus.vrcaa.api.vrchat.http.models.Users
+import cc.sovellus.vrcaa.api.vrchat.http.models.World
+import cc.sovellus.vrcaa.api.vrchat.http.models.Worlds
+import cc.sovellus.vrcaa.base.BaseClient
 import cc.sovellus.vrcaa.extension.authToken
 import cc.sovellus.vrcaa.extension.twoFactorToken
 import cc.sovellus.vrcaa.extension.userCredentials
@@ -100,6 +101,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import net.thauvin.erik.urlencoder.UrlEncoderUtil
 import okhttp3.Headers
@@ -122,10 +124,12 @@ class HttpClient : BaseClient(), CoroutineScope {
         setAuthorization(AuthorizationType.Cookie, preferences.twoFactorToken)
 
         if (reAuthorizationFailureCount <= Config.MAX_TOKEN_REFRESH_ATTEMPT) {
-            api.auth.login(
-                preferences.userCredentials.first,
-                preferences.userCredentials.second
-            )
+            async {
+                api.auth.login(
+                    preferences.userCredentials.first,
+                    preferences.userCredentials.second
+                )
+            }.await()
             reAuthorizationFailureCount++
         } else {
             setAuthorization(AuthorizationType.Cookie, "")
@@ -745,6 +749,8 @@ class HttpClient : BaseClient(), CoroutineScope {
         override suspend fun fetchWorldsByName(
             query: String,
             sort: String,
+            tags: List<String>,
+            notags: List<String>,
             n: Int,
             offset: Int
         ): ArrayList<World> {
@@ -758,6 +764,12 @@ class HttpClient : BaseClient(), CoroutineScope {
                     append("&n=${n}")
                     append("&sort=${sort}")
                     append("&search=${query}")
+                    if (tags.isNotEmpty()) {
+                        append("&tag=${tags.joinToString(",")}")
+                    }
+                    if (notags.isNotEmpty()) {
+                        append("&notag=${notags.joinToString(",")}")
+                    }
                     append("&offset=${offset}")
                 },
                 headers = GENERIC_HEADER,
@@ -2050,31 +2062,34 @@ class HttpClient : BaseClient(), CoroutineScope {
 
     val notes = object : INotes {
 
-        override suspend fun updateNote(userId: String, note: String): Notification? {
+        override suspend fun updateNote(userId: String, note: String): NoteResponse? {
+            try {
+                val update = UserNoteUpdate(
+                    targetUserId = userId,
+                    note = note
+                )
 
-            val update = UserNoteUpdate(
-                targetUserId = userId,
-                note = note
-            )
+                val result = doRequest(
+                    method = "POST",
+                    url = buildString {
+                        append(Config.API_BASE_URL)
+                        append("/userNotes")
+                    },
+                    headers = GENERIC_HEADER,
+                    body = gson.toJson(update, UserNoteUpdate::class.java)
+                )
 
-            val result = doRequest(
-                method = "POST",
-                url = buildString {
-                    append(Config.API_BASE_URL)
-                    append("/userNotes")
-                },
-                headers = GENERIC_HEADER,
-                body = gson.toJson(update, UserNoteUpdate::class.java)
-            )
-
-            when (result) {
-                is Result.Succeeded -> {
-                    return gson.fromJson(result.body, Notification::class.java)
+                when (result) {
+                    is Result.Succeeded -> {
+                        return gson.fromJson(result.body, NoteResponse::class.java)
+                    }
+                    else -> {
+                        handleExceptions(result)
+                        return null
+                    }
                 }
-                else -> {
-                    handleExceptions(result)
-                    return null
-                }
+            } catch (_: Throwable) { // for some reason, this crashed for someone, so let's just catch it.
+                return null
             }
         }
     }

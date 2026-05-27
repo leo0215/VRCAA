@@ -56,10 +56,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Cabin
-import androidx.compose.material.icons.outlined.Groups
-import androidx.compose.material.icons.outlined.People
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
@@ -86,7 +82,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarDefaults.InputField
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -120,12 +115,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.CurrentTab
-import cafe.adriel.voyager.navigator.tab.TabDisposable
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.extension.navigationType
@@ -244,7 +237,7 @@ private fun HomeTopBar(
 
 class NavigationScreen : Screen {
 
-    override val key = uniqueScreenKey
+    override val key = "navigation"
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
     @Composable
@@ -274,7 +267,7 @@ class NavigationScreen : Screen {
         }
 
         val tabs = remember {
-            arrayListOf(
+            listOf(
                 HomeTab,
                 FriendsTab,
                 FeedTab,
@@ -283,16 +276,10 @@ class NavigationScreen : Screen {
             )
         }
 
-        TabNavigator(tabs[0], tabDisposable = {
-            TabDisposable(
-                navigator = it, tabs = tabs
-            )
-        }) { tabNavigator ->
-            val settingsSheetState = rememberModalBottomSheetState()
+        TabNavigator(tabs[0]) { tabNavigator ->
             val profileSheetState = rememberModalBottomSheetState()
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-            var showSettingsSheet by remember { mutableStateOf(false) }
             var isMenuExpanded by remember { mutableStateOf(false) }
             var showProfileSheet by remember { mutableStateOf(false) }
 
@@ -369,7 +356,7 @@ class NavigationScreen : Screen {
                     if (pressBackCounter == 1) {
                         Toast.makeText(
                             context,
-                            context.getString(R.string.misc_exit_toast_label),
+                            model.context.getString(R.string.misc_exit_toast_label),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -1740,123 +1727,4 @@ class NavigationScreen : Screen {
             }
         }
     }
-}
-
-private const val SEARCH_FILTER_MIN_COUNT = NavigationScreenModel.SEARCH_FILTER_MIN_COUNT
-private const val SEARCH_FILTER_MAX_COUNT = NavigationScreenModel.SEARCH_FILTER_MAX_COUNT
-private const val SEARCH_FILTER_SNAP_STEP = NavigationScreenModel.SEARCH_FILTER_SNAP_STEP
-
-@Composable
-private fun SearchFilterSection(
-    title: String,
-    icon: ImageVector,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        tonalElevation = 2.dp,
-        color = MaterialTheme.colorScheme.surfaceContainerLow
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-
-            content()
-        }
-    }
-}
-
-@Composable
-private fun SnappedCountSlider(
-    label: String,
-    value: Int,
-    onValueChange: (Int) -> Unit,
-    min: Int = SEARCH_FILTER_MIN_COUNT,
-    max: Int = SEARCH_FILTER_MAX_COUNT,
-    step: Int = SEARCH_FILTER_SNAP_STEP
-) {
-    val normalizedValue = snapCountValue(value, min, max, step)
-
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.secondary,
-                fontWeight = FontWeight.SemiBold
-            )
-
-            Text(
-                text = normalizedValue.toString(),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Slider(
-            value = normalizedValue.toFloat(),
-            onValueChange = { onValueChange(snapCountValue(it, min, max, step)) },
-            valueRange = min.toFloat()..max.toFloat(),
-            steps = ((max - min) / step).coerceAtLeast(1) - 1
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = min.toString(),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Text(
-                text = max.toString(),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-private fun snapCountValue(
-    value: Int,
-    min: Int,
-    max: Int,
-    step: Int
-): Int {
-    return snapCountValue(value.toFloat(), min, max, step)
-}
-
-private fun snapCountValue(
-    value: Float,
-    min: Int,
-    max: Int,
-    step: Int
-): Int {
-    val clamped = value.coerceIn(min.toFloat(), max.toFloat())
-    val snappedSteps = ((clamped - min) / step).roundToInt()
-    return (min + snappedSteps * step).coerceIn(min, max)
 }

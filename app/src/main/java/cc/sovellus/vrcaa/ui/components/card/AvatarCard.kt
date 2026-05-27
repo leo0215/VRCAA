@@ -54,21 +54,27 @@ import com.bumptech.glide.integration.compose.placeholder
 fun AvatarCard(avatar: Avatar) {
 
     var foundWindows by remember { mutableStateOf(false) }
+    var windowsPerformanceRank by remember { mutableStateOf("") }
     var foundAndroid by remember { mutableStateOf(false) }
+    var androidPerformanceRank by remember { mutableStateOf("") }
     var foundDarwin by remember { mutableStateOf(false) }
+    var darwinPerformanceRank by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         avatar.unityPackages.forEach { pkg ->
             when (pkg.platform) {
                 "android" -> {
                     foundAndroid = true
-
+                    androidPerformanceRank = avatar.performance.android
                 }
                 "standalonewindows" -> {
                     foundWindows = true
+                    windowsPerformanceRank = avatar.performance.standalonewindows
                 }
                 "ios" -> {
                     foundDarwin = true
+                    // TODO: does VRChat API return performance for iOS?
+                    darwinPerformanceRank = avatar.performance.android
                 }
             }
         }
@@ -113,7 +119,7 @@ fun AvatarCard(avatar: Avatar) {
                             .padding(start = 2.dp, top = 8.dp),
                         content = {
                             Text(
-                                text = stringResource(R.string.platform_windows)
+                                text = if (windowsPerformanceRank.isEmpty()) { "PC" } else { "PC | $windowsPerformanceRank" }
                             )
                         }
                     )
@@ -127,7 +133,7 @@ fun AvatarCard(avatar: Avatar) {
                             .padding(start = 2.dp, top = 8.dp),
                         content = {
                             Text(
-                                text = stringResource(R.string.platform_android)
+                                text = if (androidPerformanceRank.isEmpty()) { "Android" } else { "Android | $androidPerformanceRank" }
                             )
                         }
                     )
@@ -141,7 +147,7 @@ fun AvatarCard(avatar: Avatar) {
                             .padding(start = 2.dp, top = 8.dp),
                         content = {
                             Text(
-                                text = stringResource(R.string.platform_ios)
+                                text = if (darwinPerformanceRank.isEmpty()) { "iOS" } else { "iOS | $darwinPerformanceRank" }
                             )
                         }
                     )

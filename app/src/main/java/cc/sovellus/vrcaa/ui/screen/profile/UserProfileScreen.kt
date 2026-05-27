@@ -272,7 +272,8 @@ class UserProfileScreen(
                                 .padding(
                                     top = padding.calculateTopPadding(),
                                     bottom = padding.calculateBottomPadding()
-                                ),
+                                )
+                                .padding(16.dp),
                             verticalArrangement = Arrangement.Top,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
