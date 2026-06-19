@@ -52,9 +52,6 @@ class ProfileScreenModel : StateScreenModel<ProfileScreenModel.ProfileState>(Pro
     }
 
     private fun fetchProfile() {
-        val profile = CacheManager.getProfile()
-        profile?.let {
-            mutableState.value = ProfileState.Result(it)
-        }
+        mutableState.value = ProfileState.Result(CacheManager.profile.value)
     }
 }

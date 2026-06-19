@@ -97,6 +97,10 @@ fun InstanceItem(instance: Instance, creator: String?, friends: List<Friend>, on
                         append(creator ?: instance.world.authorName)
                         append(" · ")
                         append(result.instanceType)
+                        if (result.groupAccessType.isNotEmpty()) {
+                            append(" · ")
+                            append(result.groupAccessType)
+                        }
                         if (result.ageGated) {
                             append(" · ")
                             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {

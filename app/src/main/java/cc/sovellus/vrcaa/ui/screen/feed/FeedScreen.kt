@@ -18,13 +18,17 @@ package cc.sovellus.vrcaa.ui.screen.feed
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -51,16 +55,16 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.manager.CacheManager
 import cc.sovellus.vrcaa.manager.FeedManager
 import cc.sovellus.vrcaa.manager.FriendManager
 import cc.sovellus.vrcaa.ui.components.layout.FeedItem
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
-import androidx.compose.material3.Text
 
 @Composable
-fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
+fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false, hasMore: Boolean = false) {
     val navigator = LocalNavigator.currentOrThrow
 
     LazyColumn(
@@ -69,7 +73,7 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
             .padding(1.dp),
         state = rememberLazyListState()
     ) {
-        items(feed.reversed())
+        items(feed)
         { item ->
             when (item.type) {
                 FeedManager.FeedType.FRIEND_FEED_ONLINE -> {
@@ -288,6 +292,21 @@ fun FeedList(feed: List<FeedManager.Feed>, filter: Boolean = false) {
                 }
             }
         }
+        if (hasMore) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button({
+                        FeedManager.loadFeed()
+                    }) {
+                        Text(stringResource(R.string.search_button_more))
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -315,21 +334,22 @@ class FeedScreen : Screen {
         var isRefreshing by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         val pullToRefreshState = rememberPullToRefreshState()
+        val feed = model.feed.collectAsStateWithLifecycle()
+        val hasMore = model.hasMore.collectAsStateWithLifecycle()
 
         PullToRefreshBox(
             isRefreshing = isRefreshing,
             onRefresh = {
                 scope.launch {
                     isRefreshing = true
-                    model.refreshCache()
+                    CacheManager.buildCache()
                     isRefreshing = false
                 }
             },
             state = pullToRefreshState,
             modifier = Modifier.fillMaxSize()
         ) {
-            val feed = model.feed.collectAsStateWithLifecycle()
-            FeedList(feed.value)
+            FeedList(feed.value, hasMore = hasMore.value)
         }
     }
 }

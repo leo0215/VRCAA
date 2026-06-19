@@ -65,7 +65,7 @@ class DatabaseScreen : Screen {
         val model = navigator.rememberNavigatorScreenModel { DatabaseScreenModel() }
 
         val backupLauncher = rememberLauncherForActivityResult(
-            ActivityResultContracts.CreateDocument("application/octet-stream")
+            ActivityResultContracts.CreateDocument("application/zip")
         ) { uri ->
             uri?.let {
                 model.backupDatabaseToUri(uri)
@@ -143,7 +143,7 @@ class DatabaseScreen : Screen {
                                     description = stringResource(R.string.database_page_recovery_backup_description),
                                     icon = Icons.Outlined.Backup,
                                     onClick = {
-                                        backupLauncher.launch("VRCAA-backup-${LocalDateTime.now()}.db")
+                                        backupLauncher.launch("VRCAA-backup-${LocalDateTime.now()}.zip")
                                     }
                                 ),
                                 SettingsItem(
@@ -151,7 +151,7 @@ class DatabaseScreen : Screen {
                                     description = stringResource(R.string.database_page_recovery_restore_description),
                                     icon = Icons.Outlined.Restore,
                                     onClick = {
-                                        restoreLauncher.launch(arrayOf("application/octet-stream"))
+                                        restoreLauncher.launch(arrayOf("application/zip"))
                                     }
                                 )
                             )

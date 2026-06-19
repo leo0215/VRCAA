@@ -795,20 +795,19 @@ class WorldScreen(
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(instances) { instance ->
-                    instance.second.let { instance ->
-                        instance.instance?.let {
-                            InstanceItem(
-                                instance = instance.instance,
-                                creator = instance.creator,
-                                friends = instance.friends.toList(),
-                                onClick = {
-                                    dialogState.value = true
-                                    model.selectedInstanceId.value = instance.instance.id
-                                }
-                            )
+                items(
+                    instances.distinctBy { it.second.instance?.world?.id }
+                ) { (_, item) ->
+                    val inst = item.instance ?: return@items
+                    InstanceItem(
+                        instance = inst,
+                        creator = item.creator,
+                        friends = item.friends.toList(),
+                        onClick = {
+                            dialogState.value = true
+                            model.selectedInstanceId.value = inst.id
                         }
-                    }
+                    )
                 }
             }
         }

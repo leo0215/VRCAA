@@ -34,7 +34,6 @@ class FavoritesScreenModel : StateScreenModel<FavoritesScreenModel.FavoriteState
         data object Result : FavoriteState()
     }
 
-    val version: StateFlow<Long> = FavoriteManager.versionState
     val groupMetadata: StateFlow<Map<String, FavoriteManager.FavoriteGroupMetadata>> = FavoriteManager.groupMetadataState
 
     var currentIndex = mutableIntStateOf(0)
@@ -55,6 +54,10 @@ class FavoritesScreenModel : StateScreenModel<FavoritesScreenModel.FavoriteState
         }
     }
 
+    val worldList = FavoriteManager.worldListState
+    val avatarList = FavoriteManager.avatarListState
+    val friendList = FavoriteManager.friendListState
+
     init {
         mutableState.value = FavoriteState.Loading
         CacheManager.addListener(cacheListener)
@@ -65,18 +68,6 @@ class FavoritesScreenModel : StateScreenModel<FavoritesScreenModel.FavoriteState
         } else {
             mutableState.value = FavoriteState.Loading
         }
-    }
-
-    fun getWorldList(): Map<String, List<FavoriteManager.FavoriteMetadata>> {
-        return FavoriteManager.getWorldList()
-    }
-
-    fun getAvatarList(): Map<String, List<FavoriteManager.FavoriteMetadata>> {
-        return FavoriteManager.getAvatarList()
-    }
-
-    fun getFriendList(): Map<String, List<FavoriteManager.FavoriteMetadata>> {
-        return FavoriteManager.getFriendList()
     }
 
     fun removeFavorite() {

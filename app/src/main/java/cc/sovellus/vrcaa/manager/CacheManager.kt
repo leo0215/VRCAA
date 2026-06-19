@@ -18,7 +18,6 @@ package cc.sovellus.vrcaa.manager
 
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
-import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
 import cc.sovellus.vrcaa.api.vrchat.http.models.User
 import cc.sovellus.vrcaa.api.vrchat.http.models.World
 import cc.sovellus.vrcaa.base.BaseManager
@@ -30,12 +29,16 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.Collections
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
+@OptIn(ExperimentalAtomicApi::class)
 object CacheManager : BaseManager<CacheManager.CacheListener>() {
 
     interface CacheListener {
-        fun updateRecentlyVisitedWorlds(worlds: List<WorldCache>) { }
         fun startCacheRefresh() { }
         fun endCacheRefresh() { }
         fun profileUpdated(profile: User) { }
@@ -43,168 +46,127 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
 
     data class WorldCache(
         val id: String,
-        var name: String = "???",
-        var thumbnailUrl: String = "",
+        val name: String = "???",
+        val thumbnailUrl: String = "",
     )
 
-    private val worldListLock = Any()
-    private val recentWorldLock = Any()
-    private val profileLock = Any()
-
-    private var profile: User? = null
-    private var worldList = Collections.synchronizedList(mutableListOf<WorldCache>())
-    private var recentWorldList = Collections.synchronizedList(mutableListOf<WorldCache>())
+    private var profileStateFlow = MutableStateFlow(User())
+    private var worldListStateFlow = MutableStateFlow(emptyList<WorldCache>())
     private val recentWorldsStateFlow = MutableStateFlow<List<WorldCache>>(emptyList())
+    private val recommendedWorldsStateFlow = MutableStateFlow<List<World>>(emptyList())
 
     val recentWorldsState: StateFlow<List<WorldCache>> = recentWorldsStateFlow.asStateFlow()
+    val recommendedWorldsState: StateFlow<List<World>> = recommendedWorldsStateFlow.asStateFlow()
+    val worldList: StateFlow<List<WorldCache>> = worldListStateFlow.asStateFlow()
+    val profile: StateFlow<User> = profileStateFlow.asStateFlow()
 
-    private var cacheHasBeenBuilt: Boolean = false
+    private var isCacheBuilt = AtomicBoolean(false)
 
     suspend fun buildCache() = coroutineScope {
-        cacheHasBeenBuilt = false
 
-        synchronized(worldListLock) {
-            worldList.clear()
-        }
-
-        synchronized(recentWorldLock) {
-            recentWorldList.clear()
-            recentWorldsStateFlow.value = emptyList()
-        }
+        recentWorldsStateFlow.value = emptyList()
+        recommendedWorldsStateFlow.value = emptyList()
 
         App.setLoadingText(R.string.global_app_default_loading_text)
 
-        getListeners().forEach { listener ->
-            listener.startCacheRefresh()
-        }
+        isCacheBuilt.exchange(false)
+        getListeners().forEach { it.startCacheRefresh() }
 
-        val user = async { api.auth.fetchCurrentUser() }.await()
-        val onlineFriends = async { api.friends.fetchFriends(false) }.await()
-        val offlineFriends = async { api.friends.fetchFriends(true) }.await()
-        val recentWorlds = async { api.worlds.fetchRecent() }.await()
-        val notifications = async { api.user.fetchNotifications() }.await()
-        val notificationsV2 = async { api.notifications.fetchNotifications() }.await()
+        val user = async { api.auth.fetchCurrentUser() }
 
-        async { FavoriteManager.refresh() }.await()
+        val onlineFriends = async { api.friends.fetchFriends(false) }
+        val offlineFriends = async { api.friends.fetchFriends(true) }
 
-        val userLocations = onlineFriends.mapNotNull { friend ->
-            friend.location.takeIf { it.contains("wrld_") }?.split(":")?.getOrNull(0)
-        }.distinct().map { worldId ->
-            async {
-                api.worlds.fetchWorldByWorldId(worldId)
-            }
-        }.awaitAll()
+        val recentWorlds = async { api.worlds.fetchRecent() }
+        val recommendedWorlds = async { RecommendationManager.recommendWorlds() }
 
-        synchronized(profileLock) {
-            profile = user
-        }
+        val notifications = async { api.user.fetchNotifications() }
+        val notificationsV2 = async { api.notifications.fetchNotifications() }
 
-        val friendList: MutableList<Friend> = mutableListOf()
-        friendList.addAll((onlineFriends + offlineFriends))
-        FriendManager.setFriends(friendList)
+        val friends = async { onlineFriends.await() + offlineFriends.await() }
 
-        NotificationManager.setNotifications(notifications)
-        NotificationManager.setNotificationsV2(notificationsV2)
+        val jobs = listOf(
+            launch {
+                user.await()?.let { profileStateFlow.value = it }
+            },
 
-        synchronized(worldListLock) {
-            worldList.addAll(userLocations.filterNotNull().filter { !isWorldCached(it.id) }.map {
-                WorldCache(it.id).apply {
-                    name = it.name
-                    thumbnailUrl = it.thumbnailImageUrl
+            launch {
+                NotificationManager.setNotifications(notifications.await())
+                NotificationManager.setNotificationsV2(notificationsV2.await())
+            },
+
+            launch {
+                FriendManager.setFriends(friends.await().toMutableList())
+            },
+
+            launch { FavoriteManager.refresh() },
+
+            launch {
+                val worlds = recentWorlds.await()
+                recentWorldsStateFlow.update {
+                    it + worlds.map { world ->
+                        WorldCache(world.id, name = world.name, thumbnailUrl = world.thumbnailImageUrl)
+                    }
                 }
-            })
-        }
+            },
 
-        synchronized(recentWorldLock) {
-            recentWorldList.addAll(recentWorlds.map {
-                WorldCache(it.id).apply {
-                    name = it.name
-                    thumbnailUrl = it.thumbnailImageUrl
+            launch {
+                val locations = friends.await().mapNotNull { friend ->
+                    friend.location.takeIf { it.contains("wrld_") }?.split(":")?.getOrNull(0)
+                }.distinct().map { worldId ->
+                    async { api.worlds.fetchWorldByWorldId(worldId) }
+                }.awaitAll()
+
+                // TODO: should there be a "WorldManager" to track all of your friends to do correlation based on timestamp to figure out who you spend time with?
+                worldListStateFlow.update { current ->
+                    current + locations.filterNotNull()
+                        .filter { w -> current.none { it.id == w.id } }
+                        .map { WorldCache(it.id, it.name, it.thumbnailImageUrl) }
                 }
-            })
-            recentWorldsStateFlow.value = recentWorldList.toList()
-        }
+            },
 
-        getListeners().forEach { listener ->
-            listener.endCacheRefresh()
-        }
+            launch {
+                recommendedWorldsStateFlow.value = recommendedWorlds.await()
+            },
+        )
 
-        cacheHasBeenBuilt = true
+        jobs.joinAll()
+
+        isCacheBuilt.exchange(true)
+        getListeners().forEach { it.endCacheRefresh() }
     }
-
 
     fun isBuilt(): Boolean {
-        return cacheHasBeenBuilt
+        return isCacheBuilt.load()
     }
 
-    fun isWorldCached(worldId: String): Boolean {
-        synchronized(worldListLock) {
-            return worldList.any { it.id == worldId }
-        }
-    }
-
-    fun getWorld(worldId: String): WorldCache {
-        synchronized(worldListLock) {
-            return worldList.firstOrNull { it.id == worldId } ?: WorldCache("invalid")
-        }
-    }
-
-    fun addWorld(world: World) {
-        synchronized(worldListLock) {
-            val cache = WorldCache(world.id).apply {
-                name = world.name
-                thumbnailUrl = world.thumbnailImageUrl
-            }
-            worldList.add(cache)
-        }
+    fun getWorld(worldId: String): WorldCache? {
+        return worldList.value.firstOrNull { it.id == worldId }
     }
 
     fun updateWorld(world: World) {
-        synchronized(worldListLock) {
-            val index = worldList.indexOf(worldList.find { it.id == world.id })
-            worldList[index] = WorldCache(world.id).apply {
-                name = world.name
-                thumbnailUrl = world.thumbnailImageUrl
+        worldListStateFlow.update { current ->
+            val newCache = WorldCache(world.id, world.name, world.thumbnailImageUrl)
+            if (current.any { it.id == world.id }) {
+                current.map {
+                    if (it.id == world.id) newCache else it
+                }
+            } else {
+                current + newCache
             }
-        }
-    }
-
-    fun getProfile(): User? {
-        synchronized(profileLock) {
-            return profile
         }
     }
 
     fun updateProfile(profile: User) {
-        synchronized(profileLock) {
-            this.profile?.let {
-                val result = JsonHelper.mergeJson(it, profile, User::class.java)
-                this.profile = result
-                getListeners().forEach { listener ->
-                    listener.profileUpdated(result)
-                }
-            }
+        profileStateFlow.update {
+            JsonHelper.mergeJson(it, profile, User::class.java)
         }
-    }
-
-    fun getRecentWorlds(): List<WorldCache> {
-        return recentWorldsStateFlow.value
     }
 
     fun addRecentWorld(world: World) {
-        synchronized(recentWorldLock) {
-            recentWorldList.removeIf { it.id == world.id }
-            recentWorldList.add(0,
-                WorldCache(world.id).apply {
-                    name = world.name
-                    thumbnailUrl = world.thumbnailImageUrl
-                }
-            )
-            recentWorldsStateFlow.value = recentWorldList.toList()
-        }
-
-        getListeners().forEach { listener ->
-            listener.updateRecentlyVisitedWorlds(recentWorldsStateFlow.value)
+        recentWorldsStateFlow.update { current ->
+            val newCache = WorldCache(world.id, world.name, world.thumbnailImageUrl)
+            listOf(newCache) + current.filterNot { it.id == world.id }
         }
     }
 }

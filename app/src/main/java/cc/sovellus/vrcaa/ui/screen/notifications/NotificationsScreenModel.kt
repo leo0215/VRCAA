@@ -27,12 +27,15 @@ import cc.sovellus.vrcaa.api.vrchat.http.models.Notification
 import cc.sovellus.vrcaa.api.vrchat.http.models.NotificationV2
 import cc.sovellus.vrcaa.manager.ApiManager.api
 import cc.sovellus.vrcaa.manager.NotificationManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 
 class NotificationsScreenModel : StateScreenModel<NotificationsScreenModel.NotificationsState>(NotificationsState.Init) {
 
@@ -42,11 +45,8 @@ class NotificationsScreenModel : StateScreenModel<NotificationsScreenModel.Notif
         data object Loaded : NotificationsState()
     }
 
-    private var notificationStateFlow = MutableStateFlow(listOf<Notification>())
-    var notifications = notificationStateFlow.asStateFlow()
-
-    private var notificationV2StateFlow = MutableStateFlow(listOf<NotificationV2>())
-    var notificationsV2 = notificationV2StateFlow.asStateFlow()
+    var notifications = NotificationManager.notificationsState
+    var notificationsV2 = NotificationManager.notificationsV2State
 
     var users: List<LimitedUser?> = arrayListOf()
 
@@ -54,29 +54,15 @@ class NotificationsScreenModel : StateScreenModel<NotificationsScreenModel.Notif
     var currentNotification = mutableStateOf<Notification?>(null)
     var currentNotificationV2 = mutableStateOf<NotificationV2?>(null)
 
-    private val listener = object : NotificationManager.NotificationListener {
-        override fun onUpdateNotifications(notifications: List<Notification>) {
-            mutableState.value = NotificationsState.Loading
-            notificationStateFlow.value = notifications
-            fetchUsersFromNotifications()
-        }
-
-        override fun onUpdateNotificationsV2(notifications: List<NotificationV2>) {
-            mutableState.value = NotificationsState.Loading
-            notificationV2StateFlow.value = notifications
-            mutableState.value = NotificationsState.Loaded
-        }
-
-        override fun onUpdateNotificationCount(count: Int) { }
-    }
-
     fun fetchUsersFromNotifications() {
         screenModelScope.launch {
-            users += notificationStateFlow.value.filter { it.senderUserId.isNotEmpty() && users.find { user -> user?.id == it.senderUserId }  == null }.map {
-                async {
-                    api.users.fetchUserByUserId(it.senderUserId)
-                }
-            }.awaitAll()
+            withContext(Dispatchers.IO) {
+                users += notifications.value.filter { it.senderUserId.isNotEmpty() && users.find { user -> user?.id == it.senderUserId }  == null }.map {
+                    async {
+                        api.users.fetchUserByUserId(it.senderUserId)
+                    }
+                }.awaitAll()
+            }
             mutableState.value = NotificationsState.Loaded
         }
     }
@@ -84,9 +70,6 @@ class NotificationsScreenModel : StateScreenModel<NotificationsScreenModel.Notif
     init {
         mutableState.value = NotificationsState.Loading
         App.setLoadingText(R.string.loading_text_notifications)
-        NotificationManager.addListener(listener)
-        notificationStateFlow.update { NotificationManager.getNotifications() }
-        notificationV2StateFlow.update { NotificationManager.getNotificationsV2() }
         fetchUsersFromNotifications()
     }
 }

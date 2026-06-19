@@ -16,23 +16,18 @@
 
 package cc.sovellus.vrcaa.manager
 
-import cc.sovellus.vrcaa.base.BaseManager
 import cc.sovellus.vrcaa.helper.StatusHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.time.LocalDateTime
 import java.util.UUID
 
+object FeedManager {
 
-object FeedManager : BaseManager<FeedManager.FeedListener>() {
-
-    // TODO: the feed should be paginated, currently we will only show latest 1000 entries, this will suffice.
     private const val MAX_FEED_ENTRIES = 1000
-
-    interface FeedListener {
-        fun onReceiveUpdate(list: List<Feed>)
-    }
+    private var FEED_OFFSET = 0
 
     enum class FeedType {
         FRIEND_FEED_ONLINE,
@@ -63,37 +58,29 @@ object FeedManager : BaseManager<FeedManager.FeedListener>() {
         var feedTimestamp: LocalDateTime = LocalDateTime.now()
     )
 
-    private val feedLock = Any()
-    private val feedList: MutableList<Feed> = ArrayList()
-    private val feedStateFlow = MutableStateFlow<List<Feed>>(emptyList())
+    private val hasMoreFeedAvailableFlow = MutableStateFlow(false)
+    val hasMoreFeedAvailable: StateFlow<Boolean> = hasMoreFeedAvailableFlow.asStateFlow()
 
+    private val feedStateFlow = MutableStateFlow<List<Feed>>(emptyList())
     val feedState: StateFlow<List<Feed>> = feedStateFlow.asStateFlow()
 
-    init {
-        synchronized(feedLock) {
-            DatabaseManager.readFeeds(MAX_FEED_ENTRIES).forEach {
-                feedList.add(it)
-            }
-            feedStateFlow.value = feedList.toList()
+    fun loadFeed() {
+        val feed = DatabaseManager.readFeeds(MAX_FEED_ENTRIES, FEED_OFFSET)
+        if (feed.size < MAX_FEED_ENTRIES && feed.isNotEmpty()) {
+            hasMoreFeedAvailableFlow.update { false }
         }
+        feedStateFlow.update { current -> current + feed }
+        FEED_OFFSET += MAX_FEED_ENTRIES
+    }
+
+    init {
+        if (MAX_FEED_ENTRIES <= DatabaseManager.getFeedSize())
+            hasMoreFeedAvailableFlow.update { true }
+        loadFeed()
     }
 
     fun addFeed(feed: Feed) {
-        synchronized(feedLock) {
-            if (feedList.size >= MAX_FEED_ENTRIES) {
-                feedList.removeAt(0)
-            }
-            feedList.add(feed)
-            feedStateFlow.value = feedList.toList()
-        }
+        feedStateFlow.update { current -> listOf(feed) + current }
         DatabaseManager.writeFeed(feed)
-        val snapshot = feedStateFlow.value
-        getListeners().forEach { listener ->
-            listener.onReceiveUpdate(snapshot)
-        }
-    }
-
-    fun getFeed(): List<Feed> {
-        return feedStateFlow.value
     }
 }
