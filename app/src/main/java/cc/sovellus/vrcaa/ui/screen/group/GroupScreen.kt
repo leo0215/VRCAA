@@ -56,6 +56,7 @@ import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -139,22 +140,24 @@ class GroupScreen(
             }
         } else {
             Scaffold(containerColor = MaterialTheme.colorScheme.surfaceContainer, topBar = {
-                TopAppBar(navigationIcon = {
-                    IconButton(onClick = {
-                        if (peek) {
-                            if (context is Activity) {
-                                context.finish()
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            if (peek) {
+                                if (context is Activity) {
+                                    context.finish()
+                                }
+                            } else {
+                                navigator.pop()
                             }
-                        } else {
-                            navigator.pop()
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null
+                            )
                         }
-                    }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }, actions = {
+                    }, actions = {
                     IconButton(onClick = { isMenuExpanded = true }) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert, contentDescription = null
@@ -386,3 +389,4 @@ class GroupScreen(
         }
     }
 }
+

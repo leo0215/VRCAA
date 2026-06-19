@@ -40,6 +40,7 @@ import cc.sovellus.vrcaa.manager.FavoriteManager.FavoriteMetadata
 import cc.sovellus.vrcaa.manager.FriendManager
 import cc.sovellus.vrcaa.manager.NotificationManager
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlin.collections.set

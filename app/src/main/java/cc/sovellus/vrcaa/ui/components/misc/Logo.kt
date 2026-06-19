@@ -38,7 +38,7 @@ fun Logo(size: Dp) {
         contentAlignment = Alignment.TopCenter
     ) {
         Image(
-            painter = if (App.isAppInDarkTheme()) {
+            painter = if (App.effectiveDarkThemeForBranding()) {
                 painterResource(R.drawable.logo_dark)
             } else {
                 painterResource(R.drawable.logo_white)

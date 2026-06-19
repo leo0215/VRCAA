@@ -35,6 +35,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.ui.Alignment
@@ -44,6 +45,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -60,19 +62,20 @@ import androidx.compose.ui.unit.dp
 fun rememberThumbContent(
     isChecked: Boolean,
     checkedIcon: ImageVector = Icons.Filled.Check,
-): (@Composable () -> Unit)? =
-    remember(isChecked, checkedIcon) {
-        if (isChecked) {
-            {
-                Icon(
-                    imageVector = checkedIcon,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-        } else {
-            null
+    uncheckedIcon: ImageVector = Icons.Filled.Close,
+): @Composable () -> Unit =
+    remember(isChecked, checkedIcon, uncheckedIcon) {
+        {
+            Icon(
+                imageVector = if (isChecked) checkedIcon else uncheckedIcon,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = if (isChecked) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    contentColorFor(MaterialTheme.colorScheme.outline)
+                },
+            )
         }
     }
 
@@ -303,6 +306,94 @@ fun ExpandableSettingsGroup(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Same container / header / accordion visuals as [ExpandableSettingsGroup] for list of [SettingsItem],
+ * but content is an arbitrary composable. Expanded content is not wrapped in an extra card: use
+ * [cc.sovellus.vrcaa.ui.components.layout.FavoriteVerticalSegmentRowItem] (or similar) with 2dp gaps for stacked segments.
+ *
+ * @param stateKey When non-null, expansion state is remembered under this key (e.g. tab + group id).
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExpandableSettingsGroup(
+    headerTitle: String,
+    modifier: Modifier = Modifier,
+    stateKey: Any? = null,
+    initiallyExpanded: Boolean = true,
+    headerTrailing: (@Composable () -> Unit)? = null,
+    content: @Composable () -> Unit,
+) {
+    var expanded by remember(stateKey) { mutableStateOf(initiallyExpanded) }
+    val containerRadius = 16.dp
+    val itemRadius = 4.dp
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(
+                topStart = containerRadius,
+                topEnd = containerRadius,
+                bottomStart = if (!expanded) containerRadius else itemRadius,
+                bottomEnd = if (!expanded) containerRadius else itemRadius
+            ),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .clickable { expanded = !expanded }
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = headerTitle,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                headerTrailing?.invoke()
+                Box(
+                    modifier = Modifier
+                        .size(width = 32.dp, height = 40.dp)
+                        .background(
+                            MaterialTheme.colorScheme.surfaceContainer,
+                            RoundedCornerShape(20.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(),
+            exit = shrinkVertically()
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                content()
             }
         }
     }

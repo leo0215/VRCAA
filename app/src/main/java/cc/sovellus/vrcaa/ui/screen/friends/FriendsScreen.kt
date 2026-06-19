@@ -377,3 +377,4 @@ class FriendsScreen : Screen {
         }
     }
 }
+

@@ -21,14 +21,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,7 +39,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cabin
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.LocalFireDepartment
@@ -72,6 +63,7 @@ import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -80,17 +72,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
@@ -106,7 +95,6 @@ import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.ui.components.card.WorldCard
 import cc.sovellus.vrcaa.ui.components.dialog.FavoriteDialog
 import cc.sovellus.vrcaa.ui.components.dialog.GenericDialog
-import cc.sovellus.vrcaa.ui.components.dialog.ImagePreviewDialog
 import cc.sovellus.vrcaa.ui.components.layout.InstanceItem
 import cc.sovellus.vrcaa.ui.components.misc.BadgesFromTags
 import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
@@ -115,11 +103,7 @@ import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
 import java.text.NumberFormat
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -189,10 +173,8 @@ class WorldScreen(
         val navigator = LocalNavigator.currentOrThrow
         val context = LocalContext.current
 
-        var isQuickMenuExpanded by remember { mutableStateOf(false) }
+        var isMenuExpanded by remember { mutableStateOf(false) }
         var favoriteDialogShown by remember { mutableStateOf(false) }
-        var peekUrl by remember { mutableStateOf("") }
-        var peekWorldPicture by remember { mutableStateOf(false) }
         val groupMetadata by model.groupMetadata.collectAsState()
 
         if (world == null) {
@@ -207,6 +189,7 @@ class WorldScreen(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer,
                 topBar = {
                     TopAppBar(
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                         navigationIcon = {
                             IconButton(onClick = {
                                 if (peek) {
@@ -222,311 +205,80 @@ class WorldScreen(
                                     contentDescription = null
                                 )
                             }
-                        ),
-                    topBar = {
-                        TopAppBar(
-                            navigationIcon = {
-                                IconButton(onClick = {
-                                    if (peek) {
-                                        if (context is Activity) {
-                                            context.finish()
-                                        }
-                                    } else {
-                                        navigator.pop()
-                                    }
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = "Go Back"
-                                    )
-                                }
-                            },
+                        },
 
-                            title = {
-                                Text(
-                                    text = world.name,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            },
-                            actions = {
-                                IconButton(onClick = { isQuickMenuExpanded = true }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.MoreVert,
-                                        contentDescription = null
-                                    )
-                                }
-                            }
-                        )
-                    },
-                    content = {
-
-                        if (favoriteDialogShown) {
-                            FavoriteDialog(
-                                type = IFavorites.FavoriteType.FAVORITE_WORLD,
-                                id = world.id,
-                                metadata = FavoriteManager.FavoriteMetadata(
-                                    world.id,
-                                    "",
-                                    world.name,
-                                    world.thumbnailImageUrl
-                                ),
-                                groupMetadata = groupMetadata,
-                                maximumFavorites = FavoriteManager.getMaximumFavoritesForType(IFavorites.FavoriteType.FAVORITE_WORLD),
-                                onDismiss = { favoriteDialogShown = false },
-                                onConfirmation = { favoriteDialogShown = false }
+                        title = {
+                            Text(
+                                text = world.name,
+                                modifier = Modifier.fillMaxWidth(),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Start
                             )
-                        }
-
-                        val options = stringArrayResource(R.array.world_selection_options)
-                        val icons = listOf(Icons.Filled.Cabin, Icons.Filled.LocationOn)
-
-                        Column(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth()
-                                .fillMaxHeight()
-                                .padding(
-                                    top = it.calculateTopPadding(),
-                                    bottom = it.calculateBottomPadding()
-                                ),
-                            verticalArrangement = Arrangement.Top,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            MultiChoiceSegmentedButtonRow(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 16.dp),
-                            ) {
-                                options.forEachIndexed { index, label ->
-                                    SegmentedButton(
-                                        shape = SegmentedButtonDefaults.itemShape(
-                                            index = index,
-                                            count = options.size
-                                        ),
-                                        icon = {
-                                            SegmentedButtonDefaults.Icon(
-                                                active = index == model.currentTabIndex.intValue,
-                                                activeContent = {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.Check,
-                                                        contentDescription = null,
-                                                        modifier = Modifier.size(SegmentedButtonDefaults.IconSize)
-                                                            .offset(y = 2.5.dp)
-                                                    )
+                        },
+                        actions = {
+                            IconButton(onClick = { isMenuExpanded = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.MoreVert,
+                                    contentDescription = null
+                                )
+                                Box(
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    DropdownMenu(
+                                        expanded = isMenuExpanded,
+                                        onDismissRequest = { isMenuExpanded = false },
+                                        offset = DpOffset(0.dp, 0.dp)
+                                    ) {
+                                        DropdownMenuItem(
+                                            onClick = {
+                                                navigator.push(
+                                                    UserProfileScreen(world.authorId)
+                                                )
+                                                isMenuExpanded = false
+                                            },
+                                            text = { Text(stringResource(R.string.group_page_dropdown_view_author)) }
+                                        )
+                                        if (FavoriteManager.isFavorite("world", world.id)) {
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    model.removeFavorite(world)
+                                                    isMenuExpanded = false
                                                 },
-                                                inactiveContent = {
-                                                    Icon(
-                                                        imageVector = icons[index],
-                                                        contentDescription = null,
-                                                        modifier = Modifier.size(SegmentedButtonDefaults.IconSize)
-                                                            .offset(y = 2.5.dp)
-                                                    )
-                                                }
+                                                text = { Text(stringResource(R.string.favorite_label_remove)) }
                                             )
-                                        },
-                                        onCheckedChange = {
-                                            model.currentTabIndex.intValue = index
-                                        },
-                                        checked = index == model.currentTabIndex.intValue
-                                    ) {
-                                        Text(
-                                            text = label,
-                                            softWrap = true,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                                )
-                                    }
-                                }
-                            }
-
-                            when (model.currentTabIndex.intValue) {
-                                0 -> ShowInfo(world, { url ->
-                                    if (url.isNotEmpty()) {
-                                        peekUrl = url
-                                        peekWorldPicture = true
-                                    }
-                                }, !isQuickMenuExpanded)
-                                1 -> ShowInstances(instances, model)
-                            }
-                        }
-                    }
-                )
-
-                AnimatedVisibility(
-                    visible = isQuickMenuExpanded,
-                    enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(),
-                    exit = slideOutHorizontally(targetOffsetX = { it }) + fadeOut(),
-                    modifier = Modifier
-                        .systemBarsPadding()
-                        .navigationBarsPadding()
-                        .align(Alignment.TopEnd)
-                ) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .clip(
-                                RoundedCornerShape(
-                                    topStart = 10.dp,
-                                    bottomStart = 10.dp,
-                                    topEnd = 0.dp,
-                                    bottomEnd = 0.dp
-                                )
-                            )
-                            .fillMaxWidth(0.7f)
-                            .background(MaterialTheme.colorScheme.surfaceContainer)
-                            .zIndex(1f),
-                        shadowElevation = 8.dp
-                    ) {
-                        LazyColumn {
-                            item {
-                                ElevatedCard(
-                                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                                    modifier = Modifier
-                                        .padding(top = 8.dp, start = 8.dp, end = 8.dp)
-                                        .fillMaxWidth()
-                                ) {
-                                    GlideImage(
-                                        model = world.thumbnailImageUrl,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(160.dp)
-                                            .clickableIf(!isQuickMenuExpanded, onClick = {
-                                                if (world.thumbnailImageUrl.isNotEmpty()) {
-                                                    peekUrl = world.thumbnailImageUrl
-                                                    peekWorldPicture = true
-                                                }
-                                            }),
-                                        contentScale = ContentScale.Crop,
-                                        loading = placeholder(R.drawable.image_placeholder),
-                                        failure = placeholder(R.drawable.image_placeholder)
-                                    )
-
-                                    Column(
-                                        modifier = Modifier.padding(
-                                            start = 12.dp,
-                                            end = 12.dp,
-                                            top = 8.dp,
-                                            bottom = 12.dp
-                                        )
-                                    ) {
-                                        Text(
-                                            text = world.name,
-                                            style = MaterialTheme.typography.titleLarge,
-                                            fontWeight = FontWeight.SemiBold,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-
-                                        Text(
-                                            text = stringResource(R.string.world_author_label)
-                                                .format(world.authorName),
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.padding(top = 4.dp)
-                                        )
-                                    }
-                                }
-                            }
-
-                            item {
-                                Column(
-                                    modifier = Modifier.padding(
-                                        start = 8.dp,
-                                        end = 8.dp,
-                                        top = 8.dp,
-                                        bottom = 16.dp
-                                    )
-                                ) {
-                                    val options: MutableList<String> = mutableListOf()
-                                    val icons: MutableList<ImageVector> = mutableListOf()
-
-                                    var authorIndex = -1
-                                    var favoriteIndex = -1
-                                    var copyIndex = -1
-
-                                    options.add(stringResource(R.string.group_page_dropdown_view_author))
-                                    icons.add(Icons.Default.Person)
-                                    authorIndex = options.size - 1
-
-                                    if (FavoriteManager.isFavorite("world", world.id)) {
-                                        options.add(stringResource(R.string.favorite_label_remove))
-                                    } else {
-                                        options.add(stringResource(R.string.favorite_label_add))
-                                    }
-                                    icons.add(Icons.Default.Star)
-                                    favoriteIndex = options.size - 1
-
-                                    options.add(stringResource(R.string.copy_id_label))
-                                    icons.add(Icons.Default.ContentCopy)
-                                    copyIndex = options.size - 1
-
-                                    options.forEachIndexed { index, label ->
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(vertical = 4.dp, horizontal = 4.dp)
-                                                .clip(RoundedCornerShape(80))
-                                                .background(
-                                                    MaterialTheme.colorScheme.secondary.copy(
-                                                        alpha = 0.12f
-                                                    )
-                                                )
-                                                .clickable(onClick = {
-                                                    when (index) {
-                                                        authorIndex -> {
-                                                            navigator.push(UserProfileScreen(world.authorId))
-                                                        }
-
-                                                        favoriteIndex -> {
-                                                            if (FavoriteManager.isFavorite("world", world.id)) {
-                                                                model.removeFavorite(world)
-                                                            } else {
-                                                                favoriteDialogShown = true
-                                                            }
-                                                        }
-
-                                                        copyIndex -> {
-                                                            val clipboard =
-                                                                context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                                            val clip =
-                                                                ClipData.newPlainText(null, world.id)
-                                                            clipboard.setPrimaryClip(clip)
-
-                                                            Toast.makeText(
-                                                                context,
-                                                                context.getString(R.string.copied_toast)
-                                                                    .format(world.name),
-                                                                Toast.LENGTH_SHORT
-                                                            ).show()
-                                                        }
-                                                    }
-                                                    isQuickMenuExpanded = false
-                                                })
-                                                .padding(vertical = 16.dp, horizontal = 16.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(
-                                                imageVector = icons[index],
-                                                contentDescription = null
-                                            )
-
-                                            Text(
-                                                text = label,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis,
-                                                modifier = Modifier.padding(start = 4.dp)
+                                        } else {
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    favoriteDialogShown = true
+                                                    isMenuExpanded = false
+                                                },
+                                                text = { Text(stringResource(R.string.favorite_label_add)) }
                                             )
                                         }
+                                        DropdownMenuItem(
+                                            onClick = {
+                                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                                val clip = ClipData.newPlainText(null, world.id)
+                                                clipboard.setPrimaryClip(clip)
+
+                                                Toast.makeText(
+                                                    context,
+                                                    context.getString(R.string.copied_toast).format(world.name),
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+
+                                                isMenuExpanded = false
+                                            },
+                                            text = { Text(stringResource(R.string.copy_id_label)) }
+                                        )
                                     }
                                 }
                             }
                         }
                     )
                 },
-                content = {
-
+                content = { paddingValues ->
                     if (favoriteDialogShown) {
                         FavoriteDialog(
                             type = IFavorites.FavoriteType.FAVORITE_WORLD,
@@ -537,6 +289,8 @@ class WorldScreen(
                                 world.name,
                                 world.thumbnailImageUrl
                             ),
+                            groupMetadata = groupMetadata,
+                            maximumFavorites = FavoriteManager.getMaximumFavoritesForType(IFavorites.FavoriteType.FAVORITE_WORLD),
                             onDismiss = { favoriteDialogShown = false },
                             onConfirmation = { favoriteDialogShown = false }
                         )
@@ -551,11 +305,11 @@ class WorldScreen(
                             .fillMaxWidth()
                             .fillMaxHeight()
                             .padding(
-                                top = it.calculateTopPadding(),
-                                bottom = it.calculateBottomPadding()
+                                top = paddingValues.calculateTopPadding(),
+                                bottom = paddingValues.calculateBottomPadding()
                             ),
                         verticalArrangement = Arrangement.Top,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.Start
                     ) {
                         Row(
                             Modifier
@@ -593,15 +347,7 @@ class WorldScreen(
                         }
                     }
                 }
-
-                if (peekWorldPicture) {
-                    ImagePreviewDialog(
-                        url = peekUrl,
-                        name = "${world.name}-${LocalDateTime.now()}",
-                        onDismiss = { peekWorldPicture = false }
-                    )
-                }
-            }
+            )
         }
     }
 
@@ -622,10 +368,10 @@ class WorldScreen(
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ) {
             item {
-                WorldCard(world)
+                WorldCard(world, onImageClick = {}, clickable = true)
             }
 
             if (!world.description.isNullOrEmpty()) {
@@ -793,7 +539,7 @@ class WorldScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.Start
             ) {
                 items(
                     instances.distinctBy { it.second.instance?.world?.id }
@@ -813,3 +559,4 @@ class WorldScreen(
         }
     }
 }
+

@@ -17,11 +17,9 @@
 package cc.sovellus.vrcaa.ui.screen.notification
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -31,12 +29,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -46,6 +44,9 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.helper.NotificationHelper
+import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
+import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
+import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
 
 class NotificationScreen(
     private val friendId: String, private val friendName: String
@@ -61,163 +62,161 @@ class NotificationScreen(
 
         val model = rememberScreenModel { NotificationScreenModel(friendId) }
 
-        Scaffold(topBar = {
-            TopAppBar(navigationIcon = {
-                IconButton(onClick = { navigator.pop() }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null
-                    )
-                }
-            },
+        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+        val notificationsOn = model.isNotificationsEnabled.value
 
-                title = { Text(text = "${friendName}${stringResource(R.string.notification_title_player)}") })
-        }, content = {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        top = it.calculateTopPadding(), bottom = it.calculateBottomPadding()
-                    ),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                item {
-                    Row(
-                        modifier = Modifier
-                            .widthIn(0.dp, 520.dp)
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = stringResource(R.string.notification_label_enable))
-                        Switch(
-                            checked = model.isNotificationsEnabled.value,
-                            onCheckedChange = { toggle -> model.toggleNotifications(toggle) },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = "${friendName}${stringResource(R.string.notification_title_player)}") },
+                    navigationIcon = {
+                        IconButton(onClick = { navigator.pop() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    scrollBehavior = scrollBehavior,
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                    )
+                )
+            },
+            content = { paddingValues ->
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item {
+                        SettingsGroup(
+                            items = listOf(
+                                SettingsItem(
+                                    title = stringResource(R.string.notification_label_enable),
+                                    onClick = {
+                                        model.toggleNotifications(!model.isNotificationsEnabled.value)
+                                    },
+                                    trailingContent = {
+                                        Switch(
+                                            checked = notificationsOn,
+                                            onCheckedChange = { model.toggleNotifications(it) },
+                                            thumbContent = rememberThumbContent(
+                                                isChecked = notificationsOn
+                                            )
+                                        )
+                                    }
+                                )
                             )
                         )
                     }
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = stringResource(R.string.notification_label_intent_offline))
-
-                        Switch(
-                            checked = model.isOfflineIntentEnabled.value,
-                            onCheckedChange = { toggleOffline ->
-                                model.toggleIntent(
-                                    toggleOffline,
-                                    NotificationHelper.Intents.FRIEND_FLAG_OFFLINE
+                    if (notificationsOn) {
+                        item {
+                            SettingsGroup(
+                                items = listOf(
+                                    SettingsItem(
+                                        title = stringResource(R.string.notification_label_intent_offline),
+                                        onClick = {
+                                            model.toggleIntent(
+                                                !model.isOfflineIntentEnabled.value,
+                                                NotificationHelper.Intents.FRIEND_FLAG_OFFLINE
+                                            )
+                                        },
+                                        trailingContent = {
+                                            Switch(
+                                                checked = model.isOfflineIntentEnabled.value,
+                                                onCheckedChange = { v ->
+                                                    model.toggleIntent(
+                                                        v,
+                                                        NotificationHelper.Intents.FRIEND_FLAG_OFFLINE
+                                                    )
+                                                },
+                                                thumbContent = rememberThumbContent(
+                                                    isChecked = model.isOfflineIntentEnabled.value
+                                                )
+                                            )
+                                        }
+                                    ),
+                                    SettingsItem(
+                                        title = stringResource(R.string.notification_label_intent_online),
+                                        onClick = {
+                                            model.toggleIntent(
+                                                !model.isOnlineIntentEnabled.value,
+                                                NotificationHelper.Intents.FRIEND_FLAG_ONLINE
+                                            )
+                                        },
+                                        trailingContent = {
+                                            Switch(
+                                                checked = model.isOnlineIntentEnabled.value,
+                                                onCheckedChange = { v ->
+                                                    model.toggleIntent(
+                                                        v,
+                                                        NotificationHelper.Intents.FRIEND_FLAG_ONLINE
+                                                    )
+                                                },
+                                                thumbContent = rememberThumbContent(
+                                                    isChecked = model.isOnlineIntentEnabled.value
+                                                )
+                                            )
+                                        }
+                                    ),
+                                    SettingsItem(
+                                        title = stringResource(R.string.notification_label_intent_location),
+                                        onClick = {
+                                            model.toggleIntent(
+                                                !model.isLocationIntentEnabled.value,
+                                                NotificationHelper.Intents.FRIEND_FLAG_LOCATION
+                                            )
+                                        },
+                                        trailingContent = {
+                                            Switch(
+                                                checked = model.isLocationIntentEnabled.value,
+                                                onCheckedChange = { v ->
+                                                    model.toggleIntent(
+                                                        v,
+                                                        NotificationHelper.Intents.FRIEND_FLAG_LOCATION
+                                                    )
+                                                },
+                                                thumbContent = rememberThumbContent(
+                                                    isChecked = model.isLocationIntentEnabled.value
+                                                )
+                                            )
+                                        }
+                                    ),
+                                    SettingsItem(
+                                        title = stringResource(R.string.notification_label_intent_status),
+                                        onClick = {
+                                            model.toggleIntent(
+                                                !model.isStatusIntentEnabled.value,
+                                                NotificationHelper.Intents.FRIEND_FLAG_STATUS
+                                            )
+                                        },
+                                        trailingContent = {
+                                            Switch(
+                                                checked = model.isStatusIntentEnabled.value,
+                                                onCheckedChange = { v ->
+                                                    model.toggleIntent(
+                                                        v,
+                                                        NotificationHelper.Intents.FRIEND_FLAG_STATUS
+                                                    )
+                                                },
+                                                thumbContent = rememberThumbContent(
+                                                    isChecked = model.isStatusIntentEnabled.value
+                                                )
+                                            )
+                                        }
+                                    )
                                 )
-                            },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                            ),
-                            enabled = model.isNotificationsEnabled.value
-                        )
-                    }
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = stringResource(R.string.notification_label_intent_online))
-
-                        Switch(
-                            checked = model.isOnlineIntentEnabled.value,
-                            onCheckedChange = { toggleOnline ->
-                                model.toggleIntent(
-                                    toggleOnline, NotificationHelper.Intents.FRIEND_FLAG_ONLINE
-                                )
-                            },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                            ),
-                            enabled = model.isNotificationsEnabled.value
-                        )
-                    }
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = stringResource(R.string.notification_label_intent_location))
-
-                        Switch(
-                            checked = model.isLocationIntentEnabled.value,
-                            onCheckedChange = { toggle ->
-                                model.toggleIntent(
-                                    toggle, NotificationHelper.Intents.FRIEND_FLAG_LOCATION
-                                )
-                            },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                            ),
-                            enabled = model.isNotificationsEnabled.value
-                        )
-                    }
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = stringResource(R.string.notification_label_intent_status))
-
-                        Switch(
-                            checked = model.isStatusIntentEnabled.value,
-                            onCheckedChange = { toggle ->
-                                model.toggleIntent(
-                                    toggle, NotificationHelper.Intents.FRIEND_FLAG_STATUS
-                                )
-                            },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                            ),
-                            enabled = model.isNotificationsEnabled.value
-                        )
+                            )
+                        }
                     }
                 }
             }
-        })
+        )
     }
 }
+

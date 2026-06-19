@@ -68,8 +68,11 @@ import com.materialkolor.scheme.SchemeFruitSalad
 import com.materialkolor.scheme.SchemeTonalSpot
 import com.materialkolor.scheme.SchemeVibrant
 
-// Color list using HCT color space (same as Seal)
-private val ColorPalette = ((4..10) + (1..3)).map { it * 35.0 }.map { Color(Hct.from(it, 40.0, 40.0).toInt()) }
+// HCT seeds on the hue wheel; chroma/tone same as Seal-style. step 20° → 18 swatches.
+private val ColorPalette =
+    (0 until 360 step 20).map { hue ->
+        Color(Hct.from(hue.toDouble(), 40.0, 40.0).toInt())
+    }
 
 // Color scheme types (4 styles per color)
 private enum class ColorSchemeType(val labelRes: Int) {

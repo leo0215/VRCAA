@@ -51,6 +51,10 @@ class App : Application() {
         fun getContext(): Context { return context }
         fun getPreferences(): SharedPreferences { return preferences }
 
+        /** True after [Application.onCreate]; false in Compose Preview / tests without Application. */
+        fun isAppInitialized(): Boolean =
+            ::context.isInitialized && ::preferences.isInitialized
+
         fun isNetworkLoggingEnabled(): Boolean { return preferences.networkLogging }
         fun isMinimalistModeEnabled(): Boolean { return preferences.minimalistMode }
 
@@ -60,6 +64,11 @@ class App : Application() {
                 return isSystemInDarkTheme()
             return preferences.currentThemeOption != 0
         }
+
+        /** Theme for branding (logo, etc.): prefs when running in app, system dark in Preview. */
+        @Composable
+        fun effectiveDarkThemeForBranding(): Boolean =
+            if (isAppInitialized()) isAppInDarkTheme() else isSystemInDarkTheme()
 
         fun getLoadingText(): State<String> { return loadingText }
         fun setLoadingText(resourceId: Int) { loadingText.value = context.getString(resourceId) }

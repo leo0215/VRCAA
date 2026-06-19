@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -103,6 +104,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -113,6 +115,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
+import kotlin.math.roundToInt
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -137,12 +140,12 @@ import cc.sovellus.vrcaa.ui.components.input.ComboInput
 import cc.sovellus.vrcaa.ui.screen.feed.FeedSearchScreen
 import cc.sovellus.vrcaa.ui.screen.notifications.NotificationsScreen
 import cc.sovellus.vrcaa.ui.screen.search.SearchResultScreen
+import cc.sovellus.vrcaa.ui.screen.settings.SettingsScreen
 import cc.sovellus.vrcaa.ui.tabs.FavoritesTab
 import cc.sovellus.vrcaa.ui.tabs.FeedTab
 import cc.sovellus.vrcaa.ui.tabs.FriendsTab
 import cc.sovellus.vrcaa.ui.tabs.HomeTab
 import cc.sovellus.vrcaa.ui.tabs.ProfileTab
-import cc.sovellus.vrcaa.ui.tabs.SettingsTab
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
@@ -185,7 +188,7 @@ private fun HomeTopBar(
 
     Surface(
         modifier = Modifier.statusBarsPadding(),
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
         tonalElevation = 0.dp
     ) {
         Row(
@@ -372,7 +375,7 @@ class NavigationScreen : Screen {
                 Row(modifier = Modifier.fillMaxSize()) {
                     val colorScheme = MaterialTheme.colorScheme
                     NavigationRail(
-                        containerColor = colorScheme.surfaceContainer
+                        containerColor = colorScheme.surfaceContainerHigh
                     ) {
                         val scrollState = rememberScrollState()
                         
@@ -534,7 +537,7 @@ class NavigationScreen : Screen {
                                         }
                                     } else {
                                         HomeTopBar(
-                                            onMenuClick = { showSettingsSheet = true },
+                                            onMenuClick = { scope.launch { drawerState.open() } },
                                             onSearchClick = { model.searchModeActivated.value = true },
                                             showMenu = false
                                         )
@@ -550,7 +553,7 @@ class NavigationScreen : Screen {
                                             )
                                         },
                                         colors = TopAppBarDefaults.topAppBarColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                                         )
                                     )
                                 }
@@ -570,9 +573,15 @@ class NavigationScreen : Screen {
                                                     contentDescription = stringResource(R.string.profile_edit_sheet_title)
                                                 )
                                             }
+                                            IconButton(onClick = { navigator.push(SettingsScreen()) }) {
+                                                Icon(
+                                                    imageVector = Icons.Filled.Settings,
+                                                    contentDescription = stringResource(R.string.tabs_label_settings)
+                                                )
+                                            }
                                         },
                                         colors = TopAppBarDefaults.topAppBarColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                                         )
                                     )
                                 }
@@ -580,7 +589,7 @@ class NavigationScreen : Screen {
                                     TopAppBar(
                                         title = { Text(stringResource(R.string.tabs_label_favorites)) },
                                         colors = TopAppBarDefaults.topAppBarColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                                         ),
                                         actions = {
                                             IconButton(onClick = { isMenuExpanded = true }) {
@@ -657,21 +666,7 @@ class NavigationScreen : Screen {
                                             )
                                         },
                                         colors = TopAppBarDefaults.topAppBarColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                        )
-                                    )
-                                }
-                                SettingsTab.options.index -> {
-                                    TopAppBar(
-                                        title = {
-                                            Text(
-                                                text = stringResource(id = R.string.tabs_label_settings),
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        },
-                                        colors = TopAppBarDefaults.topAppBarColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                                         )
                                     )
                                 }
@@ -811,13 +806,41 @@ class NavigationScreen : Screen {
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     },
-                                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+                                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                                )
+                            }
+                            ProfileTab.options.index -> {
+                                TopAppBar(
+                                    title = {
+                                        Text(
+                                            text = stringResource(id = R.string.tabs_label_profile),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    },
+                                    actions = {
+                                        IconButton(onClick = { showProfileSheet = true }) {
+                                            Icon(
+                                                imageVector = Icons.Default.Edit,
+                                                contentDescription = stringResource(R.string.profile_edit_sheet_title)
+                                            )
+                                        }
+                                        IconButton(onClick = { navigator.push(SettingsScreen()) }) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Settings,
+                                                contentDescription = stringResource(R.string.tabs_label_settings)
+                                            )
+                                        }
+                                    },
+                                    colors = TopAppBarDefaults.topAppBarColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                                    )
                                 )
                             }
                             else -> {
                                 TopAppBar(
                                     title = { Text(tabNavigator.current.options.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+                                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                                 )
                             }
                         }
@@ -825,7 +848,7 @@ class NavigationScreen : Screen {
                     bottomBar = {
                         val colorScheme = MaterialTheme.colorScheme
                         NavigationBar(
-                            containerColor = colorScheme.surfaceContainerHighest
+                            containerColor = colorScheme.surfaceContainerHigh
                         ) {
                             tabs.forEach { tab ->
                                 val isSelected = tabNavigator.current.key == tab.key
@@ -1075,7 +1098,7 @@ class NavigationScreen : Screen {
                                     }
                                 },
                                 colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                                 )
                             )
                         }
@@ -1108,9 +1131,15 @@ class NavigationScreen : Screen {
                                             contentDescription = stringResource(R.string.profile_edit_sheet_title)
                                         )
                                     }
+                                    IconButton(onClick = { navigator.push(SettingsScreen()) }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Settings,
+                                            contentDescription = stringResource(R.string.tabs_label_settings)
+                                        )
+                                    }
                                 },
                                 colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                                 )
                             )
                         }
@@ -1119,7 +1148,7 @@ class NavigationScreen : Screen {
                             TopAppBar(
                                 title = { Text(stringResource(R.string.tabs_label_favorites)) },
                                 colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                                 ),
                                 navigationIcon = {
                                     IconButton(onClick = {
@@ -1221,34 +1250,7 @@ class NavigationScreen : Screen {
                                     }
                                 },
                                 colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                )
-                            )
-                        }
-
-                        SettingsTab.options.index -> {
-                            TopAppBar(
-                                title = {
-                                    Text(
-                                        text = stringResource(id = R.string.tabs_label_settings),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                },
-                                navigationIcon = {
-                                    IconButton(onClick = {
-                                        scope.launch {
-                                            drawerState.open()
-                                        }
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Menu,
-                                            contentDescription = null
-                                        )
-                                    }
-                                },
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                                 )
                             )
                         }
@@ -1311,7 +1313,7 @@ class NavigationScreen : Screen {
                                         }
                                         profileSheetState.hide()
                                     }.invokeOnCompletion {
-                                        if (!settingsSheetState.isVisible) {
+                                        if (!profileSheetState.isVisible) {
                                             showProfileSheet = false
                                         }
                                     }
@@ -1510,221 +1512,7 @@ class NavigationScreen : Screen {
                     }
                 }
             }
-
-            if (showSettingsSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = {
-                        showSettingsSheet = false
-                    }, sheetState = settingsSheetState
-                ) {
-                    LazyColumn {
-                        item {
-                            ListItem(leadingContent = {
-                                OutlinedButton(onClick = {
-                                    model.resetSettings()
-                                }) {
-                                    Text(stringResource(R.string.search_filter_button_reset))
-                                }
-                            }, trailingContent = {
-                                Button(onClick = {
-                                    scope.launch {
-                                        model.applySettings()
-                                        settingsSheetState.hide()
-                                    }.invokeOnCompletion {
-                                        if (!settingsSheetState.isVisible) {
-                                            showSettingsSheet = false
-                                        }
-                                    }
-                                }) {
-                                    Text(stringResource(R.string.search_filter_button_apply))
-                                }
-                            }, headlineContent = { })
-                        }
-                        item {
-                            ListItem(
-                                headlineContent = { Text(stringResource(R.string.search_filter_category_worlds)) },
-                                leadingContent = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Cabin,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
-
-                            Spacer(modifier = Modifier.padding(2.dp))
-                        }
-
-                        item {
-                            ListItem(
-                                headlineContent = {
-                                    Text(
-                                        text = stringResource(R.string.search_filter_category_worlds_sort_by),
-                                        color = MaterialTheme.colorScheme.secondary,
-                                        fontWeight = FontWeight.SemiBold,
-                                        modifier = Modifier.padding(bottom = 8.dp)
-                                    )
-                                },
-                                supportingContent = {
-                                    val options = listOf(
-                                        "popularity",
-                                        "heat",
-                                        "trust",
-                                        "shuffle",
-                                        "random",
-                                        "favorites",
-                                        "publicationDate",
-                                        "labsPublicationDate",
-                                        "created",
-                                        "updated",
-                                        "order",
-                                        "relevance",
-                                        "name"
-                                    )
-                                    ComboInput(
-                                        options = options, selection = model.sortWorlds
-                                    )
-                                }
-                            )
-                        }
-                        item {
-                            var worldCount by remember { mutableStateOf(model.worldsAmount.intValue.toString()) }
-                            ListItem(
-                                headlineContent = { Text(stringResource(R.string.search_filter_category_worlds_count)) },
-                                trailingContent = {
-                                    OutlinedTextField(
-                                        value = worldCount,
-                                        onValueChange = {
-                                            worldCount = it
-                                            if (it.isNotEmpty()) model.worldsAmount.intValue =
-                                                it.toIntOrNull()
-                                                    ?: model.worldsAmount.intValue
-                                        },
-                                        singleLine = true,
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                                    )
-                                }
-                            )
-                        }
-                        item {
-                            ListItem(
-                                headlineContent = { Text(stringResource(R.string.search_filter_category_users)) },
-                                leadingContent = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.People,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
-
-                            Spacer(modifier = Modifier.padding(2.dp))
-                        }
-                        item {
-                            ListItem(
-                                headlineContent = { Text(stringResource(R.string.search_filter_category_users_count)) },
-                                trailingContent = {
-                                    OutlinedTextField(
-                                        value = model.usersAmount.intValue.toString(),
-                                        onValueChange = {
-                                            if (it.isNotEmpty()) model.usersAmount.intValue =
-                                                it.toIntOrNull()
-                                                    ?: model.usersAmount.intValue
-                                        },
-                                        singleLine = true,
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                                    )
-                                }
-                            )
-                        }
-                        item {
-                            ListItem(
-                                headlineContent = { Text(stringResource(R.string.search_filter_category_avatars)) },
-                                leadingContent = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Person,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
-
-                            Spacer(modifier = Modifier.padding(2.dp))
-                        }
-                        item {
-                            ListItem(
-                                headlineContent = {
-                                    Text(
-                                        text = stringResource(R.string.search_filter_category_avatars_provider),
-                                        color = MaterialTheme.colorScheme.secondary,
-                                        fontWeight = FontWeight.SemiBold,
-                                        modifier = Modifier.padding(bottom = 8.dp)
-                                    )
-                                },
-                                supportingContent = {
-                                    val options = listOf("avtrdb", "justhparty")
-                                    val optionsReadable = mapOf(
-                                        "avtrdb" to "avtrDB",
-                                        "justhparty" to "Just-H Party"
-                                    )
-                                    ComboInput(
-                                        options = options,
-                                        selection = model.avatarProvider,
-                                        readableOptions = optionsReadable
-                                    )
-                                }
-                            )
-                        }
-                        item {
-                            var avatarCount by remember { mutableStateOf(model.avatarsAmount.intValue.toString()) }
-                            ListItem(
-                                headlineContent = { Text(stringResource(R.string.search_filter_label_count)) },
-                                trailingContent = {
-                                    OutlinedTextField(
-                                        value = avatarCount,
-                                        onValueChange = {
-                                            avatarCount = it
-                                            if (it.isNotEmpty()) model.avatarsAmount.intValue =
-                                                it.toIntOrNull()
-                                                    ?: model.avatarsAmount.intValue
-                                        },
-                                        singleLine = true,
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                                    )
-                                })
-                        }
-                        item {
-                            ListItem(
-                                headlineContent = { Text(stringResource(R.string.search_filter_category_groups)) },
-                                leadingContent = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Groups,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
-
-                            Spacer(modifier = Modifier.padding(2.dp))
-                        }
-                        item {
-                            var groupCount by remember { mutableStateOf(model.groupsAmount.intValue.toString()) }
-                            ListItem(
-                                headlineContent = { Text(stringResource(R.string.search_filter_category_groups_count)) },
-                                trailingContent = {
-                                    OutlinedTextField(
-                                        value = groupCount,
-                                        onValueChange = {
-                                            groupCount = it
-                                            if (it.isNotEmpty()) model.groupsAmount.intValue =
-                                                it.toIntOrNull()
-                                                    ?: model.groupsAmount.intValue
-                                        },
-                                        singleLine = true,
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-            }
         }
     }
 }
+

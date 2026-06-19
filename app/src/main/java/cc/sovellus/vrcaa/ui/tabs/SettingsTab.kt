@@ -28,7 +28,6 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.base.BaseTab
 import cc.sovellus.vrcaa.ui.screen.settings.SettingsScreen
 
-// No longer used as of 07/03/2026 still kept in case.
 object SettingsTab : BaseTab() {
 
     @Composable

@@ -59,6 +59,7 @@ import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -124,6 +125,7 @@ class EmojisScreen : Screen {
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) {
                             Icon(
@@ -191,6 +193,7 @@ class EmojisScreen : Screen {
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) {
                             Icon(
@@ -347,3 +350,4 @@ class EmojisScreen : Screen {
         }
     }
 }
+

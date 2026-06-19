@@ -226,6 +226,7 @@ class UserProfileScreen(
                     )
                 }
 
+                val groupMetadata by model.groupMetadata.collectAsState()
                 if (favoriteDialogShown) {
                     FavoriteDialog(
                         type = IFavorites.FavoriteType.FAVORITE_FRIEND,
@@ -233,6 +234,8 @@ class UserProfileScreen(
                         metadata = FavoriteManager.FavoriteMetadata(
                             profile.id, "", profile.displayName, ""
                         ),
+                        groupMetadata = groupMetadata,
+                        maximumFavorites = FavoriteManager.getMaximumFavoritesForType(IFavorites.FavoriteType.FAVORITE_FRIEND),
                         onDismiss = { favoriteDialogShown = false },
                         onConfirmation = { favoriteDialogShown = false }
                     )
@@ -261,7 +264,7 @@ class UserProfileScreen(
                                 )
                             },
                             colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                             )
                         )
                     },
@@ -847,3 +850,4 @@ class UserProfileScreen(
         }
     }
 }
+

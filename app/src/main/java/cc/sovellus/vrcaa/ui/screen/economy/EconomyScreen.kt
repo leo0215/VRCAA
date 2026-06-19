@@ -61,6 +61,7 @@ class EconomyScreen : Screen {
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                     title = { Text(stringResource(R.string.economy_title)) },
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) {
@@ -378,3 +379,4 @@ private fun formatDate(dateString: String): String {
         dateString
     }
 }
+

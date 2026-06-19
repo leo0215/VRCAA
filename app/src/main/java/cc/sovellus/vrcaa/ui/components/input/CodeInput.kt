@@ -74,7 +74,7 @@ fun CodeInput(
                             .width(50.dp)
                             .height(60.dp)
                             .border(
-                                1.dp, if (App.isAppInDarkTheme()) {
+                                1.dp, if (App.effectiveDarkThemeForBranding()) {
                                     Color.White
                                 } else {
                                     Color.Black

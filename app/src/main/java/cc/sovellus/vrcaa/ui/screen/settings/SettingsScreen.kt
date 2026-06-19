@@ -65,6 +65,7 @@ import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.BuildConfig
@@ -133,7 +134,7 @@ class SettingsScreen : Screen {
                 onConfirmation = {
                     dialogState.value = false
                     model.preferences.richPresenceWarningAcknowledged = true
-                    navigator.parent?.parent?.push(RichPresenceScreen())
+                    navigator.pushFromAppRoot(RichPresenceScreen())
                 },
                 title,
                 description
@@ -163,7 +164,7 @@ class SettingsScreen : Screen {
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = if (App.isAppInDarkTheme()) { painterResource(R.drawable.logo_dark) } else { painterResource(R.drawable.logo_white) },
+                        painter = if (App.effectiveDarkThemeForBranding()) { painterResource(R.drawable.logo_dark) } else { painterResource(R.drawable.logo_white) },
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
                         modifier = Modifier.fillMaxSize()
@@ -184,7 +185,7 @@ class SettingsScreen : Screen {
                             description = stringResource(R.string.settings_item_about_description),
                             icon = Icons.Outlined.Info,
                             onClick = {
-                                navigator.parent?.parent?.push(AboutScreen())
+                                navigator.pushFromAppRoot(AboutScreen())
                             }
                         ),
                         SettingsItem(
@@ -192,7 +193,7 @@ class SettingsScreen : Screen {
                             description = stringResource(R.string.settings_item_theming_description),
                             icon = Icons.Outlined.ImagesearchRoller,
                             onClick = {
-                                navigator.parent?.parent?.push(ThemeScreen())
+                                navigator.pushFromAppRoot(ThemeScreen())
                             }
                         )
                     )
@@ -214,7 +215,7 @@ class SettingsScreen : Screen {
                             icon = Icons.Outlined.Image,
                             onClick = {
                                 if (model.preferences.richPresenceWarningAcknowledged)
-                                    navigator.parent?.parent?.push(RichPresenceScreen())
+                                    navigator.pushFromAppRoot(RichPresenceScreen())
                                 else
                                     dialogState.value = true
                             }
@@ -224,7 +225,7 @@ class SettingsScreen : Screen {
                             description = stringResource(R.string.settings_item_database_settings_description),
                             icon = Icons.Outlined.Storage,
                             onClick = {
-                                navigator.parent?.parent?.push(DatabaseScreen())
+                                navigator.pushFromAppRoot(DatabaseScreen())
                             }
                         ),
                         SettingsItem(
@@ -232,7 +233,7 @@ class SettingsScreen : Screen {
                             description = stringResource(R.string.settings_item_advanced_settings_description),
                             icon = Icons.Outlined.DeveloperMode,
                             onClick = {
-                                navigator.parent?.parent?.push(AdvancedScreen())
+                                navigator.pushFromAppRoot(AdvancedScreen())
                             }
                         )
                     )
@@ -291,7 +292,7 @@ class SettingsScreen : Screen {
                                 description = stringResource(R.string.settings_item_debug_description),
                                 icon = Icons.Outlined.BugReport,
                                 onClick = {
-                                    navigator.parent?.parent?.push(DebugScreen())
+                                    navigator.pushFromAppRoot(DebugScreen())
                                 }
                             )
                         )
@@ -327,3 +328,15 @@ class SettingsScreen : Screen {
         }
     }
 }
+
+/** Resolves the host [Navigator] when [SettingsScreen] is pushed on the app root or nested under a tab [Navigator]. */
+private fun Navigator.pushFromAppRoot(screen: Screen) {
+    var top: Navigator = this
+    var ancestor = top.parent
+    while (ancestor != null) {
+        top = ancestor
+        ancestor = top.parent
+    }
+    top.push(screen)
+}
+

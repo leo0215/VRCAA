@@ -16,6 +16,8 @@
 
 package cc.sovellus.vrcaa.ui.screen.favorites
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,15 +28,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cabin
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
@@ -60,15 +64,15 @@ import cc.sovellus.vrcaa.manager.FriendManager
 import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.components.dialog.FavoriteEditDialog
 import cc.sovellus.vrcaa.ui.components.dialog.GenericDialog
-import cc.sovellus.vrcaa.ui.components.layout.FavoriteHorizontalRow
-import cc.sovellus.vrcaa.ui.components.layout.RowItem
+import cc.sovellus.vrcaa.ui.components.layout.FavoriteVerticalSegmentRowItem
+import cc.sovellus.vrcaa.ui.components.settings.ExpandableSettingsGroup
 import cc.sovellus.vrcaa.ui.screen.avatar.AvatarScreen
 import cc.sovellus.vrcaa.ui.screen.favorites.FavoritesScreenModel.FavoriteState
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 class FavoritesScreen : Screen {
 
     override val key = uniqueScreenKey
@@ -134,7 +138,8 @@ class FavoritesScreen : Screen {
 
         Column(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceContainer),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -190,7 +195,7 @@ class FavoritesScreen : Screen {
     @Composable
     fun ShowWorlds(
         model: FavoritesScreenModel,
-        groupMetadata: Map<String, FavoriteManager.FavoriteGroupMetadata>
+        groupMetadata: Map<String, FavoriteManager.FavoriteGroupMetadata>,
     ) {
         val navigator = LocalNavigator.currentOrThrow
         val worldList = model.worldList.collectAsStateWithLifecycle()
@@ -200,32 +205,52 @@ class FavoritesScreen : Screen {
                 val metadata = groupMetadata[item.key]
                 val title = "${metadata?.displayName ?: metadata?.name ?: item.key} (${metadata?.size ?: 0}/${FavoriteManager.getMaximumFavoritesForType(FavoriteType.FAVORITE_WORLD)})"
 
-                FavoriteHorizontalRow(
-                    title = title,
-                    allowEdit = true,
-                    onEdit = {
-                        model.currentSelectedGroup.value = item.key
-                        model.editDialogShown.value = true
-                    }
+                ExpandableSettingsGroup(
+                    headerTitle = title,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    stateKey = "${model.currentIndex.intValue}|${item.key}",
+                    initiallyExpanded = false,
+                    headerTrailing = {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clickable {
+                                    model.currentSelectedGroup.value = item.key
+                                    model.editDialogShown.value = true
+                                },
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
                 ) {
-                    items(item.value.distinct()) {
-                        RowItem(name = it.name, url = it.thumbnailUrl) {
-                            if (it.name != "???") {
-                                navigator.parent?.parent?.push(WorldScreen(it.id) {
-                                    model.deleteDialogShown.value = true
-                                    model.currentSelectedType.value = FavoriteType.FAVORITE_WORLD
-                                    model.currentSelectedId.value = it.id
-                                })
-                            } else {
-                                model.deleteDialogShown.value = true
-                                model.currentSelectedType.value = FavoriteType.FAVORITE_WORLD
-                                model.currentSelectedId.value = it.id
-                            }
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        val rows = item.value.distinct()
+                        rows.forEachIndexed { index, world ->
+                            FavoriteVerticalSegmentRowItem(
+                                name = world.name,
+                                url = world.thumbnailUrl,
+                                isLastInGroup = index == rows.lastIndex,
+                                onClick = {
+                                    if (world.name != "???") {
+                                        navigator.parent?.parent?.push(WorldScreen(world.id) {
+                                            model.deleteDialogShown.value = true
+                                            model.currentSelectedType.value = FavoriteType.FAVORITE_WORLD
+                                            model.currentSelectedId.value = world.id
+                                        })
+                                    } else {
+                                        model.deleteDialogShown.value = true
+                                        model.currentSelectedType.value = FavoriteType.FAVORITE_WORLD
+                                        model.currentSelectedId.value = world.id
+                                    }
+                                },
+                            )
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.padding(4.dp))
             }
         }
     }
@@ -233,7 +258,7 @@ class FavoritesScreen : Screen {
     @Composable
     fun ShowAvatars(
         model: FavoritesScreenModel,
-        groupMetadata: Map<String, FavoriteManager.FavoriteGroupMetadata>
+        groupMetadata: Map<String, FavoriteManager.FavoriteGroupMetadata>,
     ) {
         val navigator = LocalNavigator.currentOrThrow
         val avatarList = model.avatarList.collectAsStateWithLifecycle()
@@ -243,32 +268,52 @@ class FavoritesScreen : Screen {
                 val metadata = groupMetadata[item.key]
                 val title = "${metadata?.displayName ?: metadata?.name ?: item.key} (${metadata?.size ?: 0}/${FavoriteManager.getMaximumFavoritesForType(FavoriteType.FAVORITE_AVATAR)})"
 
-                FavoriteHorizontalRow(
-                    title = title,
-                    allowEdit = true,
-                    onEdit = {
-                        model.currentSelectedGroup.value = item.key
-                        model.editDialogShown.value = true
-                    }
+                ExpandableSettingsGroup(
+                    headerTitle = title,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    stateKey = "${model.currentIndex.intValue}|${item.key}",
+                    initiallyExpanded = false,
+                    headerTrailing = {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clickable {
+                                    model.currentSelectedGroup.value = item.key
+                                    model.editDialogShown.value = true
+                                },
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
                 ) {
-                    items(item.value.distinct()) {
-                        RowItem(name = it.name, url = it.thumbnailUrl) {
-                            if (it.name != "???") {
-                                navigator.parent?.parent?.push(AvatarScreen(it.id) {
-                                    model.deleteDialogShown.value = true
-                                    model.currentSelectedType.value = FavoriteType.FAVORITE_AVATAR
-                                    model.currentSelectedId.value = it.id
-                                })
-                            } else {
-                                model.deleteDialogShown.value = true
-                                model.currentSelectedType.value = FavoriteType.FAVORITE_AVATAR
-                                model.currentSelectedId.value = it.id
-                            }
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        val avatars = item.value.distinct()
+                        avatars.forEachIndexed { index, avatar ->
+                            FavoriteVerticalSegmentRowItem(
+                                name = avatar.name,
+                                url = avatar.thumbnailUrl,
+                                isLastInGroup = index == avatars.lastIndex,
+                                onClick = {
+                                    if (avatar.name != "???") {
+                                        navigator.parent?.parent?.push(AvatarScreen(avatar.id) {
+                                            model.deleteDialogShown.value = true
+                                            model.currentSelectedType.value = FavoriteType.FAVORITE_AVATAR
+                                            model.currentSelectedId.value = avatar.id
+                                        })
+                                    } else {
+                                        model.deleteDialogShown.value = true
+                                        model.currentSelectedType.value = FavoriteType.FAVORITE_AVATAR
+                                        model.currentSelectedId.value = avatar.id
+                                    }
+                                },
+                            )
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.padding(4.dp))
             }
         }
     }
@@ -276,7 +321,7 @@ class FavoritesScreen : Screen {
     @Composable
     fun ShowFriends(
         model: FavoritesScreenModel,
-        groupMetadata: Map<String, FavoriteManager.FavoriteGroupMetadata>
+        groupMetadata: Map<String, FavoriteManager.FavoriteGroupMetadata>,
     ) {
         val navigator = LocalNavigator.currentOrThrow
         val friendList = model.friendList.collectAsStateWithLifecycle()
@@ -286,27 +331,47 @@ class FavoritesScreen : Screen {
                 val metadata = groupMetadata[item.key]
                 val title = "${metadata?.displayName ?: metadata?.name ?: item.key} (${metadata?.size ?: 0}/${FavoriteManager.getMaximumFavoritesForType(FavoriteType.FAVORITE_FRIEND)})"
 
-                FavoriteHorizontalRow(
-                    title = title,
-                    allowEdit = true,
-                    onEdit = {
-                        model.currentSelectedIsFriend.value = true
-                        model.currentSelectedGroup.value = item.key
-                        model.editDialogShown.value = true
-                    }
+                ExpandableSettingsGroup(
+                    headerTitle = title,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    stateKey = "${model.currentIndex.intValue}|${item.key}",
+                    initiallyExpanded = false,
+                    headerTrailing = {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clickable {
+                                    model.currentSelectedIsFriend.value = true
+                                    model.currentSelectedGroup.value = item.key
+                                    model.editDialogShown.value = true
+                                },
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
                 ) {
-                    items(item.value.distinct()) {
-                        val user = FriendManager.getFriend(it.id)
-                        user?.let {
-                            RowItem(name = user.displayName, url = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl }) {
-                                navigator.parent?.parent?.push(UserProfileScreen(it.id))
-                            }
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        val friendRows = item.value.distinct().mapNotNull { fav ->
+                            FriendManager.getFriend(fav.id)
+                        }
+                        friendRows.forEachIndexed { index, u ->
+                            FavoriteVerticalSegmentRowItem(
+                                name = u.displayName,
+                                url = u.profilePicOverride.ifEmpty { u.currentAvatarImageUrl },
+                                isLastInGroup = index == friendRows.lastIndex,
+                                onClick = {
+                                    navigator.parent?.parent?.push(UserProfileScreen(u.id))
+                                },
+                            )
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.padding(4.dp))
             }
         }
     }
 }
+

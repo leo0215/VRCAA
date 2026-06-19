@@ -47,8 +47,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ToggleButton
@@ -57,6 +60,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -80,15 +84,16 @@ import cc.sovellus.vrcaa.extension.fixedColumnSize
 import cc.sovellus.vrcaa.extension.worldsAmount
 import cc.sovellus.vrcaa.ui.components.layout.GridItem
 import cc.sovellus.vrcaa.ui.components.controls.SelectionChipsRow
+import cc.sovellus.vrcaa.ui.components.misc.LimitedChipSelect
+import cc.sovellus.vrcaa.ui.components.misc.SearchFilterSection
+import cc.sovellus.vrcaa.ui.components.misc.SnappedCountSlider
 import cc.sovellus.vrcaa.ui.screen.avatar.AvatarScreen
 import cc.sovellus.vrcaa.ui.screen.group.GroupScreen
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.search.SearchResultScreenModel.SearchState
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 
 class SearchResultScreen(
     private val query: String
@@ -131,6 +136,7 @@ class SearchResultScreen(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             topBar = {
                 TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) {
                             Icon(
@@ -604,3 +610,4 @@ class SearchResultScreen(
         }
     }
 }
+
