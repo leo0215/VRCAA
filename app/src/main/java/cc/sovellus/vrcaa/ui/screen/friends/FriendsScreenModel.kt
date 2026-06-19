@@ -17,8 +17,6 @@
 package cc.sovellus.vrcaa.ui.screen.friends
 
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.toMutableStateList
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import cc.sovellus.vrcaa.api.vrchat.http.models.Friend
@@ -32,7 +30,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.icu.text.Transliterator
@@ -50,8 +47,6 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
         data object Result : FriendsState()
     }
 
-    private var friendsStateFlow = MutableStateFlow(listOf<Friend>())
-    private var friends = friendsStateFlow.asStateFlow()
 
     data class FriendsBuckets(
         val favoriteFriends: List<Friend> = emptyList(),
@@ -99,7 +94,7 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
     }
 
     @OptIn(FlowPreview::class)
-    private val friendsBuckets = friends
+    private val friendsBuckets = FriendManager.friendsState
         .debounce(150)
         .map { all ->
             withContext(Dispatchers.Default) {
@@ -122,7 +117,7 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
 
     var currentIndex = mutableIntStateOf(0)
     private var searchQueryFlow = MutableStateFlow("")
-    var searchQuery = searchQueryFlow.asStateFlow()
+    val searchQuery = searchQueryFlow.asStateFlow()
     
     fun updateSearchQuery(query: String) {
         searchQueryFlow.value = query
@@ -459,34 +454,30 @@ class FriendsScreenModel : StateScreenModel<FriendsState>(FriendsState.Init) {
         }
     }.stateIn(screenModelScope, SharingStarted.WhileSubscribed(5000), listOf())
 
-    private val listener = object : FriendManager.FriendListener {
-        override fun onUpdateFriends(friends: List<Friend>) {
-            friendsStateFlow.update { friends }
-        }
-    }
-
     private val cacheListener = object : CacheManager.CacheListener {
         override fun startCacheRefresh() {
             mutableState.value = FriendsState.Loading
         }
 
         override fun endCacheRefresh() {
-            friendsStateFlow.value = FriendManager.getFriends().toMutableStateList()
             mutableState.value = FriendsState.Result
         }
     }
 
     init {
         mutableState.value = FriendsState.Loading
-        FriendManager.addListener(listener)
         CacheManager.addListener(cacheListener)
 
         if (CacheManager.isBuilt()) {
-            friendsStateFlow.value = FriendManager.getFriends().toMutableStateList()
             mutableState.value = FriendsState.Result
         } else {
             mutableState.value = FriendsState.Loading
         }
+    }
+
+    override fun onDispose() {
+        CacheManager.removeListener(cacheListener)
+        super.onDispose()
     }
 
     fun refreshCache() {

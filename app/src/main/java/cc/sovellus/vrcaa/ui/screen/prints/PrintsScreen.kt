@@ -87,7 +87,7 @@ class PrintsScreen(
 
     @Composable
     override fun Content() {
-        val model = rememberScreenModel { PrintsScreenModel(userId) }
+        val model = rememberScreenModel { PrintsScreenModel() }
         val state by model.state.collectAsState()
 
         when (val result = state) {

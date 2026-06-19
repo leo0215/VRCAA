@@ -140,6 +140,11 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
         return isCacheBuilt.load()
     }
 
+    fun getProfile(): User? {
+        val user = profile.value
+        return user.takeIf { it.id.isNotEmpty() }
+    }
+
     fun getWorld(worldId: String): WorldCache? {
         return worldList.value.firstOrNull { it.id == worldId }
     }
