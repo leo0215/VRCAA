@@ -57,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import cc.sovellus.vrcaa.ui.theme.listCardBackground
 
 @Composable
 fun rememberThumbContent(
@@ -110,7 +111,7 @@ fun SectionHeaderCard(title: String) {
             .height(56.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.listCardBackground
         )
     ) {
         Row(
@@ -147,7 +148,7 @@ fun SettingsGroup(items: List<SettingsItem>) {
                 containerColor = if (item.isHeader) {
                     MaterialTheme.colorScheme.surfaceDim
                 } else {
-                    MaterialTheme.colorScheme.surface
+                    MaterialTheme.colorScheme.listCardBackground
                 }
             )
         ) {
@@ -182,7 +183,7 @@ fun SettingsGroup(items: List<SettingsItem>) {
                         containerColor = if (item.isHeader) {
                             MaterialTheme.colorScheme.surfaceDim
                         } else {
-                            MaterialTheme.colorScheme.surface
+                            MaterialTheme.colorScheme.listCardBackground
                         }
                     )
                 ) {
@@ -234,7 +235,7 @@ fun ExpandableSettingsGroup(
                 bottomEnd = if (contentItems.isEmpty() || !expanded) containerRadius else itemRadius
             ),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.listCardBackground
             )
         ) {
             Row(
@@ -257,7 +258,7 @@ fun ExpandableSettingsGroup(
                     modifier = Modifier
                         .size(width = 32.dp, height = 40.dp)
                         .background(
-                            MaterialTheme.colorScheme.surfaceContainer,
+                            MaterialTheme.colorScheme.listCardBackground,
                             RoundedCornerShape(20.dp)  // pill: 50% of 40dp height
                         ),
                     contentAlignment = Alignment.Center
@@ -292,7 +293,7 @@ fun ExpandableSettingsGroup(
                             bottomEnd = if (isLast) containerRadius else itemRadius
                         ),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
+                            containerColor = MaterialTheme.colorScheme.listCardBackground
                         )
                     ) {
                         SettingsCard(
@@ -345,7 +346,7 @@ fun ExpandableSettingsGroup(
                 bottomEnd = if (!expanded) containerRadius else itemRadius
             ),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.listCardBackground
             )
         ) {
             Row(
@@ -369,7 +370,7 @@ fun ExpandableSettingsGroup(
                     modifier = Modifier
                         .size(width = 32.dp, height = 40.dp)
                         .background(
-                            MaterialTheme.colorScheme.surfaceContainer,
+                            MaterialTheme.colorScheme.listCardBackground,
                             RoundedCornerShape(20.dp)
                         ),
                     contentAlignment = Alignment.Center

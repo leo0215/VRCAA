@@ -16,7 +16,7 @@ plugins {
 
 android {
     namespace = "cc.sovellus.vrcaa"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "cc.sovellus.vrcaa"
@@ -127,7 +127,7 @@ dependencies {
     implementation(platform("androidx.compose:compose-bom:2026.02.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.material3:material3-android:1.5.0-alpha06")
+    implementation("androidx.compose.material3:material3-android:1.5.0-alpha23")
     implementation("androidx.lifecycle:lifecycle-runtime-compose-android:2.10.0")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("com.google.android.material:material:1.13.0")

@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -88,6 +89,8 @@ import cc.sovellus.vrcaa.ui.components.misc.SubHeader
 import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
+import cc.sovellus.vrcaa.ui.theme.appBackground
+import cc.sovellus.vrcaa.ui.theme.defaultCardBackground
 
 class GroupScreen(
     private val groupId: String,
@@ -139,7 +142,7 @@ class GroupScreen(
                 navigator.pop()
             }
         } else {
-            Scaffold(containerColor = MaterialTheme.colorScheme.surfaceContainer, topBar = {
+            Scaffold(containerColor = MaterialTheme.colorScheme.appBackground, topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                     navigationIcon = {
@@ -326,6 +329,9 @@ class GroupScreen(
                             .padding(bottom = 16.dp)
                             .fillMaxWidth()
                             .defaultMinSize(minHeight = 80.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.defaultCardBackground
+                        )
                     ) {
                         SubHeader(title = stringResource(R.string.group_page_label_description))
                         Description(text = group.description)
@@ -336,6 +342,9 @@ class GroupScreen(
                             .padding(bottom = 16.dp)
                             .fillMaxWidth()
                             .defaultMinSize(minHeight = 80.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.defaultCardBackground
+                        )
                     ) {
                         SubHeader(title = stringResource(R.string.group_page_label_rules))
                         Description(text = group.rules)

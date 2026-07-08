@@ -59,6 +59,7 @@ import cc.sovellus.vrcaa.extension.onboardingCompleted
 import cc.sovellus.vrcaa.ui.components.misc.Logo
 import cc.sovellus.vrcaa.ui.screen.login.LoginScreen
 import cc.sovellus.vrcaa.ui.screen.navigation.NavigationScreen
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class OnboardingPermissionsScreen : Screen {
 
@@ -70,7 +71,7 @@ class OnboardingPermissionsScreen : Screen {
         val context = LocalContext.current
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = MaterialTheme.colorScheme.appBackground
         ) { padding ->
             Column(
                 modifier = Modifier

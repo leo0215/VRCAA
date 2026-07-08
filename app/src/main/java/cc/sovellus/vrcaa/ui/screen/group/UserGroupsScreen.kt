@@ -48,6 +48,7 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.models.UserGroup
 import cc.sovellus.vrcaa.ui.components.card.GroupCard
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class UserGroupsScreen(
     private val username: String,
@@ -78,7 +79,7 @@ class UserGroupsScreen(
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -124,7 +125,7 @@ class UserGroupsScreen(
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

@@ -62,6 +62,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.manager.DebugManager
 import java.util.Locale
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class NetworkLogScreen : Screen {
 
@@ -77,7 +78,7 @@ class NetworkLogScreen : Screen {
         val icons = listOf(Icons.Filled.NetworkWifi, Icons.Filled.RssFeed, Icons.Filled.Route)
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     navigationIcon = {

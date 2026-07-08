@@ -70,6 +70,7 @@ import cc.sovellus.vrcaa.ui.components.dialog.ImagePreviewDialog
 import cc.sovellus.vrcaa.ui.components.dialog.NotificationDialog
 import cc.sovellus.vrcaa.ui.components.dialog.NotificationDialogV2
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
+import cc.sovellus.vrcaa.ui.theme.appBackground
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
@@ -188,6 +189,7 @@ class NotificationsScreen : Screen {
         }
 
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

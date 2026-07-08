@@ -49,6 +49,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import cc.sovellus.vrcaa.BuildConfig
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.ui.theme.appBackground
+import cc.sovellus.vrcaa.ui.theme.defaultCardBackground
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +62,7 @@ fun CrashScreen(
     val context = LocalContext.current
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = MaterialTheme.colorScheme.appBackground,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.crash_title_text)) },
@@ -87,7 +89,10 @@ fun CrashScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Card(
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.defaultCardBackground
+                    )
                 ) {
                     LazyColumn {
                         item {

@@ -45,6 +45,7 @@ import cc.sovellus.vrcaa.R
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import cc.sovellus.vrcaa.ui.theme.listCardBackground
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -62,7 +63,10 @@ fun RowItem(
             .heightIn(100.dp, maxItemHeight)
             .widthIn(133.dp, maxItemWidth)
             .aspectRatio(4f / 3f)
-            .clickable(onClick = { onClick() })
+            .clickable(onClick = { onClick() }),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.listCardBackground
+        )
     ) {
         GlideImage(
             model = url,
@@ -149,7 +153,7 @@ fun FavoriteVerticalSegmentRowItem(
             bottomEnd = if (isLastInGroup) containerRadius else itemRadius
         ),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.listCardBackground
         ),
     ) {
         ListItem(

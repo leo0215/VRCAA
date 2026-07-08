@@ -60,6 +60,7 @@ import cc.sovellus.vrcaa.ui.components.misc.Languages
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import cc.sovellus.vrcaa.ui.theme.listCardBackground
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -80,7 +81,7 @@ fun ProfileCard(
 ) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceBright,
+            containerColor = MaterialTheme.colorScheme.listCardBackground,
         ),
         modifier = Modifier
             .height(270.dp)
@@ -113,7 +114,7 @@ fun ProfileCard(
                     modifier = Modifier.padding(start = 16.dp)
                 ) {
                     Badge(
-                        containerColor = MaterialTheme.colorScheme.surfaceBright,
+                        containerColor = MaterialTheme.colorScheme.listCardBackground,
                         modifier = Modifier
                             .size(80.dp)
                             .align(Alignment.CenterHorizontally)

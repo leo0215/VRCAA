@@ -54,6 +54,7 @@ import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import java.time.LocalDateTime
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class DatabaseScreen : Screen {
 
@@ -82,7 +83,7 @@ class DatabaseScreen : Screen {
         }
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

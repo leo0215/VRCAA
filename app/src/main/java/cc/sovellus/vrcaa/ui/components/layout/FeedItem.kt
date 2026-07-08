@@ -41,6 +41,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.TimeZone
+import cc.sovellus.vrcaa.ui.theme.listCardBackground
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -58,7 +59,7 @@ fun FeedItem(
         leadingContent = {
             Column {
                 Badge(
-                    containerColor = MaterialTheme.colorScheme.surfaceBright,
+                    containerColor = MaterialTheme.colorScheme.listCardBackground,
                     modifier = Modifier
                         .size(64.dp)
                         .align(Alignment.CenterHorizontally)

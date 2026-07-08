@@ -45,6 +45,8 @@ import cc.sovellus.vrcaa.api.vrchat.http.models.UserSubscription
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import java.text.SimpleDateFormat
 import java.util.*
+import cc.sovellus.vrcaa.ui.theme.appBackground
+import cc.sovellus.vrcaa.ui.theme.defaultCardBackground
 
 class EconomyScreen : Screen {
 
@@ -58,7 +60,7 @@ class EconomyScreen : Screen {
         val state by model.state.collectAsState()
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -150,7 +152,10 @@ class EconomyScreen : Screen {
                             item {
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(12.dp)
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.defaultCardBackground
+                                    )
                                 ) {
                                     Column(
                                         modifier = Modifier.padding(16.dp),
@@ -244,7 +249,10 @@ private fun BalanceCard(balance: UserBalance?) {
 private fun SubscriptionCard(subscription: UserSubscription) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.defaultCardBackground
+        )
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

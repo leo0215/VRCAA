@@ -43,6 +43,7 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class RichPresenceWebViewLogin : Screen {
 
@@ -57,7 +58,7 @@ class RichPresenceWebViewLogin : Screen {
         val model = navigator.rememberNavigatorScreenModel { RichPresenceWebViewLoginModel() }
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

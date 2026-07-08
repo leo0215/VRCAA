@@ -59,6 +59,7 @@ import cc.sovellus.vrcaa.helper.StatusHelper
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import cc.sovellus.vrcaa.ui.theme.listCardBackground
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -72,7 +73,7 @@ fun InstanceItem(instance: Instance, creator: String?, friends: List<Friend>, on
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.listCardBackground
         )
     ) {
         Column(

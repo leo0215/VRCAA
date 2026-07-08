@@ -51,6 +51,7 @@ import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.screen.licenses.LicensesScreen
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class AboutScreen : Screen {
 
@@ -62,7 +63,7 @@ class AboutScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

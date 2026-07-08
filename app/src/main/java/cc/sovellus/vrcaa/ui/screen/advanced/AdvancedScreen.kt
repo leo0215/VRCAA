@@ -53,6 +53,7 @@ import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
 import cc.sovellus.vrcaa.ui.screen.network.NetworkLogScreen
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class AdvancedScreen : Screen {
 
@@ -65,7 +66,7 @@ class AdvancedScreen : Screen {
         val model = navigator.rememberNavigatorScreenModel { AdvancedScreenModel() }
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

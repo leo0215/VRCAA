@@ -108,6 +108,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.TimeZone
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class WorldScreen(
     private val worldId: String,
@@ -186,7 +187,7 @@ class WorldScreen(
             navigator.pop()
         } else {
             Scaffold(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                containerColor = MaterialTheme.colorScheme.appBackground,
                 topBar = {
                     TopAppBar(
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

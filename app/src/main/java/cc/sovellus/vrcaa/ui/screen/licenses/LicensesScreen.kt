@@ -39,6 +39,7 @@ import cc.sovellus.vrcaa.R
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.mikepenz.aboutlibraries.util.withJson
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class LicensesScreen : Screen {
 
@@ -50,7 +51,7 @@ class LicensesScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

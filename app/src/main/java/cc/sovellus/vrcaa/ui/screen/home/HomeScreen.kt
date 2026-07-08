@@ -16,10 +16,12 @@
 
 package cc.sovellus.vrcaa.ui.screen.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -67,6 +69,7 @@ import cc.sovellus.vrcaa.ui.screen.home.HomeScreenModel.HomeState
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class HomeScreen : Screen {
 
@@ -97,23 +100,27 @@ class HomeScreen : Screen {
         val recent = model.recentlyVisited.collectAsStateWithLifecycle().value
         val cachedWorlds = CacheManager.worldList.collectAsStateWithLifecycle().value
 
-        PullToRefreshBox(
-            isRefreshing = isRefreshing,
-            onRefresh = {
-                scope.launch {
-                    isRefreshing = true
-                    model.refreshCache()
-                    isRefreshing = false
-                }
-            },
-            state = pullToRefreshState,
-            modifier = Modifier.fillMaxSize()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.appBackground)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    scope.launch {
+                        isRefreshing = true
+                        model.refreshCache()
+                        isRefreshing = false
+                    }
+                },
+                state = pullToRefreshState,
+                modifier = Modifier.fillMaxSize()
             ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
             item {
                 val onlineFriends = friends.filter { it.platform != "web" && it.platform.isNotEmpty() }
                 if (onlineFriends.isEmpty()) {
@@ -126,8 +133,7 @@ class HomeScreen : Screen {
                     LazyRow(
                         modifier = Modifier
                             .height(100.dp)
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                         content = {
@@ -165,8 +171,7 @@ class HomeScreen : Screen {
                     LazyRow(
                         modifier = Modifier
                             .height(190.dp)
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                         content = {
@@ -202,8 +207,7 @@ class HomeScreen : Screen {
                     LazyRow(
                         modifier = Modifier
                             .height(190.dp)
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                         content = {
@@ -245,8 +249,7 @@ class HomeScreen : Screen {
                     LazyRow(
                         modifier = Modifier
                             .height(190.dp)
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                         content = {
@@ -269,6 +272,7 @@ class HomeScreen : Screen {
                     }
                 }
             }
+        }
         }
         }
     }

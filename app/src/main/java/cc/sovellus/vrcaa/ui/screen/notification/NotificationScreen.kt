@@ -47,6 +47,7 @@ import cc.sovellus.vrcaa.helper.NotificationHelper
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class NotificationScreen(
     private val friendId: String, private val friendName: String
@@ -67,7 +68,7 @@ class NotificationScreen(
 
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     title = { Text(text = "${friendName}${stringResource(R.string.notification_title_player)}") },

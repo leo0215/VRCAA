@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -41,27 +43,45 @@ fun ButtonGroupTabs(
     modifier: Modifier = Modifier,
 ) {
     ButtonGroup(
+        overflowIndicator = { menuState ->
+            ButtonGroupDefaults.OverflowIndicator(menuState = menuState)
+        },
         modifier = modifier,
         expandedRatio = 1f,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        options.forEachIndexed { index, label ->
-            val isSelected = index == selectedIndex
-            FilledTonalButton(
-                onClick = { onSelect(index) },
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = if (isSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = if (isSelected) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSecondaryContainer
-                ),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
-            ) {
-                if (icons != null) {
-                    Icon(imageVector = icons[index], contentDescription = null, modifier = Modifier.size(18.dp))
-                }
-                Text(text = label)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        content = {
+            options.forEachIndexed { index, label ->
+                val isSelected = index == selectedIndex
+                customItem(
+                    buttonGroupContent = {
+                        FilledTonalButton(
+                            onClick = { onSelect(index) },
+                            colors = ButtonDefaults.filledTonalButtonColors(
+                                containerColor = if (isSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = if (isSelected) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSecondaryContainer
+                            ),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                        ) {
+                            if (icons != null) {
+                                Icon(
+                                    imageVector = icons[index],
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Text(text = label)
+                        }
+                    },
+                    menuContent = {
+                        DropdownMenuItem(
+                            text = { Text(label) },
+                            onClick = { onSelect(index) },
+                            leadingIcon = icons?.let { { Icon(imageVector = it[index], contentDescription = null) } }
+                        )
+                    }
+                )
             }
-        }
-    }
+        })
 }
 
 

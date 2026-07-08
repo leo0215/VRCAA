@@ -35,9 +35,13 @@ google-services.json
 
 Seal
 .vscode/
+scripts/i18n/.cache/
 app/standard/release/output-metadata.json
 app/src/main/res/font/googlesans.ttf
 app/src/main/res/font/googlesansflex.ttf
 app/standard/release/baselineProfiles/0/app-standard-release.dm
 app/standard/release/baselineProfiles/1/app-standard-release.dm
 app/src/main/res/font/google_sans_rounded_regular.ttf
+scripts/i18n/PROMPT_ja_JP.md
+scripts/i18n/PROMPT_zh_TW.md
+scripts/i18n/sync_strings.py

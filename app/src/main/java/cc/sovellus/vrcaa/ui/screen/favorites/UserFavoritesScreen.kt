@@ -67,6 +67,7 @@ import cc.sovellus.vrcaa.ui.screen.avatar.UserAvatarScreen
 import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class UserFavoritesScreen(
     private val userId: String
@@ -98,7 +99,7 @@ class UserFavoritesScreen(
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

@@ -514,9 +514,9 @@ class ProfileScreen : Screen {
                                                     shape = RoundedCornerShape(12.dp),
                                                     colors = CardDefaults.cardColors(
                                                         containerColor = if (badge.showcased) 
-                                                            MaterialTheme.colorScheme.surfaceContainer
+                                                            MaterialTheme.colorScheme.surface
                                                         else 
-                                                            MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.9f)
+                                                            MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
                                                     )
                                                 ) {
                                                     GlideImage(

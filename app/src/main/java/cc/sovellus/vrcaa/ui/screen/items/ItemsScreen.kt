@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -80,6 +81,8 @@ import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import cc.sovellus.vrcaa.ui.theme.appBackground
+import cc.sovellus.vrcaa.ui.theme.defaultCardBackground
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class ItemsScreen : Screen {
 
@@ -103,7 +106,7 @@ class ItemsScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -146,7 +149,7 @@ class ItemsScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -244,7 +247,12 @@ class ItemsScreen : Screen {
                 content = {
                     items(items.size) {
                         val item = items[it]
-                        Card(Modifier.padding(4.dp)) {
+                        Card(
+                            Modifier.padding(4.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.defaultCardBackground
+                            )
+                        ) {
                             GlideImage(
                                 model = item.imageUrl,
                                 contentDescription = null,

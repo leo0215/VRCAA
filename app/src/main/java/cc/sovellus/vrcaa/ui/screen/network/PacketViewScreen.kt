@@ -56,6 +56,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.ui.components.misc.SubHeader
+import cc.sovellus.vrcaa.ui.theme.appBackground
+import cc.sovellus.vrcaa.ui.theme.defaultCardBackground
 
 class PacketViewScreen(
     private val payload: String,
@@ -73,7 +75,7 @@ class PacketViewScreen(
         var isMenuExpanded by remember { mutableStateOf(false) }
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -130,7 +132,10 @@ class PacketViewScreen(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(4.dp)
+                                .padding(4.dp),
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = MaterialTheme.colorScheme.defaultCardBackground
+                            )
                         ) {
                             SubHeader(title = stringResource(R.string.packet_view_url))
 
@@ -151,7 +156,10 @@ class PacketViewScreen(
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(4.dp)
+                            .padding(4.dp),
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = MaterialTheme.colorScheme.defaultCardBackground
+                        )
                     ) {
                         SubHeader(title = stringResource(R.string.packet_view_payload))
 

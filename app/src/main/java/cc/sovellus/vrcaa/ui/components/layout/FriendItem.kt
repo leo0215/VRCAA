@@ -56,6 +56,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.bumptech.glide.request.RequestOptions
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -223,7 +224,7 @@ fun FriendItemMaterial3(
                         .size(16.dp)
                         .align(Alignment.BottomEnd)
                         .background(
-                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            color = MaterialTheme.colorScheme.appBackground,
                             shape = CircleShape
                         )
                         .padding(3.dp)

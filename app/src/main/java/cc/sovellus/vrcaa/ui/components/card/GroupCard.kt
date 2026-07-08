@@ -49,6 +49,7 @@ import cc.sovellus.vrcaa.ui.components.misc.Languages
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import cc.sovellus.vrcaa.ui.theme.listCardBackground
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -98,7 +99,7 @@ fun GroupCard(
                 modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
             ) {
                 Badge(
-                    containerColor = MaterialTheme.colorScheme.surfaceBright, modifier = Modifier
+                    containerColor = MaterialTheme.colorScheme.listCardBackground, modifier = Modifier
                         .size(80.dp)
                         .align(Alignment.CenterHorizontally)
                 ) {

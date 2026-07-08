@@ -94,6 +94,7 @@ import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
 import cc.sovellus.vrcaa.ui.screen.search.SearchResultScreenModel.SearchState
 import cc.sovellus.vrcaa.ui.screen.world.WorldScreen
 import kotlinx.coroutines.launch
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class SearchResultScreen(
     private val query: String
@@ -133,7 +134,7 @@ class SearchResultScreen(
         })
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

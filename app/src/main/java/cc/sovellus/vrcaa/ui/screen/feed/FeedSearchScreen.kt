@@ -46,6 +46,7 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.manager.FeedManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class FeedSearchScreen : Screen {
 
@@ -60,7 +61,7 @@ class FeedSearchScreen : Screen {
         val filteredFeedStateFlow = remember { MutableStateFlow(listOf<FeedManager.Feed>()) }
         val filteredFeed = filteredFeedStateFlow.asStateFlow()
 
-        Scaffold(containerColor = MaterialTheme.colorScheme.surfaceContainer) { padding ->
+        Scaffold(containerColor = MaterialTheme.colorScheme.appBackground) { padding ->
             SearchBar(
                 inputField = {
                     InputField(
@@ -106,7 +107,7 @@ class FeedSearchScreen : Screen {
                 shadowElevation = 4.dp
             ) {
                 Surface(
-                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    color = MaterialTheme.colorScheme.appBackground,
                     modifier = Modifier.fillMaxSize()
                 ) {
                     val feed = filteredFeed.collectAsState()

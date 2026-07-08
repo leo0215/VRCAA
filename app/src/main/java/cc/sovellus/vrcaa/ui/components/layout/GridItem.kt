@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +45,7 @@ import cc.sovellus.vrcaa.R
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import cc.sovellus.vrcaa.ui.theme.listCardBackground
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -59,7 +62,10 @@ fun GridItem(
             .heightIn(125.dp)
             .widthIn(166.dp, maxItemWidth)
             .aspectRatio(4f / 3f)
-            .clickable(onClick = { onClick() })
+            .clickable(onClick = { onClick() }),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.listCardBackground
+        )
     ) {
 
         GlideImage(

@@ -55,6 +55,7 @@ import cc.sovellus.vrcaa.ui.components.layout.GridItem
 import cc.sovellus.vrcaa.ui.screen.avatar.AvatarScreen
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.theme.ThemeScreenModel
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class AvatarsScreen : Screen {
 
@@ -80,7 +81,7 @@ class AvatarsScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -120,7 +121,7 @@ class AvatarsScreen : Screen {
         val model = navigator.rememberNavigatorScreenModel { ThemeScreenModel() }
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     navigationIcon = {

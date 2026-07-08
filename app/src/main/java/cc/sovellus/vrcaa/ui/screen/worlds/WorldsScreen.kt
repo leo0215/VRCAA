@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -67,6 +68,8 @@ import cc.sovellus.vrcaa.ui.screen.worlds.WorldsScreenModel.WorldsState
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import cc.sovellus.vrcaa.ui.theme.appBackground
+import cc.sovellus.vrcaa.ui.theme.defaultCardBackground
 
 class WorldsScreen(
     private val username: String,
@@ -102,7 +105,10 @@ class WorldsScreen(
                 .fillMaxWidth()
                 .height(150.dp)
                 .width(200.dp)
-                .clickable(onClick = { onClick() })
+                .clickable(onClick = { onClick() }),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.defaultCardBackground
+            )
         ) {
 
             GlideImage(
@@ -137,7 +143,7 @@ class WorldsScreen(
         val model = navigator.rememberNavigatorScreenModel { ThemeScreenModel() }
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

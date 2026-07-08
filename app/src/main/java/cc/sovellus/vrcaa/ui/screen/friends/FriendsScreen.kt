@@ -69,6 +69,7 @@ import cc.sovellus.vrcaa.ui.screen.friends.FriendsScreenModel.FriendsState
 import cc.sovellus.vrcaa.ui.screen.friends.FriendsScreenModel.FriendsGroup
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
 import cc.sovellus.vrcaa.ui.screen.profile.UserProfileScreen
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class FriendsScreen : Screen {
 
@@ -102,7 +103,7 @@ class FriendsScreen : Screen {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceContainer),
+                .background(MaterialTheme.colorScheme.appBackground),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

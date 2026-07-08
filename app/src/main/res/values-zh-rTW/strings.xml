@@ -1,16 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <!-- Universal Strings -->
     <string name="result_not_found">這裡甚麼都沒有喔~</string>
     <string name="legal_disclaimer">"VRCAA 未得到 VRChat Inc. 或其任何附屬公司的正式認可或批准。"</string>
-    <!-- Friends -->
-    <string-array name="friend_selection_options">
-        <item>全部</item>
-        <item>收藏</item>
-        <item>上線</item>
-        <item>網頁</item>
-        <item>離線</item>
-    </string-array>
     <string name="friend_toast_friend_request_cancelled">已撤回邀請%1$s當作你好友的請求。</string>
     <string name="friend_toast_friend_request_cancel_failed">無法撤回邀請%1$s當作你好友的請求。</string>
     <string name="friend_toast_friend_removed">已將 %1$s 從你的好友列表中移出。</string>
@@ -19,64 +9,61 @@
     <string name="friend_toast_friend_request_failed">向 %1$s 發送好友請求失敗。</string>
     <string name="friend_toast_friend_request_accepted">你已接受了來自 %1$s 的好友請求。</string>
     <string name="friend_toast_friend_request_accept_failed">接受來自 %1$s 的好友請求失敗。</string>
-    <!-- Home -->
+    <string name="home_greeting_morning">早安</string>
+    <string name="home_greeting_afternoon">午安</string>
+    <string name="home_greeting_evening">晚安</string>
+    <string name="home_greeting_night">晚安</string>
     <string name="home_active_friends">上線的好友</string>
     <string name="home_recently_visited">最近造訪的世界</string>
     <string name="home_friend_locations">好友目前位置</string>
     <string name="home_curated_for_you">為您精選</string>
-    <!-- Login -->
     <string name="login_text">登入VRC Android Assistant</string>
     <string name="login_label_username">使用者名稱或電子郵件地址</string>
     <string name="login_label_password">密碼</string>
     <string name="login_button_text">登入</string>
     <string name="login_toast_wrong_credentials">使用者名稱或密碼輸入錯誤。</string>
     <string name="login_toast_wrong_code">驗證失敗，請檢察驗證碼是否輸入正確。</string>
-    <!-- Onboarding -->
     <string name="onboarding_title">讓我們開始吧！</string>
     <string name="onboarding_description">使用你的 Android 裝置即可隨時連線到 VRChat 世界。輕鬆管理個人檔案、掌握好友動態，不錯過任何最新消息。</string>
     <string name="onboarding_permissions_title">我們需要您授予我們權限。</string>
     <string name="onboarding_permissions_description">請允許通知權限，以便即時接收好友與活動動態。</string>
-    <!-- Two Auth -->
+    <string name="onboarding_button_get_started">開始使用</string>
+    <string name="onboarding_button_continue">繼續</string>
     <string name="auth_text_email">輸入寄送到你電子郵件的驗證碼</string>
     <string name="auth_text_app">輸入二步驟驗證應用程式產生的驗證碼</string>
     <string name="auth_button_text">驗證</string>
     <string name="auth_button_paste">貼上</string>
-    <!-- Main -->
     <string name="main_search_placeholder">搜尋世界、使用者和模型...</string>
-    <!-- Profile -->
     <string name="profile_label_current_location">目前位置</string>
     <string name="profile_label_note">備註</string>
+    <string name="profile_label_account_info">帳戶資訊</string>
+    <string name="profile_label_age_verification">年齡驗證</string>
     <string name="profile_label_biography">簡介</string>
     <string name="profile_label_last_activity">上次活動</string>
     <string name="profile_label_date_joined">帳號創立日期</string>
+    <string name="profile_label_known_languages">使用的語言</string>
     <string name="profile_text_no_biography">沒有填寫自我介紹。</string>
     <string name="profile_user_dropdown_manage_notifications">管理通知</string>
     <string name="profile_user_not_found_message">用户不存在。</string>
     <string name="profile_user_avatar_private">該模型被設定為私人！</string>
     <string name="profile_user_avatar_unreachable">無法存取該模型！</string>
     <string name="profile_user_note_dialog_title">添加備註</string>
-    <!-- Search -->
     <string name="search_text_result">搜尋結果：</string>
     <string name="search_filter_label_count">數量</string>
-    <string name="search_filter_label_platform">Platform</string>
-    <string name="search_filter_label_content_gating">Content Gating</string>
-    <string name="search_filter_label_performance_rank">Performance Rank</string>
+    <string name="search_filter_label_platform">平台</string>
+    <string name="search_filter_label_content_gating">內容分級</string>
+    <string name="search_filter_label_performance_rank">效能等級</string>
     <string name="copy_id_label">複製ID</string>
     <string name="copied_toast">成功複製ID : %1$s。</string>
     <string name="search_filter_button_reset">重設</string>
     <string name="search_filter_button_apply">套用</string>
-    <string-array name="search_selection_options">
-        <item>世界</item>
-        <item>用戶</item>
-        <item>模型</item>
-        <item>群组</item>
-    </string-array>
     <string name="search_button_more">更多…</string>
-    <!-- Settings -->
     <string name="settings_item_about">關於</string>
     <string name="settings_item_about_description">關於你的設備和VRCAA的詳細資訊</string>
     <string name="settings_item_theming">外觀與主題</string>
     <string name="settings_item_theming_description">外觀設定, 簡約模式</string>
+    <string name="settings_item_font">字型</string>
+    <string name="settings_item_font_description">選擇偏好的字型</string>
     <string name="settings_item_rich_presence" tools:keep="@string/settings_item_rich_presence">Discord遊戲狀態（實驗性功能）</string>
     <string name="settings_item_rich_presence_description" tools:keep="@string/settings_item_rich_presence_description">Discord遊戲狀態整合設定</string>
     <string name="settings_item_advanced_settings">進階設定</string>
@@ -85,7 +72,6 @@
     <string name="settings_item_database_settings_description">查看統計資料, 備份或是還原你的數據</string>
     <string name="settings_item_logout">登出</string>
     <string name="settings_kofi_donation_button">透過 Ko-fi 請我喝咖杯吧</string>
-    <!-- Worlds -->
     <string name="world_label_description">描述</string>
     <string name="world_label_tags">標籤</string>
     <string name="world_text_no_tags">此作者未提供標籤</string>
@@ -95,28 +81,28 @@
     <string name="world_title_favorites">收藏人數</string>
     <string name="world_title_capacity">推薦人數</string>
     <string name="world_title_occupants">地圖內目前遊玩人數</string>
-    <string name="world_title_time_spent">Time Spent</string>
-    <string name="world_description_no_data_time_spent">No data available.</string>
+    <string name="world_title_time_spent">停留時間</string>
+    <string name="world_description_no_data_time_spent">沒有可用資料。</string>
     <string name="world_title_publication_date">公開日期</string>
     <string name="world_title_heat">熱門度</string>
     <string name="world_title_popularity">知名度</string>
     <string name="world_toast_not_found">世界已被設定為私人或已被移除。</string>
-    <string-array name="world_selection_options">
-        <item>資訊</item>
-        <item>房間</item>
-    </string-array>
     <string name="world_author_label">作者：%1$s</string>
+    <string name="world_section_statistics">統計</string>
+    <string name="world_section_activity">活動</string>
+    <string name="world_section_dates">日期</string>
+    <string name="world_favorites_format">%1$s（%2$s%%）</string>
+    <string name="world_capacity_format">%1$d（最多 %2$d）</string>
     <string name="world_instance_invite_dialog_title">你確定嗎？</string>
     <string name="world_instance_invite_dialog_description">你正在將邀請傳送至自己的這個房間，你真的要這麼做嗎？</string>
     <string name="world_instance_no_public_instances_message">沒有公開房間</string>
-    <!-- Tabs -->
     <string name="tabs_label_friends">好友</string>
     <string name="tabs_label_home">主頁</string>
     <string name="tabs_label_favorites">收藏</string>
     <string name="tabs_label_feed">紀錄</string>
     <string name="tabs_label_profile">個人檔案</string>
+    <string name="tabs_label_options">選項</string>
     <string name="tabs_label_settings">設定</string>
-    <!-- Notifications -->
     <string name="service_notification">VRCAA 現在正在後台自動追蹤你的好友動態</string>
     <string name="service_killed_by_vendor_notification">VRCAA 已被你的系統終止了！請檢查 https://dontkillmyapp.com/ 以取得更多資訊</string>
     <string name="service_notification_rich_presence" tools:keep="@string/service_notification_rich_presence">VRCAA 現在會回報詳細的遊戲狀態資訊</string>
@@ -161,7 +147,6 @@
     <string name="notification_invite_response_text">不允許你加入</string>
     <string name="notification_invite_request_text">想要得到你的邀請</string>
     <string name="notification_invite_request_response_text">拒絕了你的邀請請求</string>
-    <!-- Avatars -->
     <string name="avatar_dropdown_label_select">變更為此角色</string>
     <string name="avatar_dropdown_toast_select_avatar">角色已選擇！</string>
     <string name="avatar_title_description">描述</string>
@@ -172,7 +157,6 @@
     <string name="avatar_title_version">版本</string>
     <string name="avatar_text_content_labels_not_found">此角色沒有特定內容警告</string>
     <string name="avatar_toast_avatar_not_found_message">此角色是私人的或已被移除了</string>
-    <!-- Feed -->
     <string name="feed_online_label">上線</string>
     <string name="feed_online_text">已上線</string>
     <string name="feed_offline_label">離線</string>
@@ -192,30 +176,35 @@
     <string name="feed_friend_avatar_text">變更角色為</string>
     <string name="feed_friend_username_changed_label">變更使用者名稱</string>
     <string name="feed_friend_username_changed_text">變更使用者名稱為</string>
-    <!-- About -->
     <string name="about_page_title">關於</string>
     <string name="about_page_open_source_licenses_title">開放原始碼授權</string>
     <string name="about_page_translate_title">協助翻譯</string>
     <string name="about_page_battery_optimizations_toast" tools:keep="@string/about_page_battery_optimizations_toast">電池最佳化已停用</string>
     <string name="license_title">開放原始碼授權</string>
-    <!-- API -->
+    <string name="about_page_section_version_info">版本資訊</string>
+    <string name="about_page_section_other">其他</string>
+    <string name="about_page_version">版本</string>
+    <string name="about_page_model">型號</string>
+    <string name="about_page_vendor">製造商</string>
+    <string name="about_page_system_version">系統版本</string>
     <string name="api_session_has_expired_text">你的連線已逾期. 請重新再登入.</string>
-    <!-- Discord Rich Presence -->
     <string name="discord_login_restarted_service_toast" tools:keep="@string/discord_login_restarted_service_toast">已重啟服務並生效</string>
     <string name="discord_login_label_enable" tools:keep="@string/discord_login_label_enable">啟用 Discord 狀態 (RPC)</string>
     <string name="discord_login_label_set_webhook" tools:keep="@string/discord_login_label_set_webhook">設定 Webhook Url</string>
     <string name="discord_login_description_set_webhook" tools:keep="@string/discord_login_description_set_webhook">顯示世界縮圖 (可選)</string>
     <string name="discord_login_description_enable" tools:keep="@string/discord_login_description_enable">在 Discord 中顯示你的當前狀態</string>
-    <!-- Crash -->
+    <string name="rich_presence_page_title">Rich Presence</string>
+    <string name="rich_presence_section_account">帳戶</string>
+    <string name="rich_presence_section_settings">設定</string>
+    <string name="rich_presence_status_connected">已連接</string>
+    <string name="rich_presence_status_disconnected">已斷開</string>
+    <string name="rich_presence_button_connect_discord">連接 Discord</string>
+    <string name="rich_presence_button_disconnect_discord">斷開 Discord</string>
+    <string name="rich_presence_dialog_set_webhook_title">設定 Webhook URL</string>
     <string name="crash_title_text">應用程式遇到致命錯誤</string>
     <string name="crash_button_restart_text">重啟</string>
     <string name="crash_button_copy_log_text">複製資訊</string>
     <string name="crash_button_report_text">回報問題</string>
-    <!-- Groups -->
-    <string-array name="group_selection_options">
-        <item>資訊</item>
-        <item>房間</item>
-    </string-array>
     <string name="group_toast_not_found_message">找不到該群組，請確認輸入關鍵字。</string>
     <string name="group_page_label_description">描述</string>
     <string name="group_page_label_rules">規則</string>
@@ -234,7 +223,6 @@
     <string name="group_page_toast_leave_group_fail">退出群組失敗。</string>
     <string name="group_user_no_groups_message">用戶不屬於任何群組。</string>
     <string name="group_user_viewing_groups_username">%1$s 的群組</string>
-    <!-- Misc -->
     <string name="misc_no_internet_title">沒有網際網路連線</string>
     <string name="misc_no_internet_description">請確保你的設備已連上網際網路，此應用程式無法在離線下運行。</string>
     <string name="misc_no_internet_label">重新啟動應用程式</string>
@@ -246,7 +234,11 @@
     <string name="generic_text_upload">上傳</string>
     <string name="generic_text_cancel">取消</string>
     <string name="generic_text_ok">確認</string>
-    <!-- User -->
+    <string name="font_selection_dialog_title">選擇字型</string>
+    <string name="font_option_system_default">系統預設</string>
+    <string name="font_option_google_sans">Google Sans</string>
+    <string name="font_option_google_sans_flex">Google Sans Flex</string>
+    <string name="font_option_google_sans_rounded">Google Sans Rounded</string>
     <string name="user_overlay_friend_add">新增好友</string>
     <string name="user_overlay_friend_remove">刪除好友</string>
     <string name="user_overlay_friend_accept">接受請求</string>
@@ -257,33 +249,23 @@
     <string name="user_overlay_find_avatar">搜尋角色</string>
     <string name="user_overlay_invite">邀請我</string>
     <string name="user_overlay_note">新增備注</string>
-    <!-- Profile Edit Dialog -->
+    <string name="profile_edit_sheet_title">編輯個人檔案</string>
     <string name="profile_edit_dialog_title_status">狀態</string>
     <string name="profile_edit_dialog_title_age_verification_visibility">年齡驗證可見性</string>
     <string name="profile_edit_dialog_title_status_description">狀態描述</string>
     <string name="profile_edit_dialog_title_bio">簡介</string>
     <string name="profile_edit_dialog_title_bio_links">社交連結</string>
     <string name="profile_edit_dialog_toast_updated">已更新個人資料</string>
-    <string name="profile_edit_dialog_toast_cancelled" tools:keep="@string/profile_edit_dialog_toast_cancelled">變動已被捨棄</string>
     <string name="profile_edit_dialog_title_pronouns">人稱代詞</string>
     <string name="profile_edit_dialog_button_cancel">取消</string>
     <string name="profile_edit_dialog_button_apply">套用</string>
-    <!-- Logout dialog -->
     <string name="logout_dialog_title">你確定嗎？</string>
     <string name="logout_dialog_description">按下下方的「繼續」，你將登出 VRCAA，並必須重新登入才能繼續使用這個應用程式。</string>
-    <!-- Widgets -->
+    <string name="logout_dialog_continue">繼續</string>
+    <string name="logout_dialog_cancel">取消</string>
     <string name="widget_name_friend_list" tools:keep="@string/widget_name_friend_list">查看當前好友位置</string>
     <string name="widget_name_loading_text" tools:keep="@string/widget_name_loading_text">明月幾時有，把酒問青天。</string>
     <string name="favorite_page_title">收藏</string>
-    <string-array name="favorites_selection_options">
-        <item>世界</item>
-        <item>角色</item>
-        <item>好友</item>
-    </string-array>
-    <string-array name="user_favorites_selection_options">
-        <item>世界</item>
-        <item>角色</item>
-    </string-array>
     <string name="favorite_label_add">加入收藏</string>
     <string name="favorite_label_remove">取消收藏</string>
     <string name="favorite_toast_favorite_added">已将 %1$s 加入收藏。</string>
@@ -303,16 +285,11 @@
     <string name="favorite_toast_refreshed_favorites">已整理了收藏。</string>
     <string name="favorite_remove_dialog_title">你真的要將此收藏內容移出嗎？</string>
     <string name="favorite_remove_dialog_description">該收藏內容已無法使用，可能被作者刪除，或被設為私密。要從收藏中移除嗎？</string>
-    <!-- Activities -->
-    <!-- Worlds -->
     <string name="worlds_page_title">%1$s 的世界</string>
-    <!-- Avatars -->
     <string name="avatars_page_title">查看角色</string>
-    <!-- Debug -->
     <string name="developer_mode_toggle_toast">重新啟動以應用更改。</string>
     <string name="debug_notification_title_out_of_memory">注意！</string>
     <string name="debug_notification_content_out_of_memory">記憶體不足，請清除除錯暫存以繼續動作。</string>
-    <!-- Loading Texts -->
     <string name="loading_text_worlds">載入世界列表中……</string>
     <string name="loading_text_users">載入使用者列表中……</string>
     <string name="loading_text_avatars">載入角色列表中……</string>
@@ -330,24 +307,26 @@
     <string name="loading_text_items">載入物品中……</string>
     <string name="loading_text_favorites">載入收藏列表中……</string>
     <string name="loading_text_notifications">載入通知中……</string>
-    <!-- Theming -->
     <string name="theme_page_title">佈景主題</string>
     <string name="theme_page_minimalist_mode_text">簡約模式</string>
     <string name="theme_page_minimalist_mode_text_description">"簡約模式有助於內容資訊在較小的屏幕上顯示。"</string>
-    <string-array name="theme_page_selection_options">
-        <item>亮色模式</item>
-        <item>暗色模式</item>
-        <item>跟隨系統設定</item>
-    </string-array>
-    <string-array name="column_count_options">
-        <item>自動調整</item>
-        <item>固釘</item>
-    </string-array>
     <string name="theme_page_section_theme_title">主題</string>
     <string name="theme_page_section_display_title">顯示</string>
     <string name="theme_page_section_column_title">欄數</string>
+    <string name="theme_page_section_font_title">字型</string>
+    <string name="theme_page_section_color_title">顏色</string>
+    <string name="theme_page_follow_system_color_theme">跟隨系統顏色主題</string>
+    <string name="theme_page_follow_system_color_theme_description">使用系統的動態顏色主題</string>
     <string name="theme_page_use_legacy_material_theme">使用 Material Expressive 主題</string>
-    <!-- Advanced Settings -->
+    <string name="theme_page_color_scheme_tonal">色調</string>
+    <string name="theme_page_color_scheme_expressive">表現力</string>
+    <string name="theme_page_color_scheme_fruit">繽紛</string>
+    <string name="theme_page_color_scheme_vibrant">鮮豔</string>
+    <string name="theme_page_color_palette_style">調色盤風格</string>
+    <string name="theme_page_color_seed_colors">顏色</string>
+    <string name="theme_page_color_accuracy">色彩精確度</string>
+    <string name="theme_page_color_accuracy_description">調整整個配色方案的對比度，包含背景與表面色彩。</string>
+    <string name="theme_page_fixed_column_size">固定欄數：%1$d</string>
     <string name="advanced_page_title">進階設定</string>
     <string name="advanced_page_section_networking">網路連線</string>
     <string name="advanced_page_network_logging">網路記錄</string>
@@ -365,7 +344,6 @@
     <string name="advanced_page_reset_onboarding">重設首次啟用引導狀態。</string>
     <string name="advanced_page_reset_onboarding_description">下次啟用應用程式時會進入首次啟用引導頁面。</string>
     <string name="advanced_page_reset_onboarding_toast">已重設首次啟用引導狀態。</string>
-    <!-- Database -->
     <string name="database_page_title">資料庫及統計資料</string>
     <string name="database_page_section_statistics">統計資料</string>
     <string name="database_page_statistics_size">資料庫大小</string>
@@ -381,18 +359,6 @@
     <string name="database_page_glide_clean_cache_description">清除暫存可能會拖慢加載速度、並導致應用程式運行速度緩慢。</string>
     <string name="database_page_glide_clean_cache_toast">暫存已清理</string>
     <string name="database_page_toast_recovery_failed">無法從所選文件中還原資料庫，請確認所選文件為正確的資料庫備份。</string>
-    <!-- Inventory -->
-    <string-array name="inventory_selection_options">
-        <item>圖片庫</item>
-        <item>使用者圖示</item>
-        <item>世界</item>
-        <item>角色</item>
-        <item>群組</item>
-        <item>表情符號</item>
-        <item>貼紙</item>
-        <item>拍立得</item>
-        <item>物品</item>
-    </string-array>
     <string name="gallery_page_title">圖片庫</string>
     <string name="gallery_page_button_upload">上傳圖片</string>
     <string name="icon_gallery_page_title">使用者圖示</string>
@@ -401,23 +367,9 @@
     <string name="prints_page_button_upload">上傳拍立得</string>
     <string name="emojis_page_title">表情符號</string>
     <string name="emojis_page_button_upload">上傳表情符號</string>
-    <string-array name="emojis_page_sections">
-        <item>官方</item>
-        <item>自訂</item>
-        <item>已封存</item>
-    </string-array>
     <string name="stickers_page_title">貼紙</string>
     <string name="stickers_page_button_upload">上傳貼紙</string>
-    <string-array name="sticker_page_sections">
-        <item>官方</item>
-        <item>自訂</item>
-        <item>已封存</item>
-    </string-array>
     <string name="items_page_title">物品</string>
-    <string-array name="items_page_sections">
-        <item>所有物品</item>
-        <item>封存</item>
-    </string-array>
     <string name="image_preview_dialog_title">預覽</string>
     <string name="image_preview_toast_picture_saved">已儲存圖片。</string>
     <string name="image_preview_toast_picture_save_failed">保存圖片失敗。</string>
@@ -425,11 +377,9 @@
     <string name="settings_section_advanced">進階</string>
     <string name="settings_section_community">社群</string>
     <string name="settings_section_account">帳號</string>
-    <!-- Profile -->
     <string name="profile_badge_title">徽章</string>
     <string name="profile_not_available">不可用</string>
     <string name="profile_failed_to_open_link">無法開啟連結</string>
-    <!-- Language Names -->
     <string name="language_english">英語</string>
     <string name="language_korean">韓語</string>
     <string name="language_russian">俄語</string>
@@ -460,16 +410,117 @@
     <string name="language_french_sign_language">法國手語</string>
     <string name="language_japanese_sign_language">日本手語</string>
     <string name="language_korean_sign_language">韓國手語</string>
-    <!-- Upload Dialogs -->
     <string name="print_upload_config_title">列印上傳設定</string>
     <string name="print_upload_config_note">備註</string>
     <string name="print_upload_config_enable_border">啟用邊框</string>
     <string name="emoji_upload_config_title">表情符號上傳設定</string>
     <string name="emoji_upload_config_animation_type">表情符號動畫類型</string>
-    <!-- Network Log -->
     <string name="network_log_click_to_view_payload">點擊查看負載</string>
     <string name="network_log_bytes">%1$d 位元組</string>
     <string name="packet_view_debug_info">除錯資訊</string>
+    <string name="packet_view_copy_to_clipboard">複製到剪貼簿</string>
+    <string name="packet_view_url">URL</string>
+    <string name="packet_view_payload">酬載</string>
     <string name="rich_presence_login_title">Rich Presence 登入</string>
-<string name="activity_peek_no_url_handler">No app available to open the URL.</string>
+    <string name="disclaimer_consent_text">我了解，當我點擊「繼續」時，我放棄提出投訴的權利。</string>
+    <string name="disclaimer_go_back">返回</string>
+    <string name="disclaimer_continue">繼續</string>
+    <string name="disclaimer_toggle_checkbox_first">請先勾選核取方塊！</string>
+    <string name="economy_title">VRChat 點數與訂閱</string>
+    <string name="economy_loading_failed">載入失敗</string>
+    <string name="economy_loading_failed_description">無法載入點數與訂閱資訊</string>
+    <string name="economy_retry">重試</string>
+    <string name="economy_credits">VRChat 點數</string>
+    <string name="economy_no_transactions">尚無交易紀錄</string>
+    <string name="economy_balance_load_failed">無法載入餘額</string>
+    <string name="economy_vrcplus_subscriptions">VRC+ 訂閱</string>
+    <string name="economy_no_active_subscriptions">沒有有效的訂閱</string>
+    <string name="economy_status_active">有效</string>
+    <string name="economy_label_price">價格</string>
+    <string name="economy_label_period">期間</string>
+    <string name="economy_period_month">月</string>
+    <string name="economy_period_year">年</string>
+    <string name="economy_label_store">商店</string>
+    <string name="economy_label_start_date">開始日期</string>
+    <string name="economy_label_next_date">下次日期</string>
+    <string name="platform_windows">Windows</string>
+    <string name="platform_android">Android</string>
+    <string name="platform_ios">iOS</string>
+    <string name="platform_label">平台</string>
+    <string name="friend_active_on_website">正在使用網站</string>
+    <string name="search_placeholder">搜尋</string>
+    <string name="app_version_format">VRCAA 版本 %1$s (%2$d)</string>
+    <string name="group_instance_capacity">容量：%1$d/%2$d，%3$s</string>
+    <string name="world_occupants_format">公開（%1$s）私人（%2$s）總計（%3$s）</string>
+    <string name="instance_capacity_format">（%1$d / %2$d）</string>
+    <string name="profile_troll_warning">此用戶可能是惡作劇用戶</string>
+    <string name="profile_age_verified">已驗證 18+</string>
+    <string name="system_version_format">Android %1$s</string>
+    <string name="color_debug_title">Material 色彩除錯</string>
+    <string name="color_debug_current_theme">目前主題色彩</string>
+    <string name="activity_peek_no_url_handler">沒有可開啟此 URL 的應用程式。</string>
+    <string-array name="friend_selection_options">
+        <item>全部</item>
+        <item>收藏</item>
+        <item>上線</item>
+        <item>網頁</item>
+        <item>離線</item>
+    </string-array>
+    <string-array name="search_selection_options">
+        <item>世界</item>
+        <item>用戶</item>
+        <item>模型</item>
+        <item>群组</item>
+    </string-array>
+    <string-array name="world_selection_options">
+        <item>資訊</item>
+        <item>房間</item>
+    </string-array>
+    <string-array name="group_selection_options">
+        <item>資訊</item>
+        <item>房間</item>
+    </string-array>
+    <string-array name="favorites_selection_options">
+        <item>世界</item>
+        <item>角色</item>
+        <item>好友</item>
+    </string-array>
+    <string-array name="user_favorites_selection_options">
+        <item>世界</item>
+        <item>角色</item>
+    </string-array>
+    <string-array name="theme_page_selection_options">
+        <item>亮色模式</item>
+        <item>暗色模式</item>
+        <item>跟隨系統設定</item>
+    </string-array>
+    <string-array name="column_count_options">
+        <item>自動調整</item>
+        <item>固釘</item>
+    </string-array>
+    <string-array name="inventory_selection_options">
+        <item>圖片庫</item>
+        <item>使用者圖示</item>
+        <item>世界</item>
+        <item>角色</item>
+        <item>群組</item>
+        <item>表情符號</item>
+        <item>貼紙</item>
+        <item>拍立得</item>
+        <item>物品</item>
+    </string-array>
+    <string-array name="emojis_page_sections">
+        <item>官方</item>
+        <item>自訂</item>
+        <item>已封存</item>
+    </string-array>
+    <string-array name="sticker_page_sections">
+        <item>官方</item>
+        <item>自訂</item>
+        <item>已封存</item>
+    </string-array>
+    <string-array name="items_page_sections">
+        <item>所有物品</item>
+        <item>封存</item>
+    </string-array>
 </resources>

@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,6 +55,7 @@ import cc.sovellus.vrcaa.extension.clickableIf
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import cc.sovellus.vrcaa.ui.theme.listCardBackground
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -84,7 +87,10 @@ fun WorldCard(
     Card(
         modifier = Modifier
             .heightIn(0.dp, 260.dp)
-            .widthIn(0.dp, 520.dp)
+            .widthIn(0.dp, 520.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.listCardBackground
+        )
     ) {
         Box(
             Modifier

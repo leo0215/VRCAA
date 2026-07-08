@@ -129,6 +129,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.TimeZone
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class UserProfileScreen(
     private val userId: String,
@@ -242,7 +243,7 @@ class UserProfileScreen(
                 }
 
                 Scaffold(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    containerColor = MaterialTheme.colorScheme.appBackground,
                     topBar = {
                         TopAppBar(
                             navigationIcon = {
@@ -469,7 +470,7 @@ class UserProfileScreen(
 
                                     TabRow(
                                         selectedTabIndex = selectedTab,
-                                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                        containerColor = MaterialTheme.colorScheme.appBackground,
                                         contentColor = MaterialTheme.colorScheme.primary,
                                         divider = {}
                                     ) {
@@ -525,9 +526,9 @@ class UserProfileScreen(
                                                                 shape = RoundedCornerShape(12.dp),
                                                                 colors = CardDefaults.cardColors(
                                                                     containerColor = if (badge.showcased)
-                                                                        MaterialTheme.colorScheme.surfaceContainer
+                                                                        MaterialTheme.colorScheme.surface
                                                                     else
-                                                                        MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.9f)
+                                                                        MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
                                                                 )
                                                             ) {
                                                                 GlideImage(

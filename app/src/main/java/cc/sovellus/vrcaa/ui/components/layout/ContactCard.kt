@@ -50,6 +50,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.bumptech.glide.request.RequestOptions
+import cc.sovellus.vrcaa.ui.theme.listCardBackground
 
 /**
  * 聯絡人卡片組件（類似圖片中的設計）
@@ -135,7 +136,7 @@ fun ContactCard(
                     .size(12.dp)
                     .align(Alignment.BottomEnd)
                     .background(
-                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        color = MaterialTheme.colorScheme.surface,
                         shape = CircleShape
                     )
                     .padding(2.dp)
@@ -199,7 +200,7 @@ fun FriendsGroup(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(itemCornerRadius),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceBright
+                    containerColor = MaterialTheme.colorScheme.listCardBackground
                 )
             ) {
                 ContactCard(
@@ -226,7 +227,7 @@ fun FriendsGroup(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(itemCornerRadius),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceBright
+                                containerColor = MaterialTheme.colorScheme.listCardBackground
                             )
                         ) {
                             ContactCard(

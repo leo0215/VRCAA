@@ -49,6 +49,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.ui.components.misc.Logo
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class OnboardingScreen : Screen {
 
@@ -59,7 +60,7 @@ class OnboardingScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = MaterialTheme.colorScheme.appBackground
         ) { padding ->
             Column(
                 modifier = Modifier

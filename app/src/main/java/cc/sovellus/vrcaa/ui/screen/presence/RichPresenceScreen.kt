@@ -58,6 +58,7 @@ import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
 import cc.sovellus.vrcaa.ui.screen.presence.RichPresenceWebViewLogin
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class RichPresenceScreen : Screen {
 
@@ -91,7 +92,7 @@ class RichPresenceScreen : Screen {
         }
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

@@ -86,6 +86,7 @@ import cc.sovellus.vrcaa.ui.components.misc.SubHeader
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import cc.sovellus.vrcaa.ui.theme.listCardBackground
 
 // Standard card modifier with unified sizing
 private fun Modifier.standardCardModifier() = this
@@ -116,7 +117,7 @@ fun ProfileCard(
         modifier = modifier.standardCardModifier(),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceBright
+            containerColor = MaterialTheme.colorScheme.listCardBackground
         )
     ) {
         Column(
@@ -189,9 +190,9 @@ fun ProfileCard(
                                 shape = RoundedCornerShape(16.dp),
                                 colors = CardDefaults.cardColors(
                                     containerColor = if (badge.showcased) 
-                                        MaterialTheme.colorScheme.surfaceContainer
+                                        MaterialTheme.colorScheme.surface
                                     else 
-                                        MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.9f)
+                                        MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
                                 )
                             ) {
                                 GlideImage(
@@ -267,7 +268,7 @@ fun ProfileCard(
                             }),
                     shape = RoundedCornerShape(50.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                        containerColor = MaterialTheme.colorScheme.surface
                     )
                 ) {
                     GlideImage(
@@ -379,7 +380,7 @@ fun BiographyCard(
             modifier = modifier.standardCardModifier(),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceBright
+                containerColor = MaterialTheme.colorScheme.listCardBackground
             )
         ) {
             Column(
@@ -463,7 +464,7 @@ fun AccountStatusCard(
         modifier = modifier.standardCardModifier(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceBright
+            containerColor = MaterialTheme.colorScheme.listCardBackground
         )
     ) {
         Column(
@@ -588,7 +589,7 @@ fun InstanceCard(
                     callback()
                 }),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceBright
+            containerColor = MaterialTheme.colorScheme.listCardBackground
         )
     ) {
         val result = LocationHelper.parseLocationInfo(profile.location)
@@ -656,7 +657,7 @@ fun LastActivityCard(
         modifier = modifier.standardCardModifier(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceBright
+            containerColor = MaterialTheme.colorScheme.listCardBackground
         )
     ) {
         SubHeader(

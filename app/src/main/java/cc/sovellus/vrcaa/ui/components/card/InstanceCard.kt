@@ -26,9 +26,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,6 +47,7 @@ import cc.sovellus.vrcaa.api.vrchat.http.models.LimitedUser
 import cc.sovellus.vrcaa.extension.clickableIf
 import cc.sovellus.vrcaa.helper.LocationHelper
 import cc.sovellus.vrcaa.ui.components.misc.SubHeader
+import cc.sovellus.vrcaa.ui.theme.defaultCardBackground
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
@@ -66,7 +67,10 @@ fun InstanceCard(profile: LimitedUser, instance: Instance, disabled: Boolean, ca
                 enabled = !disabled,
                 onClick = {
                     callback()
-                })
+                }),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.defaultCardBackground
+        )
     ) {
         val result = LocationHelper.parseLocationInfo(profile.location)
 

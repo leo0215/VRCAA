@@ -31,10 +31,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
@@ -62,6 +65,7 @@ import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -153,6 +157,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect
 import java.time.LocalTime
+import cc.sovellus.vrcaa.ui.theme.appBackground
+import cc.sovellus.vrcaa.ui.theme.navBarBackground
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -186,56 +192,40 @@ private fun HomeTopBar(
         stringResource(greetingResId)
     }
 
-    Surface(
-        modifier = Modifier.statusBarsPadding(),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        tonalElevation = 0.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(64.dp)
-                .padding(vertical = 8.dp, horizontal = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
+        navigationIcon = {
             if (showMenu) {
-                IconButton(
-                    onClick = onMenuClick,
-                    modifier = Modifier.size(48.dp)
-                ) {
+                IconButton(onClick = onMenuClick) {
                     Icon(
                         imageVector = Icons.Filled.Menu,
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             } else {
                 Spacer(modifier = Modifier.size(48.dp))
             }
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            IconButton(
-                onClick = onSearchClick,
-                modifier = Modifier.size(48.dp)
-            ) {
+        },
+        actions = {
+            IconButton(onClick = onSearchClick) {
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp),
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-        }
-    }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.appBackground
+        ),
+    )
 }
 
 class NavigationScreen : Screen {
@@ -450,7 +440,7 @@ class NavigationScreen : Screen {
                     // 主要內容區域
                     Scaffold(
                         modifier = Modifier.weight(1f),
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        containerColor = MaterialTheme.colorScheme.appBackground,
                         topBar = {
                             when (tabNavigator.current.options.index) {
                                 HomeTab.options.index -> {
@@ -674,8 +664,9 @@ class NavigationScreen : Screen {
                         }, content = { padding ->
                             Column(
                                 modifier = Modifier
+                                    .fillMaxSize()
                                     .padding(padding)
-                                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                                    .background(MaterialTheme.colorScheme.appBackground)
                             ) {
                                 CurrentTab()
                             }
@@ -685,7 +676,10 @@ class NavigationScreen : Screen {
             } else if (useBottomBar) {
                 // Bottom bar mode
                 Scaffold(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    containerColor = MaterialTheme.colorScheme.appBackground,
+                    contentWindowInsets = WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+                    ),
                     topBar = {
                         when (tabNavigator.current.options.index) {
                             HomeTab.options.index -> {
@@ -848,7 +842,7 @@ class NavigationScreen : Screen {
                     bottomBar = {
                         val colorScheme = MaterialTheme.colorScheme
                         NavigationBar(
-                            containerColor = colorScheme.surfaceContainerHigh
+                            containerColor = colorScheme.navBarBackground
                         ) {
                             tabs.forEach { tab ->
                                 val isSelected = tabNavigator.current.key == tab.key
@@ -874,8 +868,9 @@ class NavigationScreen : Screen {
                     content = { padding ->
                         Column(
                             modifier = Modifier
+                                .fillMaxSize()
                                 .padding(padding)
-                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                                .background(MaterialTheme.colorScheme.appBackground)
                         ) {
                             CurrentTab()
                         }
@@ -983,7 +978,7 @@ class NavigationScreen : Screen {
                 }
             ) {
                 Scaffold(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    containerColor = MaterialTheme.colorScheme.appBackground,
                     topBar = {
                     when (tabNavigator.current.options.index) {
                         HomeTab.options.index -> {
@@ -1259,8 +1254,9 @@ class NavigationScreen : Screen {
 
                     Column(
                         modifier = Modifier
+                            .fillMaxSize()
                             .padding(padding)
-                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                            .background(MaterialTheme.colorScheme.appBackground)
                     ) {
                         CurrentTab()
                     }

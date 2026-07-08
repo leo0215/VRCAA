@@ -16,9 +16,11 @@
 
 package cc.sovellus.vrcaa.ui.theme
 
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.Typography
@@ -30,14 +32,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.extension.colorContrastLevel
+import cc.sovellus.vrcaa.extension.colorSchemeIndex
 import cc.sovellus.vrcaa.extension.fontFamily
+import cc.sovellus.vrcaa.extension.primaryColorOverride
 import cc.sovellus.vrcaa.extension.useLegacyMaterialTheme
+import cc.sovellus.vrcaa.extension.useSystemColorTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
@@ -48,28 +55,38 @@ import com.materialkolor.dynamiccolor.ColorSpec
 fun Theme(theme: Int, content: @Composable () -> Unit) {
     val context = LocalContext.current
     val preferences = context.getSharedPreferences(App.PREFERENCES_NAME, MODE_PRIVATE)
-    Theme(theme, null, null, 0, preferences.fontFamily, preferences.useLegacyMaterialTheme, content)
+    val primaryColor = if (preferences.useSystemColorTheme) {
+        null
+    } else {
+        preferences.primaryColorOverride.takeIf { it != -1 }?.let { Color(it) }
+    }
+    Theme(
+        theme = theme,
+        primaryColor = primaryColor,
+        schemeIndex = preferences.colorSchemeIndex,
+        fontFamilyIndex = preferences.fontFamily,
+        useLegacyMaterialTheme = preferences.useLegacyMaterialTheme,
+        contrastLevel = preferences.colorContrastLevel.toDouble(),
+        content = content,
+    )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun Theme(
-    theme: Int, 
-    primaryColor: Color? = null, 
-    secondaryColor: Color? = null,
+    theme: Int,
+    primaryColor: Color? = null,
     schemeIndex: Int = 0,
     fontFamilyIndex: Int = 0,
     useLegacyMaterialTheme: Boolean = false,
+    contrastLevel: Double = 0.0,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
 
-   
-
     val customFontFamily = try {
         when (fontFamilyIndex) {
             1 -> {
-               
                 FontFamily(
                     Font(R.font.googlesans, FontWeight.Normal),
                     Font(R.font.googlesans, FontWeight.Medium),
@@ -78,7 +95,6 @@ fun Theme(
                 )
             }
             2 -> {
-                
                 FontFamily(
                     Font(R.font.googlesansflex, FontWeight.Normal),
                     Font(R.font.googlesansflex, FontWeight.Medium),
@@ -87,7 +103,6 @@ fun Theme(
                 )
             }
             3 -> {
-               
                 FontFamily(
                     Font(R.font.google_sans_rounded_regular, FontWeight.Normal),
                     Font(R.font.google_sans_rounded_regular, FontWeight.Medium),
@@ -96,16 +111,12 @@ fun Theme(
                 )
             }
             else -> {
-               
-                FontFamily.Default // System Default
+                FontFamily.Default
             }
         }
     } catch (e: Exception) {
-      
         FontFamily.Default
     }
-
-   
 
     val typography = if (fontFamilyIndex != 0) {
         Typography().copy(
@@ -135,70 +146,28 @@ fun Theme(
         else -> false
     }
 
-    // Map schemeIndex to MaterialKolor PaletteStyle
-    val paletteStyle = when (schemeIndex) {
-        0 -> PaletteStyle.TonalSpot
-        1 -> PaletteStyle.Expressive
-        2 -> PaletteStyle.FruitSalad
-        3 -> PaletteStyle.Vibrant
-        else -> PaletteStyle.TonalSpot
-    }
-
-    val specVersion = if (useLegacyMaterialTheme) {
-        ColorSpec.SpecVersion.SPEC_2025
-    } else {
-        ColorSpec.SpecVersion.SPEC_2021
-    }
-
     val systemUiController = rememberSystemUiController()
-    val colorScheme = if (primaryColor != null) {
-        dynamicColorScheme(
-            seedColor = primaryColor,
-            isDark = isDark,
-            style = paletteStyle,
-            specVersion = specVersion,
-        )
-    } else {
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                when (theme) {
-                    0 -> dynamicLightColorScheme(context)
-                    1 -> dynamicDarkColorScheme(context)
-                    else -> {
-                        if (isSystemInDarkTheme())
-                            dynamicDarkColorScheme(context)
-                        else
-                            dynamicLightColorScheme(context)
-                    }
-                }
-            }
-            else -> {
-                when (theme) {
-                    0 -> expressiveLightColorScheme()
-                    1 -> darkColorScheme()
-                    else -> {
-                        if (isSystemInDarkTheme())
-                            darkColorScheme()
-                        else
-                            expressiveLightColorScheme()
-                    }
-                }
-            }
-        }
-    }
-    
+    val colorScheme = buildColorScheme(
+        context = context,
+        theme = theme,
+        isDark = isDark,
+        primaryColor = primaryColor,
+        schemeIndex = schemeIndex,
+        useLegacyMaterialTheme = useLegacyMaterialTheme,
+        contrastLevel = contrastLevel,
+    )
+
     LaunchedEffect(colorScheme, isDark) {
         systemUiController.setSystemBarsColor(
-            color = colorScheme.surfaceContainer,
+            color = colorScheme.appBackground,
             darkIcons = !isDark
         )
         systemUiController.setNavigationBarColor(
-            color = colorScheme.surfaceContainer,
+            color = colorScheme.navBarBackground,
             darkIcons = !isDark
         )
     }
-    
-    // Always use MaterialExpressiveTheme to avoid tree recreation when switching themes
+
     MaterialExpressiveTheme(
         colorScheme = colorScheme,
         typography = typography,
@@ -206,4 +175,82 @@ fun Theme(
     )
 }
 
+private fun systemBaseColorScheme(context: Context, theme: Int, isDark: Boolean): ColorScheme {
+    return when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            when (theme) {
+                0 -> dynamicLightColorScheme(context)
+                1 -> dynamicDarkColorScheme(context)
+                else -> if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            }
+        }
+        else -> {
+            when (theme) {
+                0 -> expressiveLightColorScheme()
+                1 -> darkColorScheme()
+                else -> if (isDark) darkColorScheme() else expressiveLightColorScheme()
+            }
+        }
+    }
+}
+
+private fun buildColorScheme(
+    context: Context,
+    theme: Int,
+    isDark: Boolean,
+    primaryColor: Color?,
+    schemeIndex: Int,
+    useLegacyMaterialTheme: Boolean,
+    contrastLevel: Double,
+): ColorScheme {
+    val paletteStyle = when (schemeIndex) {
+        0 -> PaletteStyle.TonalSpot
+        1 -> PaletteStyle.Expressive
+        2 -> PaletteStyle.FruitSalad
+        3 -> PaletteStyle.Vibrant
+        else -> PaletteStyle.TonalSpot
+    }
+    val specVersion = if (useLegacyMaterialTheme) {
+        ColorSpec.SpecVersion.SPEC_2025
+    } else {
+        ColorSpec.SpecVersion.SPEC_2021
+    }
+
+    if (primaryColor != null) {
+        return dynamicColorScheme(
+            seedColor = primaryColor,
+            isDark = isDark,
+            style = paletteStyle,
+            specVersion = specVersion,
+            contrastLevel = contrastLevel,
+        )
+    }
+
+    val base = systemBaseColorScheme(context, theme, isDark)
+    if (contrastLevel == 0.0) return base
+
+    return dynamicColorScheme(
+        seedColor = base.primary,
+        isDark = isDark,
+        primary = base.primary,
+        secondary = base.secondary,
+        tertiary = base.tertiary,
+        style = PaletteStyle.TonalSpot,
+        contrastLevel = contrastLevel,
+    )
+}
+
 val LocalTheme = compositionLocalOf { 2 }
+
+/** App page / scaffold background */
+val ColorScheme.appBackground: Color get() = surfaceContainer
+
+/** Bottom navigation bar and system gesture bar */
+val ColorScheme.navBarBackground: Color get() = surfaceContainerHigh
+
+/** List and segmented card rows — light & dark: surfaceBright */
+val ColorScheme.listCardBackground: Color get() = surfaceBright
+
+/** Default Card background — light: surfaceContainer (M3 default), dark: surfaceBright */
+val ColorScheme.defaultCardBackground: Color
+    get() = if (surface.luminance() > 0.5f) surfaceContainer else surfaceBright

@@ -49,6 +49,7 @@ import cc.sovellus.vrcaa.ui.components.input.PasswordInput
 import cc.sovellus.vrcaa.ui.components.input.TextInput
 import cc.sovellus.vrcaa.ui.components.misc.Logo
 import cc.sovellus.vrcaa.ui.screen.navigation.NavigationScreen
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class LoginScreen : Screen {
 
@@ -63,7 +64,7 @@ class LoginScreen : Screen {
 
         var passwordVisibility by remember { mutableStateOf(false) }
 
-        Scaffold(containerColor = MaterialTheme.colorScheme.surfaceContainer) { padding ->
+        Scaffold(containerColor = MaterialTheme.colorScheme.appBackground) { padding ->
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

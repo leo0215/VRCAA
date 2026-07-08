@@ -26,15 +26,15 @@ import androidx.compose.ui.graphics.toArgb
 import cafe.adriel.voyager.core.model.ScreenModel
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.extension.columnCountOption
+import cc.sovellus.vrcaa.extension.colorContrastLevel
+import cc.sovellus.vrcaa.extension.colorSchemeIndex
 import cc.sovellus.vrcaa.extension.currentThemeOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
-import cc.sovellus.vrcaa.extension.minimalistMode
-import cc.sovellus.vrcaa.extension.colorSchemeIndex
-import cc.sovellus.vrcaa.extension.primaryColorOverride
-import cc.sovellus.vrcaa.extension.secondaryColorOverride
-import cc.sovellus.vrcaa.extension.useSystemColorTheme
 import cc.sovellus.vrcaa.extension.fontFamily
+import cc.sovellus.vrcaa.extension.minimalistMode
+import cc.sovellus.vrcaa.extension.primaryColorOverride
 import cc.sovellus.vrcaa.extension.useLegacyMaterialTheme
+import cc.sovellus.vrcaa.extension.useSystemColorTheme
 
 class ThemeScreenModel : ScreenModel {
     val preferences: SharedPreferences = App.getContext().getSharedPreferences(App.PREFERENCES_NAME, MODE_PRIVATE)
@@ -45,26 +45,31 @@ class ThemeScreenModel : ScreenModel {
     var currentColumnIndex = mutableIntStateOf(preferences.columnCountOption)
     var currentColumnAmount = mutableFloatStateOf(preferences.fixedColumnSize.toFloat())
     var currentFontFamily = mutableIntStateOf(preferences.fontFamily)
-    
+    var contrastLevel = mutableFloatStateOf(preferences.colorContrastLevel)
+
     val primaryColor: Color?
         get() = preferences.primaryColorOverride.takeIf { it != -1 }?.let { Color(it) }
-    
+
     val colorSchemeIndex: Int
         get() = preferences.colorSchemeIndex
-    
+
     fun setPrimaryColor(color: Color, schemeIndex: Int = 0) {
         preferences.primaryColorOverride = color.toArgb()
         preferences.colorSchemeIndex = schemeIndex
-        // Notify theme change - you may need to add a listener here
     }
-    
+
     fun setUseSystemColorTheme(enabled: Boolean) {
         preferences.useSystemColorTheme = enabled
         useSystemColorTheme.value = enabled
     }
-    
+
     fun setUseLegacyMaterialTheme(enabled: Boolean) {
         preferences.useLegacyMaterialTheme = enabled
         useLegacyMaterialTheme.value = enabled
+    }
+
+    fun setContrastLevel(value: Float) {
+        preferences.colorContrastLevel = value
+        contrastLevel.floatValue = value
     }
 }

@@ -59,6 +59,7 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import java.util.Locale
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class ColorDebugScreen : Screen {
     override val key = uniqueScreenKey
@@ -70,7 +71,7 @@ class ColorDebugScreen : Screen {
         val colorScheme = MaterialTheme.colorScheme
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

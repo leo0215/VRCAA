@@ -21,15 +21,15 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -62,19 +62,18 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
+import cc.sovellus.vrcaa.ui.theme.listCardBackground
 import com.materialkolor.hct.Hct
 import com.materialkolor.scheme.SchemeExpressive
 import com.materialkolor.scheme.SchemeFruitSalad
 import com.materialkolor.scheme.SchemeTonalSpot
 import com.materialkolor.scheme.SchemeVibrant
 
-// HCT seeds on the hue wheel; chroma/tone same as Seal-style. step 20° → 18 swatches.
 private val ColorPalette =
     (0 until 360 step 20).map { hue ->
         Color(Hct.from(hue.toDouble(), 40.0, 40.0).toInt())
     }
 
-// Color scheme types (4 styles per color)
 private enum class ColorSchemeType(val labelRes: Int) {
     TONAL_SPOT(R.string.theme_page_color_scheme_tonal),
     EXPRESSIVE(R.string.theme_page_color_scheme_expressive),
@@ -94,7 +93,7 @@ fun ColorPicker(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceBright
+            containerColor = MaterialTheme.colorScheme.listCardBackground
         )
     ) {
         ColorPickerContent(
@@ -113,13 +112,12 @@ fun ColorPickerContent(
     onColorSelected: (Color, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val schemeOptions = ColorSchemeType.values()
+    val schemeOptions = ColorSchemeType.entries
     val schemeLabels = schemeOptions.map { stringResource(it.labelRes) }
 
     Column(
         modifier = modifier.padding(16.dp)
     ) {
-        // Scheme style: Connected ToggleButton group (Expressive pattern)
         Text(
             text = stringResource(R.string.theme_page_color_palette_style),
             style = MaterialTheme.typography.labelLarge,
@@ -158,7 +156,6 @@ fun ColorPickerContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Color swatches: Horizontal scroll of circular chips
         Text(
             text = stringResource(R.string.theme_page_color_seed_colors),
             style = MaterialTheme.typography.labelLarge,
@@ -209,7 +206,7 @@ private fun ColorSchemeChip(
     )
 
     val sourceColorHct = Hct.fromInt(seedColor.toArgb())
-    val scheme = when (ColorSchemeType.values()[schemeIndex]) {
+    val scheme = when (ColorSchemeType.entries[schemeIndex]) {
         ColorSchemeType.TONAL_SPOT -> SchemeTonalSpot(sourceColorHct, false, 0.0)
         ColorSchemeType.VIBRANT -> SchemeVibrant(sourceColorHct, false, 0.0)
         ColorSchemeType.FRUIT_SALAD -> SchemeFruitSalad(sourceColorHct, false, 0.0)
@@ -230,7 +227,7 @@ private fun ColorSchemeChip(
                 } else Modifier
             ),
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.surfaceBright,
+        color = MaterialTheme.colorScheme.listCardBackground,
         onClick = onClick
     ) {
         Box(

@@ -140,13 +140,18 @@ internal var SharedPreferences.colorSchemeIndex: Int
     get() = getInt("colorSchemeIndex", 0)
     set(value) = edit { putInt("colorSchemeIndex", value) }
 
+// Contrast level for full Material 3 scheme generation (-1.0..1.0, default 0.0).
+internal var SharedPreferences.colorContrastLevel: Float
+    get() = getFloat("colorContrastLevel", 0f)
+    set(value) = edit { putFloat("colorContrastLevel", value) }
+
+internal var SharedPreferences.useLegacyMaterialTheme: Boolean
+    get() = getBoolean("useLegacyMaterialTheme", false)
+    set(value) = edit(commit = true) { putBoolean("useLegacyMaterialTheme", value) }
+
 internal var SharedPreferences.fontFamily: Int
     get() = getInt("fontFamily", 0) // 0 = System Default, 1 = Google Sans, 2 = Google Sans Flex, 3 = Google Sans Rounded
     set(value) = edit { putInt("fontFamily", value) }
-
-internal var SharedPreferences.useLegacyMaterialTheme: Boolean
-    get() = getBoolean("useLegacyMaterialTheme", false) // false = SPEC_2021 (default), true = SPEC_2025
-    set(value) = edit(commit = true) { putBoolean("useLegacyMaterialTheme", value) }
 
 internal var SharedPreferences.timeInBackground: Long
     get() = getLong("timeInBackground", 0L)

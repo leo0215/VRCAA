@@ -29,7 +29,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Settings
@@ -49,10 +48,10 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
@@ -73,7 +72,6 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.activity.ComponentActivity
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
@@ -91,11 +89,12 @@ import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
-import cc.sovellus.vrcaa.ui.components.dialog.FontSelectionDialog
-import cc.sovellus.vrcaa.ui.components.settings.ColorPicker
 import cc.sovellus.vrcaa.ui.components.settings.ColorPickerContent
 import cc.sovellus.vrcaa.ui.components.settings.SettingsCard
+import cc.sovellus.vrcaa.ui.components.dialog.FontSelectionDialog
 import kotlin.math.roundToInt
+import cc.sovellus.vrcaa.ui.theme.listCardBackground
+import cc.sovellus.vrcaa.ui.theme.appBackground
 
 class ThemeScreen : Screen {
 
@@ -114,7 +113,7 @@ class ThemeScreen : Screen {
 
 
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.appBackground,
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -157,7 +156,7 @@ class ThemeScreen : Screen {
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(24.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceBright
+                                containerColor = MaterialTheme.colorScheme.listCardBackground
                             )
                         ) {
                             Row(
@@ -218,7 +217,7 @@ class ThemeScreen : Screen {
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(24.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceBright
+                                containerColor = MaterialTheme.colorScheme.listCardBackground
                             )
                         ) {
                             Column(
@@ -323,7 +322,7 @@ class ThemeScreen : Screen {
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(24.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceBright
+                                containerColor = MaterialTheme.colorScheme.listCardBackground
                             )
                         ) {
                             Column {
@@ -344,13 +343,13 @@ class ThemeScreen : Screen {
                                         )
                                     }
                                 )
-                                
+
                                 HorizontalDivider(
                                     modifier = Modifier.padding(horizontal = 16.dp),
                                     color = MaterialTheme.colorScheme.outlineVariant,
                                     thickness = 1.dp
                                 )
-                                
+
                                 SettingsCard(
                                     title = stringResource(R.string.theme_page_use_legacy_material_theme),
                                     icon = Icons.Outlined.Settings,
@@ -367,25 +366,73 @@ class ThemeScreen : Screen {
                                         )
                                     }
                                 )
-                                
+
                                 HorizontalDivider(
                                     modifier = Modifier.padding(horizontal = 16.dp),
                                     color = MaterialTheme.colorScheme.outlineVariant,
                                     thickness = 1.dp
                                 )
-                                
+
                                 ColorPickerContent(
                                     selectedColor = if (model.useSystemColorTheme.value) null else model.primaryColor,
                                     selectedSchemeIndex = model.colorSchemeIndex,
                                     onColorSelected = { color, schemeIndex ->
-                                        // 如果「跟隨系統顏色主題」啟用，自動禁用並應用選擇的顏色
                                         if (model.useSystemColorTheme.value) {
                                             model.setUseSystemColorTheme(false)
                                         }
                                         model.setPrimaryColor(color, schemeIndex)
-                                        // Theme will update automatically via SharedPreferences listener
                                     }
                                 )
+
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    color = MaterialTheme.colorScheme.outlineVariant,
+                                    thickness = 1.dp
+                                )
+
+                                Column(
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.theme_page_color_accuracy),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Normal,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.theme_page_color_accuracy_description),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Slider(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = model.contrastLevel.floatValue,
+                                        onValueChange = { model.setContrastLevel(it) },
+                                        valueRange = -1f..1f,
+                                        steps = 19,
+                                    )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                    ) {
+                                        Text(
+                                            text = "-1",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                        Text(
+                                            text = "%.1f".format(model.contrastLevel.floatValue),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                        Text(
+                                            text = "1",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
