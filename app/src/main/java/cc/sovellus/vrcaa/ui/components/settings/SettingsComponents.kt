@@ -19,44 +19,45 @@ package cc.sovellus.vrcaa.ui.components.settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.ui.Alignment
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import cc.sovellus.vrcaa.ui.components.layout.SegmentedContainerCornerRadius
+import cc.sovellus.vrcaa.ui.components.layout.SegmentedListLineLayout
+import cc.sovellus.vrcaa.ui.components.layout.segmentedListItemShapes
+import cc.sovellus.vrcaa.ui.components.layout.segmentedListMinHeight
 import cc.sovellus.vrcaa.ui.theme.listCardBackground
 
 @Composable
@@ -108,8 +109,8 @@ fun SectionHeaderCard(title: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(16.dp),
+            .segmentedListMinHeight(SegmentedListLineLayout.OneLine),
+        shape = RoundedCornerShape(SegmentedContainerCornerRadius),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.listCardBackground
         )
@@ -132,180 +133,173 @@ fun SectionHeaderCard(title: String) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+private fun SettingsItem.lineLayout(): SegmentedListLineLayout =
+    if (description.isNullOrBlank()) {
+        SegmentedListLineLayout.OneLine
+    } else {
+        SegmentedListLineLayout.ThreeLine
+    }
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun SettingsSegmentedItem(item: SettingsItem, index: Int, count: Int) {
+    val contentColor = when {
+        item.isDestructive -> MaterialTheme.colorScheme.error
+        item.isHeader -> MaterialTheme.colorScheme.onSurfaceVariant
+        else -> MaterialTheme.colorScheme.onSurface
+    }
+    val secondaryColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val iconTint = if (item.isDestructive) MaterialTheme.colorScheme.error else secondaryColor
+
+    SegmentedListItem(
+        onClick = item.onClick,
+        modifier = Modifier.segmentedListMinHeight(item.lineLayout()),
+        shapes = segmentedListItemShapes(index = index, count = count),
+        verticalAlignment = Alignment.CenterVertically,
+        colors = ListItemDefaults.segmentedColors(
+            containerColor = if (item.isHeader) {
+                MaterialTheme.colorScheme.surfaceDim
+            } else {
+                MaterialTheme.colorScheme.listCardBackground
+            },
+            contentColor = contentColor,
+            leadingContentColor = iconTint,
+        ),
+        leadingContent = item.icon?.takeIf { !item.isHeader }?.let { icon ->
+            {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = iconTint,
+                )
+            }
+        },
+        supportingContent = item.description?.let { desc ->
+            {
+                Text(
+                    text = desc,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = secondaryColor,
+                )
+            }
+        },
+        trailingContent = item.trailingContent.takeIf { !item.isHeader },
+        content = {
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = if (item.isHeader) FontWeight.Medium else FontWeight.Normal,
+                color = contentColor,
+            )
+        },
+    )
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsGroup(items: List<SettingsItem>) {
-    val isSingleItem = items.size == 1
-    val containerRadius = 16.dp
-    val itemRadius = 4.dp
-
-    if (isSingleItem) {
-        val item = items[0]
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(containerRadius),
-            colors = CardDefaults.cardColors(
-                containerColor = if (item.isHeader) {
-                    MaterialTheme.colorScheme.surfaceDim
-                } else {
-                    MaterialTheme.colorScheme.listCardBackground
-                }
-            )
-        ) {
-            SettingsCard(
-                title = item.title,
-                description = item.description,
-                icon = item.icon,
-                onClick = item.onClick,
-                isDestructive = item.isDestructive,
-                trailingContent = item.trailingContent,
-                isHeader = item.isHeader
-            )
-        }
-    } else {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            items.forEachIndexed { index, item ->
-                val isFirst = index == 0
-                val isLast = index == items.lastIndex
-                val shape = when {
-                    isFirst && isLast -> RoundedCornerShape(containerRadius)
-                    isFirst -> RoundedCornerShape(topStart = containerRadius, topEnd = containerRadius, bottomStart = itemRadius, bottomEnd = itemRadius)
-                    isLast -> RoundedCornerShape(topStart = itemRadius, topEnd = itemRadius, bottomStart = containerRadius, bottomEnd = containerRadius)
-                    else -> RoundedCornerShape(itemRadius)
-                }
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = shape,
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (item.isHeader) {
-                            MaterialTheme.colorScheme.surfaceDim
-                        } else {
-                            MaterialTheme.colorScheme.listCardBackground
-                        }
-                    )
-                ) {
-                    SettingsCard(
-                        title = item.title,
-                        description = item.description,
-                        icon = item.icon,
-                        onClick = item.onClick,
-                        isDestructive = item.isDestructive,
-                        trailingContent = item.trailingContent,
-                        isHeader = item.isHeader
-                    )
-                }
-            }
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+    ) {
+        items.forEachIndexed { index, item ->
+            SettingsSegmentedItem(item, index, items.size)
         }
     }
 }
 
-/**
- * Expandable card group per M3 design: header with accordion toggle, content items with 2dp gap.
- * - Container: 16dp radius, surface
- * - Header: 52dp, accordion button trailing
- * - Content items: 52dp, padding 10dp 16dp, gap 12dp
- */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ExpandableSettingsGroup(
+private fun ExpandableSettingsHeader(
     headerTitle: String,
-    items: List<SettingsItem>,
-    modifier: Modifier = Modifier,
-    initiallyExpanded: Boolean = true
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    index: Int,
+    count: Int,
+    headerTrailing: (@Composable () -> Unit)? = null,
 ) {
-    var expanded by remember { mutableStateOf(initiallyExpanded) }
-    val containerRadius = 16.dp
-    val itemRadius = 4.dp
-    val contentItems = items.filter { !it.isHeader }
-
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
-        // Header row with accordion
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(
-                topStart = containerRadius,
-                topEnd = containerRadius,
-                bottomStart = if (contentItems.isEmpty() || !expanded) containerRadius else itemRadius,
-                bottomEnd = if (contentItems.isEmpty() || !expanded) containerRadius else itemRadius
-            ),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.listCardBackground
-            )
-        ) {
+    SegmentedListItem(
+        onClick = onToggle,
+        modifier = Modifier.segmentedListMinHeight(SegmentedListLineLayout.OneLine),
+        shapes = segmentedListItemShapes(index = index, count = count),
+        verticalAlignment = Alignment.CenterVertically,
+        colors = ListItemDefaults.segmentedColors(
+            containerColor = MaterialTheme.colorScheme.listCardBackground,
+        ),
+        trailingContent = {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .clickable { expanded = !expanded }
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = headerTitle,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
+                headerTrailing?.invoke()
                 Box(
                     modifier = Modifier
                         .size(width = 32.dp, height = 40.dp)
                         .background(
                             MaterialTheme.colorScheme.listCardBackground,
-                            RoundedCornerShape(20.dp)  // pill: 50% of 40dp height
+                            RoundedCornerShape(20.dp),
                         ),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
-        }
+        },
+        content = {
+            Text(
+                text = headerTitle,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+    )
+}
+
+/**
+ * Expandable segmented list group: header with accordion toggle, content items with [ListItemDefaults.SegmentedGap].
+ */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun ExpandableSettingsGroup(
+    headerTitle: String,
+    items: List<SettingsItem>,
+    modifier: Modifier = Modifier,
+    initiallyExpanded: Boolean = true,
+) {
+    var expanded by remember { mutableStateOf(initiallyExpanded) }
+    val contentItems = items.filter { !it.isHeader }
+    val totalCount = if (expanded && contentItems.isNotEmpty()) 1 + contentItems.size else 1
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+    ) {
+        ExpandableSettingsHeader(
+            headerTitle = headerTitle,
+            expanded = expanded,
+            onToggle = { expanded = !expanded },
+            index = 0,
+            count = totalCount,
+        )
 
         AnimatedVisibility(
             visible = expanded,
-            enter = expandVertically(), 
-            exit = shrinkVertically()
+            enter = expandVertically(),
+            exit = shrinkVertically(),
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
             ) {
                 contentItems.forEachIndexed { index, item ->
-                    val isLast = index == contentItems.lastIndex
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(
-                            topStart = itemRadius,
-                            topEnd = itemRadius,
-                            bottomStart = if (isLast) containerRadius else itemRadius,
-                            bottomEnd = if (isLast) containerRadius else itemRadius
-                        ),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.listCardBackground
-                        )
-                    ) {
-                        SettingsCard(
-                            title = item.title,
-                            description = item.description,
-                            icon = item.icon,
-                            onClick = item.onClick,
-                            isDestructive = item.isDestructive,
-                            trailingContent = item.trailingContent,
-                            isHeader = false
-                        )
-                    }
+                    SettingsSegmentedItem(item, index + 1, totalCount)
                 }
             }
         }
@@ -313,13 +307,14 @@ fun ExpandableSettingsGroup(
 }
 
 /**
- * Same container / header / accordion visuals as [ExpandableSettingsGroup] for list of [SettingsItem],
+ * Same header / accordion visuals as [ExpandableSettingsGroup] for list of [SettingsItem],
  * but content is an arbitrary composable. Expanded content is not wrapped in an extra card: use
- * [cc.sovellus.vrcaa.ui.components.layout.FavoriteVerticalSegmentRowItem] (or similar) with 2dp gaps for stacked segments.
+ * [cc.sovellus.vrcaa.ui.components.layout.FavoriteVerticalSegmentRowItem] (or similar) with
+ * [ListItemDefaults.SegmentedGap] for stacked segments.
  *
  * @param stateKey When non-null, expansion state is remembered under this key (e.g. tab + group id).
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ExpandableSettingsGroup(
     headerTitle: String,
@@ -330,156 +325,32 @@ fun ExpandableSettingsGroup(
     content: @Composable () -> Unit,
 ) {
     var expanded by remember(stateKey) { mutableStateOf(initiallyExpanded) }
-    val containerRadius = 16.dp
-    val itemRadius = 4.dp
+    val headerCount = if (expanded) 2 else 1
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(
-                topStart = containerRadius,
-                topEnd = containerRadius,
-                bottomStart = if (!expanded) containerRadius else itemRadius,
-                bottomEnd = if (!expanded) containerRadius else itemRadius
-            ),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.listCardBackground
-            )
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .clickable { expanded = !expanded }
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = headerTitle,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
-                headerTrailing?.invoke()
-                Box(
-                    modifier = Modifier
-                        .size(width = 32.dp, height = 40.dp)
-                        .background(
-                            MaterialTheme.colorScheme.listCardBackground,
-                            RoundedCornerShape(20.dp)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
+        ExpandableSettingsHeader(
+            headerTitle = headerTitle,
+            expanded = expanded,
+            onToggle = { expanded = !expanded },
+            index = 0,
+            count = headerCount,
+            headerTrailing = headerTrailing,
+        )
 
         AnimatedVisibility(
             visible = expanded,
             enter = expandVertically(),
-            exit = shrinkVertically()
+            exit = shrinkVertically(),
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
             ) {
                 content()
             }
         }
     }
 }
-
-/**
- * M3 List Item color roles:
- * - Container: Surface
- * - Label text: On surface
- * - Supporting text / Overline: On surface variant
- * - Leading icon: On surface variant
- * - Trailing text/icon: On surface variant
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SettingsCard(
-    title: String,
-    description: String? = null,
-    icon: ImageVector? = null,
-    onClick: () -> Unit,
-    isDestructive: Boolean = false,
-    trailingContent: @Composable (() -> Unit)? = null,
-    isHeader: Boolean = false
-) {
-    val contentColor = when {
-        isDestructive -> MaterialTheme.colorScheme.error
-        isHeader -> MaterialTheme.colorScheme.onSurfaceVariant
-        else -> MaterialTheme.colorScheme.onSurface
-    }
-    val secondaryColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val iconTint = if (isDestructive) MaterialTheme.colorScheme.error else secondaryColor
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = if (description == null) 52.dp else 64.dp)
-            .clickable(onClick = onClick)
-            .padding(vertical = 10.dp, horizontal = 16.dp),
-        horizontalArrangement = if (isHeader) Arrangement.Center else Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (!isHeader) {
-            icon?.let {
-                Icon(
-                    imageVector = it,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = iconTint
-                )
-            }
-        }
-        if (description == null) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = if (isHeader) FontWeight.Medium else FontWeight.Normal,
-                color = contentColor,
-                modifier = if (isHeader) Modifier else Modifier.weight(1f),
-                maxLines = Int.MAX_VALUE
-            )
-        } else {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = if (isHeader) FontWeight.Medium else FontWeight.Normal,
-                    color = contentColor
-                )
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = secondaryColor,
-                    maxLines = 2
-                )
-            }
-        }
-        if (!isHeader) {
-            CompositionLocalProvider(LocalContentColor provides secondaryColor) {
-                trailingContent?.invoke()
-            }
-        }
-    }
-}
-

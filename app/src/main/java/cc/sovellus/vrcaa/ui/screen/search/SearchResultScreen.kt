@@ -20,12 +20,16 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -83,6 +87,7 @@ import cc.sovellus.vrcaa.extension.columnCountOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
 import cc.sovellus.vrcaa.extension.worldsAmount
 import cc.sovellus.vrcaa.ui.components.layout.GridItem
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import cc.sovellus.vrcaa.ui.components.controls.SelectionChipsRow
 import cc.sovellus.vrcaa.ui.components.misc.LimitedChipSelect
 import cc.sovellus.vrcaa.ui.components.misc.SearchFilterSection
@@ -135,6 +140,9 @@ class SearchResultScreen(
 
         Scaffold(
             containerColor = MaterialTheme.colorScheme.appBackground,
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+            ),
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -173,7 +181,7 @@ class SearchResultScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(
-                        top = it.calculateTopPadding(), bottom = it.calculateBottomPadding()
+                        top = it.calculateTopPadding(), bottom = NavigationBarBottomInset
                     ),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -428,7 +436,7 @@ class SearchResultScreen(
                     0 -> GridCells.Adaptive(166.dp)
                     else -> GridCells.Fixed(model.preferences.fixedColumnSize)
                 },contentPadding = PaddingValues(
-                    start = 12.dp, top = 16.dp, end = 16.dp, bottom = 16.dp
+                    start = 12.dp, top = 16.dp, end = 16.dp
                 ), content = {
                     items(state.value) { world ->
                         GridItem(
@@ -475,7 +483,7 @@ class SearchResultScreen(
                     0 -> GridCells.Adaptive(166.dp)
                     else -> GridCells.Fixed(model.preferences.fixedColumnSize)
                 },contentPadding = PaddingValues(
-                    start = 12.dp, top = 16.dp, end = 16.dp, bottom = 16.dp
+                    start = 12.dp, top = 16.dp, end = 16.dp
                 ), content = {
                     items(state.value) { user ->
                         GridItem(
@@ -526,7 +534,7 @@ class SearchResultScreen(
                     0 -> GridCells.Adaptive(166.dp)
                     else -> GridCells.Fixed(model.preferences.fixedColumnSize)
                 }, contentPadding = PaddingValues(
-                    start = 12.dp, top = 16.dp, end = 16.dp, bottom = 16.dp
+                    start = 12.dp, top = 16.dp, end = 16.dp
                 ), content = {
                     items(state.value) { avatar ->
                         GridItem(
@@ -583,7 +591,7 @@ class SearchResultScreen(
                     0 -> GridCells.Adaptive(166.dp)
                     else -> GridCells.Fixed(model.preferences.fixedColumnSize)
                 },contentPadding = PaddingValues(
-                    start = 12.dp, top = 16.dp, end = 16.dp, bottom = 16.dp
+                    start = 12.dp, top = 16.dp, end = 16.dp
                 ), content = {
                     items(state.value) { group ->
                         GridItem(

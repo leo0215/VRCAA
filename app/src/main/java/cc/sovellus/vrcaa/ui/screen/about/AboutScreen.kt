@@ -19,10 +19,15 @@ package cc.sovellus.vrcaa.ui.screen.about
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -47,6 +52,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.BuildConfig
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.ui.components.misc.Logo
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
@@ -64,6 +70,9 @@ class AboutScreen : Screen {
 
         Scaffold(
             containerColor = MaterialTheme.colorScheme.appBackground,
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+            ),
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -82,11 +91,9 @@ class AboutScreen : Screen {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(
-                            bottom = it.calculateBottomPadding(),
-                            top = it.calculateTopPadding()
-                        )
+                        .padding(top = it.calculateTopPadding())
                         .padding(horizontal = 16.dp, vertical = 8.dp),
+                    contentPadding = PaddingValues(bottom = NavigationBarBottomInset),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     item {

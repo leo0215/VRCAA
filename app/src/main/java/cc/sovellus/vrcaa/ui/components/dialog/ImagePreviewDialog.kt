@@ -54,6 +54,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import cc.sovellus.vrcaa.ui.components.misc.ZoomableImage
 import com.bumptech.glide.Glide
 import kotlinx.coroutines.CoroutineScope
@@ -182,6 +183,7 @@ fun ImagePreviewDialog(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = innerPadding.calculateTopPadding())
+                        .padding(bottom = NavigationBarBottomInset)
                 ) {
                     ZoomableImage(
                         imageUrl = url,

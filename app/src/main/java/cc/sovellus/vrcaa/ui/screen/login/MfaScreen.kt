@@ -21,9 +21,13 @@ import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -45,6 +49,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IAuth
 import cc.sovellus.vrcaa.ui.components.input.CodeInput
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import cc.sovellus.vrcaa.ui.screen.navigation.NavigationScreen
 
 class MfaScreen(
@@ -63,7 +68,11 @@ class MfaScreen(
         val screenModel =
             navigator.rememberNavigatorScreenModel { MfaScreenModel(authType) }
 
-        Scaffold { padding ->
+        Scaffold(
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+            )
+        ) { padding ->
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -137,7 +146,7 @@ class MfaScreen(
                         .padding(
                             start = 16.dp,
                             end = 16.dp,
-                            bottom = padding.calculateBottomPadding()
+                            bottom = NavigationBarBottomInset
                         ),
                     verticalArrangement = Arrangement.Bottom,
                     horizontalAlignment = Alignment.CenterHorizontally

@@ -31,7 +31,11 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -82,6 +86,7 @@ import cc.sovellus.vrcaa.api.vrchat.http.models.Group
 import cc.sovellus.vrcaa.api.vrchat.http.models.GroupInstance
 import cc.sovellus.vrcaa.helper.LocationHelper
 import cc.sovellus.vrcaa.ui.components.card.GroupCard
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import cc.sovellus.vrcaa.ui.components.dialog.GenericDialog
 import cc.sovellus.vrcaa.ui.components.misc.Description
 import cc.sovellus.vrcaa.ui.components.misc.RegionFlag
@@ -142,7 +147,12 @@ class GroupScreen(
                 navigator.pop()
             }
         } else {
-            Scaffold(containerColor = MaterialTheme.colorScheme.appBackground, topBar = {
+            Scaffold(
+                containerColor = MaterialTheme.colorScheme.appBackground,
+                contentWindowInsets = WindowInsets.safeDrawing.only(
+                    WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+                ),
+                topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                     navigationIcon = {
@@ -249,7 +259,7 @@ class GroupScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(
-                            top = it.calculateTopPadding(), bottom = it.calculateBottomPadding()
+                            top = it.calculateTopPadding(), bottom = NavigationBarBottomInset
                         ),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally

@@ -43,6 +43,7 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.models.UserBalance
 import cc.sovellus.vrcaa.api.vrchat.http.models.UserSubscription
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import java.text.SimpleDateFormat
 import java.util.*
 import cc.sovellus.vrcaa.ui.theme.appBackground
@@ -61,6 +62,9 @@ class EconomyScreen : Screen {
 
         Scaffold(
             containerColor = MaterialTheme.colorScheme.appBackground,
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+            ),
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -87,7 +91,7 @@ class EconomyScreen : Screen {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(paddingValues)
+                            .padding(top = paddingValues.calculateTopPadding(), bottom = NavigationBarBottomInset)
                             .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
@@ -114,8 +118,9 @@ class EconomyScreen : Screen {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(paddingValues)
+                            .padding(top = paddingValues.calculateTopPadding())
                             .padding(horizontal = 16.dp),
+                        contentPadding = PaddingValues(bottom = NavigationBarBottomInset),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         item {

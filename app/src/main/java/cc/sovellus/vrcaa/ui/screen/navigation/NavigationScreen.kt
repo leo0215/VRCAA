@@ -75,9 +75,9 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.ShortNavigationBar
+import androidx.compose.material3.ShortNavigationBarItem
+import androidx.compose.material3.ShortNavigationBarItemDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
@@ -141,6 +141,9 @@ import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.ui.components.card.QuickMenuCard
 import cc.sovellus.vrcaa.ui.components.dialog.NoInternetDialog
 import cc.sovellus.vrcaa.ui.components.input.ComboInput
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarContentHeight
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarTotalHeight
 import cc.sovellus.vrcaa.ui.screen.feed.FeedSearchScreen
 import cc.sovellus.vrcaa.ui.screen.notifications.NotificationsScreen
 import cc.sovellus.vrcaa.ui.screen.search.SearchResultScreen
@@ -841,26 +844,34 @@ class NavigationScreen : Screen {
                     },
                     bottomBar = {
                         val colorScheme = MaterialTheme.colorScheme
-                        NavigationBar(
-                            containerColor = colorScheme.navBarBackground
+                        ShortNavigationBar(
+                            modifier = Modifier.height(NavigationBarContentHeight + NavigationBarBottomInset),
+                            containerColor = colorScheme.navBarBackground,
+                            windowInsets = WindowInsets(bottom = NavigationBarBottomInset),
                         ) {
                             tabs.forEach { tab ->
                                 val isSelected = tabNavigator.current.key == tab.key
-                                NavigationBarItem(
-                                    icon = { Icon(painter = tab.options.icon!!, contentDescription = tab.options.title) },
-                                    label = { Text(tab.options.title) },
+                                ShortNavigationBarItem(
+                                    modifier = Modifier.height(NavigationBarContentHeight),
                                     selected = isSelected,
                                     onClick = {
                                         pressBackCounter = 0
                                         tabNavigator.current = tab
                                     },
-                                    colors = NavigationBarItemDefaults.colors(
+                                    icon = {
+                                        Icon(
+                                            painter = tab.options.icon!!,
+                                            contentDescription = tab.options.title,
+                                        )
+                                    },
+                                    label = { Text(tab.options.title) },
+                                    colors = ShortNavigationBarItemDefaults.colors(
                                         selectedIconColor = colorScheme.onSecondaryContainer,
                                         selectedTextColor = colorScheme.secondary,
-                                        indicatorColor = colorScheme.secondaryContainer,
+                                        selectedIndicatorColor = colorScheme.secondaryContainer,
                                         unselectedIconColor = colorScheme.onSurfaceVariant,
-                                        unselectedTextColor = colorScheme.onSurfaceVariant
-                                    )
+                                        unselectedTextColor = colorScheme.onSurfaceVariant,
+                                    ),
                                 )
                             }
                         }

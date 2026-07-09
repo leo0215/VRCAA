@@ -18,10 +18,14 @@ package cc.sovellus.vrcaa.ui.screen.network
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -61,6 +65,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.manager.DebugManager
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import java.util.Locale
 import cc.sovellus.vrcaa.ui.theme.appBackground
 
@@ -79,6 +84,9 @@ class NetworkLogScreen : Screen {
 
         Scaffold(
             containerColor = MaterialTheme.colorScheme.appBackground,
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+            ),
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -98,7 +106,7 @@ class NetworkLogScreen : Screen {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            bottom = it.calculateBottomPadding(),
+                            bottom = NavigationBarBottomInset,
                             top = it.calculateTopPadding()
                         )
                 ) {

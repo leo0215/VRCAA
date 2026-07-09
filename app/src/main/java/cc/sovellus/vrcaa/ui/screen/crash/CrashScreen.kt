@@ -25,7 +25,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
@@ -49,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import cc.sovellus.vrcaa.BuildConfig
 import cc.sovellus.vrcaa.R
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import cc.sovellus.vrcaa.ui.theme.appBackground
 import cc.sovellus.vrcaa.ui.theme.defaultCardBackground
 
@@ -63,6 +68,9 @@ fun CrashScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.appBackground,
+        contentWindowInsets = WindowInsets.safeDrawing.only(
+            WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+        ),
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.crash_title_text)) },
@@ -81,7 +89,7 @@ fun CrashScreen(
                     .fillMaxHeight(0.95f)
                     .padding(
                         top = padding.calculateTopPadding(),
-                        bottom = padding.calculateBottomPadding(),
+                        bottom = NavigationBarBottomInset,
                         start = 8.dp,
                         end = 8.dp
                     ),
@@ -112,7 +120,7 @@ fun CrashScreen(
                     .fillMaxHeight()
                     .padding(
                         top = 16.dp,
-                        bottom = padding.calculateBottomPadding() + 8.dp,
+                        bottom = NavigationBarBottomInset + 8.dp,
                         start = 16.dp,
                         end = 16.dp
                     ),

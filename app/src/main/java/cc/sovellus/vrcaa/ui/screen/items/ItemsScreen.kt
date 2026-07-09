@@ -19,6 +19,8 @@ package cc.sovellus.vrcaa.ui.screen.items
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -27,7 +29,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -75,6 +79,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.models.Inventory
 import cc.sovellus.vrcaa.extension.columnCountOption
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import cc.sovellus.vrcaa.extension.fixedColumnSize
 import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.screen.misc.LoadingIndicatorScreen
@@ -107,6 +112,9 @@ class ItemsScreen : Screen {
 
         Scaffold(
             containerColor = MaterialTheme.colorScheme.appBackground,
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+            ),
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -128,7 +136,7 @@ class ItemsScreen : Screen {
                         .fillMaxSize()
                         .padding(
                             top = padding.calculateTopPadding(),
-                            bottom = padding.calculateBottomPadding()
+                            bottom = NavigationBarBottomInset
                         ),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -150,6 +158,9 @@ class ItemsScreen : Screen {
 
         Scaffold(
             containerColor = MaterialTheme.colorScheme.appBackground,
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+            ),
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -175,7 +186,7 @@ class ItemsScreen : Screen {
                         .fillMaxSize()
                         .padding(
                             top = padding.calculateTopPadding(),
-                            bottom = padding.calculateBottomPadding()
+                            bottom = NavigationBarBottomInset
                         ),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -241,8 +252,7 @@ class ItemsScreen : Screen {
                 contentPadding = PaddingValues(
                     start = 12.dp,
                     top = 16.dp,
-                    end = 16.dp,
-                    bottom = 16.dp
+                    end = 16.dp
                 ),
                 content = {
                     items(items.size) {

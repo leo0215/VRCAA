@@ -19,8 +19,12 @@ package cc.sovellus.vrcaa.ui.screen.avatars
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
@@ -50,6 +54,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.models.Avatar
 import cc.sovellus.vrcaa.extension.columnCountOption
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import cc.sovellus.vrcaa.extension.fixedColumnSize
 import cc.sovellus.vrcaa.ui.components.layout.GridItem
 import cc.sovellus.vrcaa.ui.screen.avatar.AvatarScreen
@@ -82,6 +87,9 @@ class AvatarsScreen : Screen {
 
         Scaffold(
             containerColor = MaterialTheme.colorScheme.appBackground,
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+            ),
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -103,7 +111,7 @@ class AvatarsScreen : Screen {
                         .fillMaxSize()
                         .padding(
                             top = padding.calculateTopPadding(),
-                            bottom = padding.calculateBottomPadding()
+                            bottom = NavigationBarBottomInset
                         ),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -122,6 +130,9 @@ class AvatarsScreen : Screen {
 
         Scaffold(
             containerColor = MaterialTheme.colorScheme.appBackground,
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+            ),
             topBar = {
                 TopAppBar(
                     navigationIcon = {
@@ -143,7 +154,7 @@ class AvatarsScreen : Screen {
                         .fillMaxSize()
                         .padding(
                             top = padding.calculateTopPadding(),
-                            bottom = padding.calculateBottomPadding()
+                            bottom = NavigationBarBottomInset
                         ),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally

@@ -19,9 +19,13 @@ package cc.sovellus.vrcaa.ui.screen.login
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +52,7 @@ import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IAuth
 import cc.sovellus.vrcaa.ui.components.input.PasswordInput
 import cc.sovellus.vrcaa.ui.components.input.TextInput
 import cc.sovellus.vrcaa.ui.components.misc.Logo
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import cc.sovellus.vrcaa.ui.screen.navigation.NavigationScreen
 import cc.sovellus.vrcaa.ui.theme.appBackground
 
@@ -64,7 +69,12 @@ class LoginScreen : Screen {
 
         var passwordVisibility by remember { mutableStateOf(false) }
 
-        Scaffold(containerColor = MaterialTheme.colorScheme.appBackground) { padding ->
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.appBackground,
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+            )
+        ) { padding ->
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -117,7 +127,7 @@ class LoginScreen : Screen {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(
-                            bottom = padding.calculateBottomPadding(),
+                            bottom = NavigationBarBottomInset,
                             start = 16.dp,
                             end = 16.dp
                         ),

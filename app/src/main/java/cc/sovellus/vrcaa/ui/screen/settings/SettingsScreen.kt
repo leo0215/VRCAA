@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -72,6 +73,7 @@ import cc.sovellus.vrcaa.BuildConfig
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.richPresenceWarningAcknowledged
 import cc.sovellus.vrcaa.ui.components.dialog.DisclaimerDialog
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import cc.sovellus.vrcaa.ui.components.dialog.LogoutDialog
 import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
@@ -152,6 +154,7 @@ class SettingsScreen : Screen {
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(bottom = NavigationBarBottomInset),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {

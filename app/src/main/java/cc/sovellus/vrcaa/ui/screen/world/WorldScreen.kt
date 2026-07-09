@@ -29,7 +29,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -93,6 +97,7 @@ import cc.sovellus.vrcaa.helper.TimeHelper
 import cc.sovellus.vrcaa.manager.DatabaseManager
 import cc.sovellus.vrcaa.manager.FavoriteManager
 import cc.sovellus.vrcaa.ui.components.card.WorldCard
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import cc.sovellus.vrcaa.ui.components.dialog.FavoriteDialog
 import cc.sovellus.vrcaa.ui.components.dialog.GenericDialog
 import cc.sovellus.vrcaa.ui.components.layout.InstanceItem
@@ -188,6 +193,9 @@ class WorldScreen(
         } else {
             Scaffold(
                 containerColor = MaterialTheme.colorScheme.appBackground,
+                contentWindowInsets = WindowInsets.safeDrawing.only(
+                    WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+                ),
                 topBar = {
                     TopAppBar(
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -307,7 +315,7 @@ class WorldScreen(
                             .fillMaxHeight()
                             .padding(
                                 top = paddingValues.calculateTopPadding(),
-                                bottom = paddingValues.calculateBottomPadding()
+                                bottom = NavigationBarBottomInset
                             ),
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.Start

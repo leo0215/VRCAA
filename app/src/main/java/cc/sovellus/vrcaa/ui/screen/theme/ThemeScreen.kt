@@ -19,6 +19,11 @@ package cc.sovellus.vrcaa.ui.screen.theme
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,9 +52,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -63,6 +69,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
@@ -86,11 +93,14 @@ import cc.sovellus.vrcaa.extension.minimalistMode
 import cc.sovellus.vrcaa.manager.ThemeManager
 import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
+import cc.sovellus.vrcaa.ui.components.layout.SegmentedListLineLayout
+import cc.sovellus.vrcaa.ui.components.layout.segmentedListItemShapes
+import cc.sovellus.vrcaa.ui.components.layout.segmentedListMinHeight
 import cc.sovellus.vrcaa.ui.components.settings.SettingsGroup
 import cc.sovellus.vrcaa.ui.components.settings.SettingsItem
 import cc.sovellus.vrcaa.ui.components.settings.rememberThumbContent
 import cc.sovellus.vrcaa.ui.components.settings.ColorPickerContent
-import cc.sovellus.vrcaa.ui.components.settings.SettingsCard
 import cc.sovellus.vrcaa.ui.components.dialog.FontSelectionDialog
 import kotlin.math.roundToInt
 import cc.sovellus.vrcaa.ui.theme.listCardBackground
@@ -114,6 +124,9 @@ class ThemeScreen : Screen {
 
         Scaffold(
             containerColor = MaterialTheme.colorScheme.appBackground,
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+            ),
             topBar = {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -133,11 +146,9 @@ class ThemeScreen : Screen {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(
-                            bottom = it.calculateBottomPadding(),
-                            top = it.calculateTopPadding()
-                        )
+                        .padding(top = it.calculateTopPadding())
                         .padding(horizontal = 16.dp, vertical = 8.dp),
+                    contentPadding = PaddingValues(bottom = NavigationBarBottomInset),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     item {
@@ -318,122 +329,154 @@ class ThemeScreen : Screen {
                     }
 
                     item {
-                        Card(
+                        val colorSegmentCount = 4
+                        val segmentedColors = ListItemDefaults.segmentedColors(
+                            containerColor = MaterialTheme.colorScheme.listCardBackground,
+                        )
+
+                        Column(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(24.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.listCardBackground
-                            )
+                            verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
                         ) {
-                            Column {
-                                SettingsCard(
-                                    title = stringResource(R.string.theme_page_follow_system_color_theme),
-                                    description = stringResource(R.string.theme_page_follow_system_color_theme_description),
-                                    icon = Icons.Outlined.Palette,
-                                    onClick = {
-                                        model.setUseSystemColorTheme(!model.useSystemColorTheme.value)
-                                    },
-                                    trailingContent = {
-                                        Switch(
-                                            checked = model.useSystemColorTheme.value,
-                                            onCheckedChange = {
-                                                model.setUseSystemColorTheme(it)
-                                            },
-                                            thumbContent = rememberThumbContent(isChecked = model.useSystemColorTheme.value)
-                                        )
-                                    }
-                                )
-
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    color = MaterialTheme.colorScheme.outlineVariant,
-                                    thickness = 1.dp
-                                )
-
-                                SettingsCard(
-                                    title = stringResource(R.string.theme_page_use_legacy_material_theme),
-                                    icon = Icons.Outlined.Settings,
-                                    onClick = {
-                                        model.setUseLegacyMaterialTheme(!model.useLegacyMaterialTheme.value)
-                                    },
-                                    trailingContent = {
-                                        Switch(
-                                            checked = model.useLegacyMaterialTheme.value,
-                                            onCheckedChange = {
-                                                model.setUseLegacyMaterialTheme(it)
-                                            },
-                                            thumbContent = rememberThumbContent(isChecked = model.useLegacyMaterialTheme.value)
-                                        )
-                                    }
-                                )
-
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    color = MaterialTheme.colorScheme.outlineVariant,
-                                    thickness = 1.dp
-                                )
-
-                                ColorPickerContent(
-                                    selectedColor = if (model.useSystemColorTheme.value) null else model.primaryColor,
-                                    selectedSchemeIndex = model.colorSchemeIndex,
-                                    onColorSelected = { color, schemeIndex ->
-                                        if (model.useSystemColorTheme.value) {
-                                            model.setUseSystemColorTheme(false)
-                                        }
-                                        model.setPrimaryColor(color, schemeIndex)
-                                    }
-                                )
-
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    color = MaterialTheme.colorScheme.outlineVariant,
-                                    thickness = 1.dp
-                                )
-
-                                Column(
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.theme_page_color_accuracy),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Normal,
-                                        color = MaterialTheme.colorScheme.onSurface,
+                            SegmentedListItem(
+                                checked = model.useSystemColorTheme.value,
+                                onCheckedChange = { model.setUseSystemColorTheme(it) },
+                                modifier = Modifier.segmentedListMinHeight(SegmentedListLineLayout.ThreeLine),
+                                shapes = segmentedListItemShapes(index = 0, count = colorSegmentCount),
+                                verticalAlignment = Alignment.CenterVertically,
+                                colors = segmentedColors,
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Palette,
+                                        contentDescription = null,
                                     )
+                                },
+                                supportingContent = {
                                     Text(
-                                        text = stringResource(R.string.theme_page_color_accuracy_description),
-                                        style = MaterialTheme.typography.bodySmall,
+                                        text = stringResource(R.string.theme_page_follow_system_color_theme_description),
+                                        style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
-                                    Slider(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        value = model.contrastLevel.floatValue,
-                                        onValueChange = { model.setContrastLevel(it) },
-                                        valueRange = -1f..1f,
-                                        steps = 19,
+                                },
+                                trailingContent = {
+                                    Switch(
+                                        checked = model.useSystemColorTheme.value,
+                                        onCheckedChange = null,
+                                        thumbContent = rememberThumbContent(
+                                            isChecked = model.useSystemColorTheme.value,
+                                        ),
                                     )
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                },
+                                content = {
+                                    Text(
+                                        text = stringResource(R.string.theme_page_follow_system_color_theme),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                    )
+                                },
+                            )
+
+                            SegmentedListItem(
+                                checked = model.useLegacyMaterialTheme.value,
+                                onCheckedChange = { model.setUseLegacyMaterialTheme(it) },
+                                modifier = Modifier.segmentedListMinHeight(SegmentedListLineLayout.OneLine),
+                                shapes = segmentedListItemShapes(index = 1, count = colorSegmentCount),
+                                verticalAlignment = Alignment.CenterVertically,
+                                colors = segmentedColors,
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Settings,
+                                        contentDescription = null,
+                                    )
+                                },
+                                trailingContent = {
+                                    Switch(
+                                        checked = model.useLegacyMaterialTheme.value,
+                                        onCheckedChange = null,
+                                        thumbContent = rememberThumbContent(
+                                            isChecked = model.useLegacyMaterialTheme.value,
+                                        ),
+                                    )
+                                },
+                                content = {
+                                    Text(
+                                        text = stringResource(R.string.theme_page_use_legacy_material_theme),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                    )
+                                },
+                            )
+
+                            SegmentedListItem(
+                                shapes = segmentedListItemShapes(index = 2, count = colorSegmentCount),
+                                colors = segmentedColors,
+                                contentPadding = PaddingValues(0.dp),
+                                content = {
+                                    ColorPickerContent(
+                                        selectedColor = if (model.useSystemColorTheme.value) {
+                                            null
+                                        } else {
+                                            model.primaryColor
+                                        },
+                                        selectedSchemeIndex = model.colorSchemeIndex,
+                                        onColorSelected = { color, schemeIndex ->
+                                            if (model.useSystemColorTheme.value) {
+                                                model.setUseSystemColorTheme(false)
+                                            }
+                                            model.setPrimaryColor(color, schemeIndex)
+                                        },
+                                    )
+                                },
+                            )
+
+                            SegmentedListItem(
+                                shapes = segmentedListItemShapes(index = 3, count = colorSegmentCount),
+                                colors = segmentedColors,
+                                contentPadding = PaddingValues(0.dp),
+                                content = {
+                                    Column(
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
                                     ) {
                                         Text(
-                                            text = "-1",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            text = stringResource(R.string.theme_page_color_accuracy),
+                                            style = MaterialTheme.typography.labelLarge,
+                                            fontWeight = FontWeight.Normal,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                         )
                                         Text(
-                                            text = "%.1f".format(model.contrastLevel.floatValue),
-                                            style = MaterialTheme.typography.bodyMedium,
+                                            text = stringResource(R.string.theme_page_color_accuracy_description),
+                                            style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         )
-                                        Text(
-                                            text = "1",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        Slider(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            value = model.contrastLevel.floatValue,
+                                            onValueChange = { model.setContrastLevel(it) },
+                                            valueRange = -1f..1f,
+                                            steps = 19,
                                         )
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                        ) {
+                                            Text(
+                                                text = "-1",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                            Text(
+                                                text = "%.1f".format(model.contrastLevel.floatValue),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                            Text(
+                                                text = "1",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                        }
                                     }
-                                }
-                            }
+                                },
+                            )
                         }
                     }
 

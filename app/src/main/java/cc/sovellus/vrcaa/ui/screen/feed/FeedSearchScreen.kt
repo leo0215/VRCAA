@@ -16,8 +16,12 @@
 
 package cc.sovellus.vrcaa.ui.screen.feed
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -44,6 +48,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.manager.FeedManager
+import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import cc.sovellus.vrcaa.ui.theme.appBackground
@@ -61,7 +66,12 @@ class FeedSearchScreen : Screen {
         val filteredFeedStateFlow = remember { MutableStateFlow(listOf<FeedManager.Feed>()) }
         val filteredFeed = filteredFeedStateFlow.asStateFlow()
 
-        Scaffold(containerColor = MaterialTheme.colorScheme.appBackground) { padding ->
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.appBackground,
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+            )
+        ) { padding ->
             SearchBar(
                 inputField = {
                     InputField(
@@ -100,7 +110,7 @@ class FeedSearchScreen : Screen {
                         }
                     )
                 },
-                modifier = Modifier.padding(bottom = padding.calculateBottomPadding()),
+                modifier = Modifier.padding(bottom = NavigationBarBottomInset),
                 expanded = true,
                 onExpandedChange = {},
                 tonalElevation = 8.dp,

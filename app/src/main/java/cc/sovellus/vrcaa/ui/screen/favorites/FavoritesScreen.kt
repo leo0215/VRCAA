@@ -38,6 +38,7 @@ import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
@@ -227,14 +228,15 @@ class FavoritesScreen : Screen {
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
                     ) {
                         val rows = item.value.distinct()
                         rows.forEachIndexed { index, world ->
                             FavoriteVerticalSegmentRowItem(
                                 name = world.name,
                                 url = world.thumbnailUrl,
-                                isLastInGroup = index == rows.lastIndex,
+                                index = index,
+                                count = rows.size,
                                 onClick = {
                                     if (world.name != "???") {
                                         navigator.parent?.parent?.push(WorldScreen(world.id) {
@@ -290,14 +292,15 @@ class FavoritesScreen : Screen {
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
                     ) {
                         val avatars = item.value.distinct()
                         avatars.forEachIndexed { index, avatar ->
                             FavoriteVerticalSegmentRowItem(
                                 name = avatar.name,
                                 url = avatar.thumbnailUrl,
-                                isLastInGroup = index == avatars.lastIndex,
+                                index = index,
+                                count = avatars.size,
                                 onClick = {
                                     if (avatar.name != "???") {
                                         navigator.parent?.parent?.push(AvatarScreen(avatar.id) {
@@ -354,7 +357,7 @@ class FavoritesScreen : Screen {
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
                     ) {
                         val friendRows = item.value.distinct().mapNotNull { fav ->
                             FriendManager.getFriend(fav.id)
@@ -363,7 +366,8 @@ class FavoritesScreen : Screen {
                             FavoriteVerticalSegmentRowItem(
                                 name = u.displayName,
                                 url = u.profilePicOverride.ifEmpty { u.currentAvatarImageUrl },
-                                isLastInGroup = index == friendRows.lastIndex,
+                                index = index,
+                                count = friendRows.size,
                                 onClick = {
                                     navigator.parent?.parent?.push(UserProfileScreen(u.id))
                                 },
