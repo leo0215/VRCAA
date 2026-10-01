@@ -108,6 +108,7 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites
 import cc.sovellus.vrcaa.api.vrchat.http.models.Instance
 import cc.sovellus.vrcaa.api.vrchat.http.models.LimitedUser
+import cc.sovellus.vrcaa.api.vrchat.http.models.Profile
 import cc.sovellus.vrcaa.helper.TrustHelper
 import cc.sovellus.vrcaa.ui.components.layout.NavigationBarBottomInset
 import cc.sovellus.vrcaa.manager.FavoriteManager
@@ -153,7 +154,7 @@ class UserProfileScreen(
             is UserProfileScreenModel.UserProfileState.Loading -> LoadingIndicatorScreen().Content()
             is UserProfileScreenModel.UserProfileState.Failure -> HandleFailure()
             is UserProfileScreenModel.UserProfileState.Result -> Profile(
-                result.profile, result.instance, model
+                result.profile, result.user, result.instance, model
             )
             else -> {}
         }
@@ -182,7 +183,8 @@ class UserProfileScreen(
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalGlideComposeApi::class)
     @Composable
     fun Profile(
-        profile: LimitedUser?,
+        profile: Profile?,
+        user: LimitedUser?,
         instance: Instance?,
         model: UserProfileScreenModel
     ) {
@@ -209,7 +211,7 @@ class UserProfileScreen(
             )
         }
 
-        if (profile == null) {
+        if (profile == null || user == null) {
             Toast.makeText(
                 context, stringResource(R.string.profile_user_not_found_message), Toast.LENGTH_SHORT
             ).show()
@@ -297,8 +299,10 @@ class UserProfileScreen(
                                         .height(240.dp)
                                 ) {
                                     GlideImage(
-                                        model = profile.profilePicOverride.ifEmpty {
-                                            profile.currentAvatarImageUrl
+                                        model = if (profile.bannerType == "color") {
+                                            profile.iconUrl.ifEmpty { profile.bannerCustomUrl.ifEmpty { profile.bannerUrl } }
+                                        } else {
+                                            profile.bannerCustomUrl.ifEmpty { profile.bannerUrl.ifEmpty { profile.iconUrl } }
                                         },
                                         contentDescription = null,
                                         modifier = Modifier.fillMaxSize(),
@@ -318,10 +322,8 @@ class UserProfileScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     GlideImage(
-                                        model = profile.userIcon.ifEmpty {
-                                            profile.profilePicOverride.ifEmpty {
-                                                profile.currentAvatarImageUrl
-                                            }
+                                        model = profile.iconUrl.ifEmpty {
+                                            profile.userIcon.ifEmpty { profile.currentAvatarImageUrl }
                                         },
                                         contentDescription = null,
                                         modifier = Modifier
@@ -350,9 +352,9 @@ class UserProfileScreen(
 
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    val trustRank = TrustHelper.getTrustRankFromTags(profile.tags)
+                                    val trustRank = TrustHelper.getTrustRankFromTags(user.tags)
                                     val trustRankColor = trustRank.toColor()
-                                    val platform = profile.platform.ifEmpty { profile.lastPlatform }
+                                    val platform = user.platform.ifEmpty { user.lastPlatform }
 
                                     Row(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -558,7 +560,7 @@ class UserProfileScreen(
                                             // Instance card
                                             if (instance != null) {
                                                 InstanceCard(
-                                                    profile = profile,
+                                                    profile = user,
                                                     instance = instance,
                                                     disabled = false
                                                 ) {
@@ -569,10 +571,10 @@ class UserProfileScreen(
 
                                             // Account info
                                             val accountItems = buildList {
-                                                if (profile.note.isNotEmpty()) {
+                                                if (user.note.isNotEmpty()) {
                                                     add(
                                                         SettingsItem(
-                                                            title = profile.note,
+                                                            title = user.note,
                                                             description = stringResource(R.string.profile_label_note),
                                                             icon = Icons.AutoMirrored.Filled.Notes,
                                                             onClick = { noteDialogShown = true }
@@ -589,12 +591,12 @@ class UserProfileScreen(
                                                         )
                                                     )
                                                 }
-                                                if (profile.lastActivity.isNotEmpty()) {
+                                                if (user.lastActivity.isNotEmpty()) {
                                                     val userTimeZone = TimeZone.getDefault().toZoneId()
                                                     val formatter = DateTimeFormatter.ofLocalizedDateTime(
                                                         java.time.format.FormatStyle.SHORT
                                                     ).withLocale(Locale.getDefault())
-                                                    val lastActivity = ZonedDateTime.parse(profile.lastActivity)
+                                                    val lastActivity = ZonedDateTime.parse(user.lastActivity)
                                                         .withZoneSameInstant(userTimeZone)
                                                         .format(formatter)
                                                     add(
@@ -608,7 +610,7 @@ class UserProfileScreen(
                                                 }
                                                 add(
                                                     SettingsItem(
-                                                        title = profile.dateJoined,
+                                                        title = user.dateJoined,
                                                         description = stringResource(R.string.profile_label_date_joined),
                                                         icon = Icons.Default.Cake,
                                                         onClick = { }
@@ -658,7 +660,7 @@ class UserProfileScreen(
                                             }
 
                                             // Known languages
-                                            val languageTags = profile.tags.filter { it.contains("language_") }
+                                            val languageTags = user.tags.filter { it.contains("language_") }
                                             if (languageTags.isNotEmpty()) {
                                                 Spacer(modifier = Modifier.height(24.dp))
                                                 val languagesItems = languageTags.map { tag ->
@@ -707,6 +709,7 @@ class UserProfileScreen(
                                     item {
                                         OptionsContent(
                                             profile = profile,
+                                            user = user,
                                             instance = instance,
                                             model = model,
                                             navigator = navigator,
@@ -738,7 +741,8 @@ class UserProfileScreen(
 
     @Composable
     private fun OptionsContent(
-        profile: LimitedUser,
+        profile: Profile,
+        user: LimitedUser,
         instance: Instance?,
         model: UserProfileScreenModel,
         navigator: cafe.adriel.voyager.navigator.Navigator,
@@ -786,7 +790,7 @@ class UserProfileScreen(
             }
         }
 
-        if (profile.isFriend) {
+        if (user.isFriend) {
             options.add(stringResource(R.string.profile_user_dropdown_manage_notifications) to Icons.Default.NotificationsActive)
             actions.add { navigator.push(NotificationScreen(profile.id, profile.displayName)) }
 
@@ -814,7 +818,7 @@ class UserProfileScreen(
         options.add(stringResource(R.string.user_overlay_find_avatar) to Icons.Default.Person)
         actions.add {
             model.findAvatar { avatarId ->
-                if (profile.profilePicOverride.isNotEmpty()) {
+                if (profile.userIcon.isNotEmpty()) {
                     Toast.makeText(context, context.getString(R.string.profile_user_avatar_unreachable), Toast.LENGTH_SHORT).show()
                     return@findAvatar Unit
                 }

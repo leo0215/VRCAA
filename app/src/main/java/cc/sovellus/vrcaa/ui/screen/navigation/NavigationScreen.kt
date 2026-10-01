@@ -294,11 +294,13 @@ class NavigationScreen : Screen {
             val cacheBuilt = model.cacheBuilt.value
             LaunchedEffect(cacheBuilt) {
                 if (cacheBuilt) {
-                    CacheManager.getProfile()?.let { profile ->
-                        val thumbnailUrl = profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl }
-                        val iconUrl = profile.userIcon.ifEmpty { 
-                            profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl } 
+                    CacheManager.profile.value.takeIf { it.id.isNotEmpty() }?.let { profile ->
+                        val thumbnailUrl = if (profile.bannerType == "color") {
+                            profile.iconUrl.ifEmpty { profile.bannerCustomUrl.ifEmpty { profile.bannerUrl } }
+                        } else {
+                            profile.bannerCustomUrl.ifEmpty { profile.bannerUrl.ifEmpty { profile.iconUrl } }
                         }
+                        val iconUrl = profile.iconUrl.ifEmpty { profile.userIcon.ifEmpty { profile.currentAvatarImageUrl } }
                         // 預載入 banner 和 icon 圖片，確保在 drawer 打開前已載入
                         com.bumptech.glide.Glide.with(context)
                             .load(thumbnailUrl)
@@ -312,12 +314,14 @@ class NavigationScreen : Screen {
 
             // 額外檢查：如果 cache 已經建立但之前沒有預載入，立即預載入
             LaunchedEffect(Unit) {
-                val cachedProfile = CacheManager.getProfile()
+                val cachedProfile = CacheManager.profile.value.takeIf { it.id.isNotEmpty() }
                 if (cachedProfile != null && CacheManager.isBuilt()) {
-                    val thumbnailUrl = cachedProfile.profilePicOverride.ifEmpty { cachedProfile.currentAvatarImageUrl }
-                    val iconUrl = cachedProfile.userIcon.ifEmpty { 
-                        cachedProfile.profilePicOverride.ifEmpty { cachedProfile.currentAvatarImageUrl } 
+                    val thumbnailUrl = if (cachedProfile.bannerType == "color") {
+                        cachedProfile.iconUrl.ifEmpty { cachedProfile.bannerCustomUrl.ifEmpty { cachedProfile.bannerUrl } }
+                    } else {
+                        cachedProfile.bannerCustomUrl.ifEmpty { cachedProfile.bannerUrl.ifEmpty { cachedProfile.iconUrl } }
                     }
+                    val iconUrl = cachedProfile.iconUrl.ifEmpty { cachedProfile.userIcon.ifEmpty { cachedProfile.currentAvatarImageUrl } }
                     com.bumptech.glide.Glide.with(context)
                         .load(thumbnailUrl)
                         .preload()
@@ -378,15 +382,13 @@ class NavigationScreen : Screen {
                                 .verticalScroll(scrollState)
                         ) {
                             // 用戶頭像（簡化版）
-                            CacheManager.getProfile()?.let { profile ->
+                            CacheManager.profile.value.takeIf { it.id.isNotEmpty() }?.let { profile ->
                                 Column(
                                     modifier = Modifier.padding(vertical = 16.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     GlideImage(
-                                        model = profile.userIcon.ifEmpty { 
-                                            profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl } 
-                                        },
+                                        model = profile.iconUrl.ifEmpty { profile.userIcon.ifEmpty { profile.currentAvatarImageUrl } },
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(48.dp)
@@ -899,21 +901,26 @@ class NavigationScreen : Screen {
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             // 用戶資料卡片
-                            CacheManager.getProfile()?.let {
+                            CacheManager.profile.value.takeIf { it.id.isNotEmpty() }?.let { card ->
+                                val account = CacheManager.user.value
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(topEnd = 16.dp))
                                 ) {
                                     QuickMenuCard(
-                                        thumbnailUrl = it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl },
-                                        iconUrl = it.userIcon.ifEmpty { it.profilePicOverride.ifEmpty { it.currentAvatarImageUrl } },
-                                        displayName = it.displayName,
-                                        statusDescription = it.statusDescription.ifEmpty { StatusHelper.getStatusFromString(it.status).toString() },
-                                        trustRankColor = TrustHelper.getTrustRankFromTags(it.tags).toColor(),
-                                        statusColor = StatusHelper.getStatusFromString(it.status).toColor(),
-                                        tags = it.tags,
-                                        badges = it.badges
+                                        thumbnailUrl = if (card.bannerType == "color") {
+                                            card.iconUrl.ifEmpty { card.bannerCustomUrl.ifEmpty { card.bannerUrl } }
+                                        } else {
+                                            card.bannerCustomUrl.ifEmpty { card.bannerUrl.ifEmpty { card.iconUrl } }
+                                        },
+                                        iconUrl = card.iconUrl.ifEmpty { card.userIcon.ifEmpty { card.currentAvatarImageUrl } },
+                                        displayName = card.displayName,
+                                        statusDescription = card.statusDescription.ifEmpty { StatusHelper.getStatusFromString(card.status).toString() },
+                                        trustRankColor = TrustHelper.getTrustRankFromTags(account.tags).toColor(),
+                                        statusColor = StatusHelper.getStatusFromString(card.status).toColor(),
+                                        tags = account.tags,
+                                        badges = card.badges
                                     )
 
                                     Box(
@@ -1301,21 +1308,27 @@ class NavigationScreen : Screen {
                                         Toast.LENGTH_LONG
                                     ).show()
                                     scope.launch {
-                                        CacheManager.getProfile()?.let {
-                                            api.user.updateProfileByUserId(
-                                                it.id,
+                                        CacheManager.user.value.takeIf { it.id.isNotEmpty() }?.let { account ->
+                                            api.user.updateUser(
+                                                account.id,
                                                 model.status.value,
                                                 model.description.value,
-                                                model.bio.value,
-                                                model.bioLinks,
                                                 model.pronouns.value,
                                                 if (model.ageVerified.value) {
                                                     model.verifiedStatus.value
                                                 } else {
                                                     null
                                                 }
-                                            )?.let { user ->
-                                                CacheManager.updateProfile(user)
+                                            )?.let { updated ->
+                                                CacheManager.updateUser(updated)
+                                            }
+
+                                            api.profile.updateProfile(
+                                                account.id,
+                                                model.bio.value,
+                                                model.bioLinks
+                                            )?.let { updated ->
+                                                CacheManager.updateProfile(updated)
                                             }
                                         }
                                         profileSheetState.hide()

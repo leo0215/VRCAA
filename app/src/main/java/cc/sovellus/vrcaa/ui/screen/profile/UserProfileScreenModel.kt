@@ -31,6 +31,7 @@ import cc.sovellus.vrcaa.api.vrchat.http.interfaces.IFavorites.FavoriteType
 import cc.sovellus.vrcaa.api.vrchat.http.models.FriendStatus
 import cc.sovellus.vrcaa.api.vrchat.http.models.Instance
 import cc.sovellus.vrcaa.api.vrchat.http.models.LimitedUser
+import cc.sovellus.vrcaa.api.vrchat.http.models.Profile
 import cc.sovellus.vrcaa.api.vrchat.http.models.UserGroup
 import cc.sovellus.vrcaa.helper.ApiHelper
 import cc.sovellus.vrcaa.helper.JsonHelper
@@ -54,18 +55,22 @@ class UserProfileScreenModel(
         data object Loading : UserProfileState()
         data object Failure : UserProfileState()
         data class Result(
-            val profile: LimitedUser?,
+            val profile: Profile?,
+            val user: LimitedUser?,
             val instance: Instance?
         ) : UserProfileState()
     }
 
     private val avatarProvider = AvtrDbProvider()
 
-    private var profile: LimitedUser? = null
+    private var profile: Profile? = null
+    private var user: LimitedUser? = null
     private var instance: Instance? = null
+
     var status: FriendStatus? = null
     val note = mutableStateOf("")
-    val groupMetadata: StateFlow<Map<String, FavoriteManager.FavoriteGroupMetadata>> = FavoriteManager.groupMetadataState
+    val groupMetadata: StateFlow<Map<String, FavoriteManager.FavoriteGroupMetadata>> =
+        FavoriteManager.groupMetadataState
 
     val userGroups = kotlinx.coroutines.flow.MutableStateFlow<List<UserGroup>>(emptyList())
     val mutualGroups = kotlinx.coroutines.flow.MutableStateFlow<List<UserGroup>>(emptyList())
@@ -78,27 +83,32 @@ class UserProfileScreenModel(
         mutableState.value = UserProfileState.Loading
         App.setLoadingText(R.string.loading_text_user)
         screenModelScope.launch {
-            api.users.fetchUserByUserId(userId)?.let {
-                it.location.let { location ->
-                    if (it.isFriend &&
-                        location.isNotEmpty() &&
-                        location != "private" &&
-                        location != "traveling" &&
-                        location != "offline") {
-                        instance = api.instances.fetchInstance(location)
+            api.profile.fetchProfile(userId, asSelf = false, withGroupsAndWorlds = false)?.let {
+                api.users.fetchUserByUserId(userId)?.let { it2 ->
+                    it2.location.let { location ->
+                        if (it2.isFriend &&
+                            location.isNotEmpty() &&
+                            location != "private" &&
+                            location != "traveling" &&
+                            location != "offline"
+                        ) {
+                            instance = api.instances.fetchInstance(location)
+                        }
                     }
-                }
-                profile = it
 
-                status = api.friends.fetchFriendStatus(it.id)
-                note.value = profile?.note ?: ""
-                mutableState.value = UserProfileState.Result(profile, instance)
+                    profile = it
+                    user = it2
+                    status = api.friends.fetchFriendStatus(it.id)
+                    note.value = user?.note ?: ""
+                    mutableState.value = UserProfileState.Result(it, it2, instance)
 
-                // Fetch groups: full list + extract mutual
-                launch {
-                    val groups = api.users.fetchGroupsByUserId(userId)
-                    userGroups.value = groups
-                    mutualGroups.value = groups.filter { g -> g.mutualGroup }
+                    launch {
+                        val groups = api.users.fetchGroupsByUserId(userId)
+                        userGroups.value = groups
+                        mutualGroups.value = groups.filter { g -> g.mutualGroup }
+                    }
+                } ?: run {
+                    mutableState.value = UserProfileState.Failure
                 }
             } ?: run {
                 mutableState.value = UserProfileState.Failure
@@ -151,7 +161,10 @@ class UserProfileScreenModel(
                         if (it.isFriend) {
                             val result = api.friends.removeFriend(userId)
                             if (result) {
-                                FavoriteManager.removeFavorite(FavoriteType.FAVORITE_FRIEND, userId)
+                                FavoriteManager.removeFavorite(
+                                    FavoriteType.FAVORITE_FRIEND,
+                                    userId
+                                )
                                 FriendManager.removeFriend(userId)
                             }
                             callback("remove", result)
@@ -167,7 +180,7 @@ class UserProfileScreenModel(
 
     fun removeFavorite(callback: (result: Boolean) -> Unit) {
         screenModelScope.launch {
-            profile?.let {
+            user?.let {
                 val result = FavoriteManager.removeFavorite(FavoriteType.FAVORITE_FRIEND, it.id)
                 callback(result)
             }

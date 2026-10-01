@@ -365,7 +365,7 @@ class FavoritesScreen : Screen {
                         friendRows.forEachIndexed { index, u ->
                             FavoriteVerticalSegmentRowItem(
                                 name = u.displayName,
-                                url = u.profilePicOverride.ifEmpty { u.currentAvatarImageUrl },
+                                url = u.iconUrl,
                                 index = index,
                                 count = friendRows.size,
                                 onClick = {

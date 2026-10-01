@@ -185,9 +185,7 @@ fun InstanceItem(instance: Instance, creator: String?, friends: List<Friend>, on
                                 modifier = Modifier.size(36.dp)
                             ) {
                                 GlideImage(
-                                    model = friend.userIcon.ifEmpty {
-                                        friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl }
-                                    },
+                                    model = friend.iconUrl,
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(28.dp)

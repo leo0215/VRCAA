@@ -263,7 +263,7 @@ class NotificationsScreen : Screen {
                                         NotificationItem(
                                             stringResource(R.string.notifications_type_friend_request),
                                             text,
-                                            user.userIcon.ifEmpty { user.profilePicOverride.ifEmpty { user.currentAvatarImageUrl } },
+                                            user.iconUrl,
                                             notification.createdAt,
                                             urlHandler = { resolvedUrl ->
                                                 peekUrl = resolvedUrl
@@ -283,7 +283,7 @@ class NotificationsScreen : Screen {
                                         NotificationItem(
                                             user.displayName,
                                             text,
-                                            user.userIcon.ifEmpty { user.profilePicOverride.ifEmpty { user.currentAvatarImageUrl } },
+                                            user.iconUrl,
                                             notification.createdAt,
                                             urlHandler = { resolvedUrl ->
                                                 peekUrl = resolvedUrl
@@ -324,7 +324,7 @@ class NotificationsScreen : Screen {
                                         NotificationItem(
                                             stringResource(R.string.notifications_type_invite),
                                             text,
-                                            user.userIcon.ifEmpty { user.profilePicOverride.ifEmpty { user.currentAvatarImageUrl } },
+                                            user.iconUrl,
                                             notification.createdAt,
                                             urlHandler = { resolvedUrl ->
                                                 peekUrl = resolvedUrl
@@ -362,7 +362,7 @@ class NotificationsScreen : Screen {
                                         NotificationItem(
                                             stringResource(R.string.notifications_type_invite_response),
                                             text,
-                                            user.userIcon.ifEmpty { user.profilePicOverride.ifEmpty { user.currentAvatarImageUrl } },
+                                            user.iconUrl,
                                             notification.createdAt,
                                             urlHandler = { resolvedUrl ->
                                                 peekUrl = resolvedUrl
@@ -401,7 +401,7 @@ class NotificationsScreen : Screen {
                                         NotificationItem(
                                             stringResource(R.string.notifications_type_invite_request),
                                             text,
-                                            user.userIcon.ifEmpty { user.profilePicOverride.ifEmpty { user.currentAvatarImageUrl } },
+                                            user.iconUrl,
                                             notification.createdAt,
                                             urlHandler = { resolvedUrl ->
                                                 peekUrl = resolvedUrl
@@ -439,7 +439,7 @@ class NotificationsScreen : Screen {
                                         NotificationItem(
                                             stringResource(R.string.notifications_type_invite_request_response),
                                             text,
-                                            user.userIcon.ifEmpty { user.profilePicOverride.ifEmpty { user.currentAvatarImageUrl } },
+                                            user.iconUrl,
                                             notification.createdAt,
                                             urlHandler = { resolvedUrl ->
                                                 peekUrl = resolvedUrl
@@ -459,7 +459,7 @@ class NotificationsScreen : Screen {
                                         NotificationItem(
                                             notification.type,
                                             text,
-                                            user.userIcon.ifEmpty { user.profilePicOverride.ifEmpty { user.currentAvatarImageUrl } },
+                                            user.iconUrl,
                                             notification.createdAt,
                                             urlHandler = { resolvedUrl ->
                                                 peekUrl = resolvedUrl

@@ -56,9 +56,7 @@ private fun ContactAvatar(friend: Friend) {
     val avatarText = firstChar.uppercaseChar().toString()
 
     Box(modifier = Modifier.size(40.dp)) {
-        val imageUrl = friend.userIcon.ifEmpty {
-            friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl }
-        }
+        val imageUrl = friend.iconUrl
 
         if (imageUrl.isNotEmpty()) {
             GlideImage(

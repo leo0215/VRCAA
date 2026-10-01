@@ -97,7 +97,7 @@ fun FriendItem(
                         .align(Alignment.CenterHorizontally)
                 ) {
                     GlideImage(
-                        model = friend.userIcon.ifEmpty { friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl } },
+                        model = friend.iconUrl,
                         contentDescription = null,
                         modifier = Modifier
                             .size(56.dp)
@@ -196,7 +196,7 @@ fun FriendItemMaterial3(
         // Avatar with status indicator
         Box {
             GlideImage(
-                model = friend.userIcon.ifEmpty { friend.profilePicOverride.ifEmpty { friend.currentAvatarImageUrl } },
+                model = friend.iconUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .size(56.dp)

@@ -148,6 +148,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.App
 
+import cc.sovellus.vrcaa.api.vrchat.http.models.Profile
 import cc.sovellus.vrcaa.api.vrchat.http.models.User
 import cc.sovellus.vrcaa.helper.TrustHelper
 import cc.sovellus.vrcaa.extension.clickableIf
@@ -176,20 +177,24 @@ class ProfileScreen : Screen {
 
         when (val result = state) {
             is ProfileScreenModel.ProfileState.Loading -> LoadingIndicatorScreen().Content()
-            is ProfileScreenModel.ProfileState.Result -> RenderProfile(model, result.profile)
+            is ProfileScreenModel.ProfileState.Result -> RenderProfile(model, result.profile, result.user)
             else -> {}
         }
     }
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalGlideComposeApi::class)
     @Composable
-    private fun RenderProfile(model: ProfileScreenModel, profile: User) {
+    private fun RenderProfile(model: ProfileScreenModel, profile: Profile, user: User) {
         val navigator = LocalNavigator.currentOrThrow
         var badgeDialogTitle by remember { mutableStateOf<String?>(null) }
         var badgeDialogText by remember { mutableStateOf<String?>(null) }
-        
-        val thumbnailUrl = profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl }
-        val iconUrl = profile.userIcon.ifEmpty { profile.profilePicOverride.ifEmpty { profile.currentAvatarImageUrl } }
+
+        val thumbnailUrl = if (profile.bannerType == "color") {
+            profile.iconUrl.ifEmpty { profile.bannerCustomUrl.ifEmpty { profile.bannerUrl } }
+        } else {
+            profile.bannerCustomUrl.ifEmpty { profile.bannerUrl.ifEmpty { profile.iconUrl } }
+        }
+        val iconUrl = profile.iconUrl.ifEmpty { profile.userIcon.ifEmpty { profile.currentAvatarImageUrl } }
         
         Box(modifier = Modifier.fillMaxSize()) {
             if (badgeDialogText != null) {
@@ -259,9 +264,9 @@ class ProfileScreen : Screen {
                             Spacer(modifier = Modifier.height(8.dp))
                             
                             // Trust Rank Chip and Platform Icon
-                            val trustRank = TrustHelper.getTrustRankFromTags(profile.tags)
+                            val trustRank = TrustHelper.getTrustRankFromTags(user.tags)
                             val trustRankColor = trustRank.toColor()
-                            val platform = profile.presence.platform.ifEmpty { profile.lastPlatform }
+                            val platform = user.presence.platform.ifEmpty { user.lastPlatform }
                             
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -543,11 +548,11 @@ class ProfileScreen : Screen {
                                     .padding(horizontal = 16.dp)
                             ) {
                                 val accountItems = buildList {
-                                    if (profile.hasBirthday) {
+                                    if (user.hasBirthday) {
                                         val notAvailableText = stringResource(R.string.profile_not_available)
                                         val birthdayText = try {
-                                            if (profile.dateJoined.isNotEmpty() && profile.dateJoined.length >= 10) {
-                                                val date = profile.dateJoined.substring(0, 10)
+                                            if (user.dateJoined.isNotEmpty() && user.dateJoined.length >= 10) {
+                                                val date = user.dateJoined.substring(0, 10)
                                                 val parts = date.split("-")
                                                 if (parts.size == 3) {
                                                     "${parts[0]}/${parts[1].toInt()}/${parts[2].toInt()}"
@@ -626,7 +631,7 @@ class ProfileScreen : Screen {
                             }
 
                             // Known Languages section
-                            val languageTags = profile.tags.filter { it.contains("language_") }
+                            val languageTags = user.tags.filter { it.contains("language_") }
                             if (languageTags.isNotEmpty()) {
                                 Column(
                                     modifier = Modifier
