@@ -57,9 +57,11 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
     private var worldListStateFlow = MutableStateFlow(emptyList<WorldCache>())
     private val recentWorldsStateFlow = MutableStateFlow<List<WorldCache>>(emptyList())
     private val recommendedWorldsStateFlow = MutableStateFlow<List<World>>(emptyList())
+    private val newReleasesStateFlow = MutableStateFlow<List<World>>(emptyList())
 
     val recentWorldsState: StateFlow<List<WorldCache>> = recentWorldsStateFlow.asStateFlow()
     val recommendedWorldsState: StateFlow<List<World>> = recommendedWorldsStateFlow.asStateFlow()
+    val newReleasesState: StateFlow<List<World>> = newReleasesStateFlow.asStateFlow()
     val worldList: StateFlow<List<WorldCache>> = worldListStateFlow.asStateFlow()
     val profile: StateFlow<Profile> = profileStateFlow.asStateFlow()
     val user: StateFlow<User> = userStateFlow.asStateFlow()
@@ -70,6 +72,7 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
 
         recentWorldsStateFlow.value = emptyList()
         recommendedWorldsStateFlow.value = emptyList()
+        newReleasesStateFlow.value = emptyList()
 
         App.setLoadingText(R.string.global_app_default_loading_text)
 
@@ -88,6 +91,7 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
 
         val recentWorlds = async { api.worlds.fetchRecent() }
         val recommendedWorlds = async { RecommendationManager.recommendWorlds() }
+        val newReleases = async { api.worlds.fetchNewReleases(20) }
 
         val notifications = async { api.user.fetchNotifications() }
         val notificationsV2 = async { api.notifications.fetchNotifications() }
@@ -136,6 +140,10 @@ object CacheManager : BaseManager<CacheManager.CacheListener>() {
 
             launch {
                 recommendedWorldsStateFlow.value = recommendedWorlds.await()
+            },
+
+            launch {
+                newReleasesStateFlow.value = newReleases.await()
             },
         )
 

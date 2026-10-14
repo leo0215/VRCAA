@@ -727,6 +727,26 @@ class HttpClient : BaseClient(), CoroutineScope {
 
     val worlds = object : IWorlds {
 
+        override suspend fun fetchNewReleases(n: Int): ArrayList<World> {
+            val result = doRequest(
+                method = "GET",
+                url = newReleasesWorldsUrl(Config.API_BASE_URL, n),
+                headers = GENERIC_HEADER,
+                body = null
+            )
+
+            return when (result) {
+                is Result.Succeeded -> {
+                    if (result.body == "[]") return arrayListOf()
+                    gson.fromJson(result.body, Worlds::class.java)
+                }
+                else -> {
+                    handleExceptions(result)
+                    arrayListOf()
+                }
+            }
+        }
+
         override suspend fun fetchRecent(): ArrayList<World> {
 
             val result = doRequest(

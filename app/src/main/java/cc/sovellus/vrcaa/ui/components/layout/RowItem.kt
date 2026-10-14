@@ -62,18 +62,19 @@ fun RowItem(
     val maxItemWidth = (configuration.screenWidthDp.dp * 0.5f).coerceIn(133.dp, 233.dp)
 
     Card(
+        onClick = onClick,
         modifier = Modifier
             .heightIn(100.dp, maxItemHeight)
             .widthIn(133.dp, maxItemWidth)
-            .aspectRatio(4f / 3f)
-            .clickable(onClick = { onClick() }),
+            .aspectRatio(4f / 3f),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.listCardBackground
         )
     ) {
         GlideImage(
             model = url,
-            contentDescription = null,
+            contentDescription = name,
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.80f),
@@ -85,11 +86,13 @@ fun RowItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(4.dp),
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = name,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start

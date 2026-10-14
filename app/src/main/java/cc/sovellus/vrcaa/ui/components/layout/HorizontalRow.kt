@@ -21,12 +21,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun HorizontalRow(
@@ -35,15 +34,15 @@ fun HorizontalRow(
 ) {
     Text(
         text = title,
-        fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        modifier = Modifier.padding(bottom = 4.dp)
+        style = MaterialTheme.typography.headlineSmall,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.padding(bottom = 8.dp)
     )
 
     LazyRow(
         modifier = Modifier
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         content = content
     )
 }

@@ -46,9 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.model.rememberNavigatorScreenModel
@@ -126,9 +124,9 @@ class HomeScreen : Screen {
                 if (onlineFriends.isEmpty()) {
                     Text(
                         text = stringResource(R.string.home_active_friends),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 32.sp,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
                     LazyRow(
                         modifier = Modifier
@@ -159,14 +157,14 @@ class HomeScreen : Screen {
                     }
                 }
 
-                    Spacer(modifier = Modifier.padding(4.dp))
+                    Spacer(modifier = Modifier.padding(8.dp))
 
                 if (recent.isEmpty()) {
                     Text(
                         text = stringResource(R.string.home_recently_visited),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 32.sp,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
                     LazyRow(
                         modifier = Modifier
@@ -194,15 +192,15 @@ class HomeScreen : Screen {
                     }
                 }
 
-                Spacer(modifier = Modifier.padding(4.dp))
+                Spacer(modifier = Modifier.padding(8.dp))
 
                 val friendLocations = friends.filter { it.location.contains("wrld_") }
                 if (friendLocations.isEmpty()) {
                     Text(
                         text = stringResource(R.string.home_friend_locations),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 32.sp,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
                     LazyRow(
                         modifier = Modifier
@@ -235,16 +233,15 @@ class HomeScreen : Screen {
                     }
                 }
 
-                    Spacer(modifier = Modifier.padding(4.dp))
+                    Spacer(modifier = Modifier.padding(8.dp))
 
                 val worlds = CacheManager.recommendedWorldsState.collectAsState()
                 if (worlds.value.isEmpty()) {
                     Text(
                         text = stringResource(R.string.home_curated_for_you),
                         style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 32.sp,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
                     LazyRow(
                         modifier = Modifier
@@ -263,6 +260,42 @@ class HomeScreen : Screen {
                         title = stringResource(R.string.home_curated_for_you)
                     ) {
                         items(worlds.value) { world ->
+                            RowItem(
+                                name = world.name,
+                                url = world.imageUrl.ifEmpty { world.thumbnailImageUrl },
+                                onClick = { navigator.parent?.parent?.push(WorldScreen(world.id)) }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.padding(8.dp))
+
+                val newReleases = CacheManager.newReleasesState.collectAsState()
+                if (newReleases.value.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.home_new_releases),
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    LazyRow(
+                        modifier = Modifier
+                            .height(190.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        content = {
+                            item {
+                                Text(text = stringResource(R.string.result_not_found))
+                            }
+                        }
+                    )
+                } else {
+                    HorizontalRow(
+                        title = stringResource(R.string.home_new_releases)
+                    ) {
+                        items(newReleases.value) { world ->
                             RowItem(
                                 name = world.name,
                                 url = world.imageUrl.ifEmpty { world.thumbnailImageUrl },
