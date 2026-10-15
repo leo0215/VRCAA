@@ -104,18 +104,22 @@ android {
         create("standard") {
             isDefault = true
             dimension = "type"
+            buildConfigField("boolean", "CUSTOM_FONT_SUPPORTED", "true")
         }
         create("quest") {
             dimension = "type"
             applicationIdSuffix = ".quest"
+            buildConfigField("boolean", "CUSTOM_FONT_SUPPORTED", "false")
         }
         create("pico") {
             dimension = "type"
             applicationIdSuffix = ".pico"
+            buildConfigField("boolean", "CUSTOM_FONT_SUPPORTED", "false")
         }
         create("nightly") {
             dimension = "type"
             applicationIdSuffix = ".nightly"
+            buildConfigField("boolean", "CUSTOM_FONT_SUPPORTED", "true")
         }
     }
 }

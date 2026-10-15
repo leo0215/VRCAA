@@ -23,10 +23,13 @@ import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.extension.colorContrastLevel
 import cc.sovellus.vrcaa.extension.colorSchemeIndex
 import cc.sovellus.vrcaa.extension.currentThemeOption
+import cc.sovellus.vrcaa.extension.customFontIsVariable
+import cc.sovellus.vrcaa.extension.customFontPath
 import cc.sovellus.vrcaa.extension.fontFamily
 import cc.sovellus.vrcaa.extension.primaryColorOverride
 import cc.sovellus.vrcaa.extension.useLegacyMaterialTheme
 import cc.sovellus.vrcaa.extension.useSystemColorTheme
+import cc.sovellus.vrcaa.helper.FontHelper
 import cc.sovellus.vrcaa.manager.ThemeManager
 import cc.sovellus.vrcaa.ui.theme.LocalTheme
 import cc.sovellus.vrcaa.ui.theme.Theme
@@ -41,6 +44,9 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
+
+        // Forget the custom font if its file is gone or unreadable, before the theme reads it.
+        FontHelper.sanitize(applicationContext, preferences)
 
         currentTheme.intValue = preferences.currentThemeOption
         ThemeManager.addListener(this)
@@ -60,6 +66,12 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                 }
                 var currentFontFamily by remember {
                     mutableIntStateOf(preferences.fontFamily)
+                }
+                var currentCustomFontPath by remember {
+                    mutableStateOf(preferences.customFontPath)
+                }
+                var currentCustomFontIsVariable by remember {
+                    mutableStateOf(preferences.customFontIsVariable)
                 }
                 var useLegacyMaterialTheme by remember {
                     mutableStateOf(preferences.useLegacyMaterialTheme)
@@ -83,6 +95,10 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                             "fontFamily" -> {
                                 currentFontFamily = preferences.fontFamily
                             }
+                            "customFontPath", "customFontIsVariable" -> {
+                                currentCustomFontPath = preferences.customFontPath
+                                currentCustomFontIsVariable = preferences.customFontIsVariable
+                            }
                             "useLegacyMaterialTheme" -> {
                                 useLegacyMaterialTheme = preferences.useLegacyMaterialTheme
                             }
@@ -104,6 +120,8 @@ open class BaseActivity : ComponentActivity(), ThemeManager.ThemeListener {
                     primaryColor = effectivePrimary,
                     schemeIndex = currentSchemeIndex,
                     fontFamilyIndex = currentFontFamily,
+                    customFontPath = currentCustomFontPath,
+                    customFontIsVariable = currentCustomFontIsVariable,
                     useLegacyMaterialTheme = useLegacyMaterialTheme,
                     contrastLevel = currentContrastLevel.toDouble(),
                 ) {

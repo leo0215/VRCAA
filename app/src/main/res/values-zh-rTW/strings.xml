@@ -240,6 +240,15 @@
     <string name="font_option_google_sans">Google Sans</string>
     <string name="font_option_google_sans_flex">Google Sans Flex</string>
     <string name="font_option_google_sans_rounded">Google Sans Rounded</string>
+    <string name="font_option_custom">自訂字型</string>
+    <string name="font_option_custom_description">選擇 TTF 或 OTF 檔案</string>
+    <string name="font_custom_options">自訂字型選項</string>
+    <string name="font_custom_replace">更換字型</string>
+    <string name="font_custom_remove">移除字型</string>
+    <string name="font_custom_invalid_toast">這個檔案不是有效的 TTF 或 OTF 字型</string>
+    <string name="font_custom_too_large_toast">字型檔案太大（上限 %1$d MB）</string>
+    <string name="font_custom_import_failed_toast">無法匯入字型</string>
+    <string name="font_custom_no_picker_toast">此裝置沒有可用的檔案選擇器</string>
     <string name="user_overlay_friend_add">新增好友</string>
     <string name="user_overlay_friend_remove">刪除好友</string>
     <string name="user_overlay_friend_accept">接受請求</string>

@@ -351,6 +351,15 @@
     <string name="font_option_google_sans">Google Sans</string>
     <string name="font_option_google_sans_flex">Google Sans Flex</string>
     <string name="font_option_google_sans_rounded">Google Sans Rounded</string>
+    <string name="font_option_custom">Custom font</string>
+    <string name="font_option_custom_description">Choose a TTF or OTF file</string>
+    <string name="font_custom_options">Custom font options</string>
+    <string name="font_custom_replace">Replace font</string>
+    <string name="font_custom_remove">Remove font</string>
+    <string name="font_custom_invalid_toast">This file isn\'t a valid TTF or OTF font</string>
+    <string name="font_custom_too_large_toast">Font file is too large (max %1$d MB)</string>
+    <string name="font_custom_import_failed_toast">Couldn\'t import the font</string>
+    <string name="font_custom_no_picker_toast">No file picker is available on this device</string>
 
     <!-- User -->
 

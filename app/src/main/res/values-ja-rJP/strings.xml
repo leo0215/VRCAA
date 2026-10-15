@@ -239,6 +239,15 @@
     <string name="font_option_google_sans">Google Sans</string>
     <string name="font_option_google_sans_flex">Google Sans Flex</string>
     <string name="font_option_google_sans_rounded">Google Sans Rounded</string>
+    <string name="font_option_custom">カスタムフォント</string>
+    <string name="font_option_custom_description">TTF または OTF ファイルを選択</string>
+    <string name="font_custom_options">カスタムフォントのオプション</string>
+    <string name="font_custom_replace">フォントを変更</string>
+    <string name="font_custom_remove">フォントを削除</string>
+    <string name="font_custom_invalid_toast">このファイルは有効な TTF / OTF フォントではありません</string>
+    <string name="font_custom_too_large_toast">フォントファイルが大きすぎます（最大 %1$d MB）</string>
+    <string name="font_custom_import_failed_toast">フォントを読み込めませんでした</string>
+    <string name="font_custom_no_picker_toast">このデバイスでは使用できるファイル選択アプリがありません</string>
     <string name="user_overlay_friend_add">フレンドの申請</string>
     <string name="user_overlay_friend_remove">フレンドの解除</string>
     <string name="user_overlay_friend_accept">フレンド申請の承認</string>

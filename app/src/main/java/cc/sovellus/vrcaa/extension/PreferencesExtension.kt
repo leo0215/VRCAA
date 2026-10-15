@@ -150,8 +150,27 @@ internal var SharedPreferences.useLegacyMaterialTheme: Boolean
     set(value) = edit(commit = true) { putBoolean("useLegacyMaterialTheme", value) }
 
 internal var SharedPreferences.fontFamily: Int
-    get() = getInt("fontFamily", 0) // 0 = System Default, 1 = Google Sans, 2 = Google Sans Flex, 3 = Google Sans Rounded
+    get() = getInt("fontFamily", 0) // 0 = System Default, 1 = Google Sans, 2 = Google Sans Flex, 3 = Google Sans Rounded, 4 = Custom
     set(value) = edit { putInt("fontFamily", value) }
+
+// Custom font imported by the user (see FontHelper). The path is empty when no font is imported.
+internal val SharedPreferences.customFontPath: String
+    get() = getString("customFontPath", "")!!
+
+internal val SharedPreferences.customFontName: String
+    get() = getString("customFontName", "")!!
+
+internal val SharedPreferences.customFontIsVariable: Boolean
+    get() = getBoolean("customFontIsVariable", false)
+
+// Writes every custom font field and the selected font in one edit,
+// so preference listeners never observe a half-updated font.
+internal fun SharedPreferences.setCustomFont(path: String, name: String, isVariable: Boolean, selectedFont: Int) = edit {
+    putString("customFontPath", path)
+    putString("customFontName", name)
+    putBoolean("customFontIsVariable", isVariable)
+    putInt("fontFamily", selectedFont)
+}
 
 internal var SharedPreferences.timeInBackground: Long
     get() = getLong("timeInBackground", 0L)

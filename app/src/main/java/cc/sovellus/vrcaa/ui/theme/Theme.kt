@@ -41,10 +41,13 @@ import cc.sovellus.vrcaa.App
 import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.colorContrastLevel
 import cc.sovellus.vrcaa.extension.colorSchemeIndex
+import cc.sovellus.vrcaa.extension.customFontIsVariable
+import cc.sovellus.vrcaa.extension.customFontPath
 import cc.sovellus.vrcaa.extension.fontFamily
 import cc.sovellus.vrcaa.extension.primaryColorOverride
 import cc.sovellus.vrcaa.extension.useLegacyMaterialTheme
 import cc.sovellus.vrcaa.extension.useSystemColorTheme
+import cc.sovellus.vrcaa.helper.FontHelper
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
@@ -65,6 +68,8 @@ fun Theme(theme: Int, content: @Composable () -> Unit) {
         primaryColor = primaryColor,
         schemeIndex = preferences.colorSchemeIndex,
         fontFamilyIndex = preferences.fontFamily,
+        customFontPath = preferences.customFontPath,
+        customFontIsVariable = preferences.customFontIsVariable,
         useLegacyMaterialTheme = preferences.useLegacyMaterialTheme,
         contrastLevel = preferences.colorContrastLevel.toDouble(),
         content = content,
@@ -78,6 +83,8 @@ fun Theme(
     primaryColor: Color? = null,
     schemeIndex: Int = 0,
     fontFamilyIndex: Int = 0,
+    customFontPath: String = "",
+    customFontIsVariable: Boolean = false,
     useLegacyMaterialTheme: Boolean = false,
     contrastLevel: Double = 0.0,
     content: @Composable () -> Unit
@@ -102,13 +109,21 @@ fun Theme(
                     Font(R.font.googlesansflex, FontWeight.Bold)
                 )
             }
-            3 -> {
-                FontFamily(
-                    Font(R.font.google_sans_rounded_regular, FontWeight.Normal),
-                    Font(R.font.google_sans_rounded_regular, FontWeight.Medium),
-                    Font(R.font.google_sans_rounded_regular, FontWeight.SemiBold),
-                    Font(R.font.google_sans_rounded_regular, FontWeight.Bold)
-                )
+//            3 -> {
+//                FontFamily(
+//                    Font(R.font.google_sans_rounded_regular, FontWeight.Normal),
+//                    Font(R.font.google_sans_rounded_regular, FontWeight.Medium),
+//                    Font(R.font.google_sans_rounded_regular, FontWeight.SemiBold),
+//                    Font(R.font.google_sans_rounded_regular, FontWeight.Bold)
+//                )
+//            }
+            FontHelper.FONT_CUSTOM -> {
+                // Falls back to the system font if the imported file is missing or unreadable.
+                if (FontHelper.isSupported()) {
+                    FontHelper.customFontFamily(customFontPath, customFontIsVariable) ?: FontFamily.Default
+                } else {
+                    FontFamily.Default
+                }
             }
             else -> {
                 FontFamily.Default
@@ -119,23 +134,7 @@ fun Theme(
     }
 
     val typography = if (fontFamilyIndex != 0) {
-        Typography().copy(
-            displayLarge = Typography().displayLarge.copy(fontFamily = customFontFamily),
-            displayMedium = Typography().displayMedium.copy(fontFamily = customFontFamily),
-            displaySmall = Typography().displaySmall.copy(fontFamily = customFontFamily),
-            headlineLarge = Typography().headlineLarge.copy(fontFamily = customFontFamily),
-            headlineMedium = Typography().headlineMedium.copy(fontFamily = customFontFamily),
-            headlineSmall = Typography().headlineSmall.copy(fontFamily = customFontFamily),
-            titleLarge = Typography().titleLarge.copy(fontFamily = customFontFamily),
-            titleMedium = Typography().titleMedium.copy(fontFamily = customFontFamily),
-            titleSmall = Typography().titleSmall.copy(fontFamily = customFontFamily),
-            bodyLarge = Typography().bodyLarge.copy(fontFamily = customFontFamily),
-            bodyMedium = Typography().bodyMedium.copy(fontFamily = customFontFamily),
-            bodySmall = Typography().bodySmall.copy(fontFamily = customFontFamily),
-            labelLarge = Typography().labelLarge.copy(fontFamily = customFontFamily),
-            labelMedium = Typography().labelMedium.copy(fontFamily = customFontFamily),
-            labelSmall = Typography().labelSmall.copy(fontFamily = customFontFamily)
-        )
+        Typography().withFontFamily(customFontFamily)
     } else {
         Typography()
     }
@@ -239,6 +238,40 @@ private fun buildColorScheme(
         contrastLevel = contrastLevel,
     )
 }
+
+/** Applies [fontFamily] to every Material 3 text style, including the Expressive emphasized ones. */
+private fun Typography.withFontFamily(fontFamily: FontFamily): Typography = copy(
+    displayLarge = displayLarge.copy(fontFamily = fontFamily),
+    displayMedium = displayMedium.copy(fontFamily = fontFamily),
+    displaySmall = displaySmall.copy(fontFamily = fontFamily),
+    headlineLarge = headlineLarge.copy(fontFamily = fontFamily),
+    headlineMedium = headlineMedium.copy(fontFamily = fontFamily),
+    headlineSmall = headlineSmall.copy(fontFamily = fontFamily),
+    titleLarge = titleLarge.copy(fontFamily = fontFamily),
+    titleMedium = titleMedium.copy(fontFamily = fontFamily),
+    titleSmall = titleSmall.copy(fontFamily = fontFamily),
+    bodyLarge = bodyLarge.copy(fontFamily = fontFamily),
+    bodyMedium = bodyMedium.copy(fontFamily = fontFamily),
+    bodySmall = bodySmall.copy(fontFamily = fontFamily),
+    labelLarge = labelLarge.copy(fontFamily = fontFamily),
+    labelMedium = labelMedium.copy(fontFamily = fontFamily),
+    labelSmall = labelSmall.copy(fontFamily = fontFamily),
+    displayLargeEmphasized = displayLargeEmphasized.copy(fontFamily = fontFamily),
+    displayMediumEmphasized = displayMediumEmphasized.copy(fontFamily = fontFamily),
+    displaySmallEmphasized = displaySmallEmphasized.copy(fontFamily = fontFamily),
+    headlineLargeEmphasized = headlineLargeEmphasized.copy(fontFamily = fontFamily),
+    headlineMediumEmphasized = headlineMediumEmphasized.copy(fontFamily = fontFamily),
+    headlineSmallEmphasized = headlineSmallEmphasized.copy(fontFamily = fontFamily),
+    titleLargeEmphasized = titleLargeEmphasized.copy(fontFamily = fontFamily),
+    titleMediumEmphasized = titleMediumEmphasized.copy(fontFamily = fontFamily),
+    titleSmallEmphasized = titleSmallEmphasized.copy(fontFamily = fontFamily),
+    bodyLargeEmphasized = bodyLargeEmphasized.copy(fontFamily = fontFamily),
+    bodyMediumEmphasized = bodyMediumEmphasized.copy(fontFamily = fontFamily),
+    bodySmallEmphasized = bodySmallEmphasized.copy(fontFamily = fontFamily),
+    labelLargeEmphasized = labelLargeEmphasized.copy(fontFamily = fontFamily),
+    labelMediumEmphasized = labelMediumEmphasized.copy(fontFamily = fontFamily),
+    labelSmallEmphasized = labelSmallEmphasized.copy(fontFamily = fontFamily),
+)
 
 val LocalTheme = compositionLocalOf { 2 }
 

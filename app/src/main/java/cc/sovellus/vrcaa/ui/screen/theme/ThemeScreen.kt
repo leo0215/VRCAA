@@ -16,7 +16,11 @@
 
 package cc.sovellus.vrcaa.ui.screen.theme
 
+import android.content.ActivityNotFoundException
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -88,8 +92,8 @@ import cc.sovellus.vrcaa.R
 import cc.sovellus.vrcaa.extension.columnCountOption
 import cc.sovellus.vrcaa.extension.currentThemeOption
 import cc.sovellus.vrcaa.extension.fixedColumnSize
-import cc.sovellus.vrcaa.extension.fontFamily
 import cc.sovellus.vrcaa.extension.minimalistMode
+import cc.sovellus.vrcaa.helper.FontHelper
 import cc.sovellus.vrcaa.manager.ThemeManager
 import cc.sovellus.vrcaa.ui.components.controls.connectedButtonGroupToggleColors
 import cc.sovellus.vrcaa.ui.components.settings.SectionHeader
@@ -120,6 +124,31 @@ class ThemeScreen : Screen {
         val model = navigator.rememberNavigatorScreenModel { ThemeScreenModel() }
         
         val fontSelectionState = remember { mutableStateOf(false) }
+
+        // Lives on the screen rather than inside the dialog, so the picker result isn't lost
+        // if the dialog leaves composition while the picker is open.
+        val pickFontLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.OpenDocument()
+        ) { uri: Uri? ->
+            if (uri != null) {
+                model.importCustomFont(uri) { result ->
+                    val errorMessage = when (result) {
+                        is FontHelper.ImportResult.Success -> null
+                        FontHelper.ImportResult.TooLarge ->
+                            context.getString(R.string.font_custom_too_large_toast, FontHelper.MAX_FONT_SIZE_MB)
+                        FontHelper.ImportResult.Invalid ->
+                            context.getString(R.string.font_custom_invalid_toast)
+                        FontHelper.ImportResult.Failed ->
+                            context.getString(R.string.font_custom_import_failed_toast)
+                    }
+                    if (errorMessage == null) {
+                        fontSelectionState.value = false
+                    } else {
+                        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
 
 
         Scaffold(
@@ -530,11 +559,21 @@ class ThemeScreen : Screen {
         if (fontSelectionState.value) {
             FontSelectionDialog(
                 onDismiss = { fontSelectionState.value = false },
-                onFontSelected = { fontIndex ->
-                    model.currentFontFamily.intValue = fontIndex
-                    model.preferences.fontFamily = fontIndex
+                onFontSelected = { fontIndex -> model.selectFont(fontIndex) },
+                currentFontIndex = model.currentFontFamily.intValue,
+                customFontName = model.customFontName.value,
+                onPickCustomFont = {
+                    try {
+                        pickFontLauncher.launch(FontHelper.PICKER_MIME_TYPES)
+                    } catch (_: ActivityNotFoundException) {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.font_custom_no_picker_toast),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 },
-                currentFontIndex = model.currentFontFamily.intValue
+                onRemoveCustomFont = { model.removeCustomFont() }
             )
         }
     }
